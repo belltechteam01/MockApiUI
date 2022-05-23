@@ -1,0 +1,32 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WorkflowSettings = void 0;
+const uuid_1 = require("uuid");
+class WorkflowSettings {
+}
+exports.WorkflowSettings = WorkflowSettings;
+WorkflowSettings.WORKFLOW_ID_DEFAULT = "1";
+WorkflowSettings.WORKFLOW_NAME_DEFAULT = "Untitled";
+WorkflowSettings.NODE_ID_DEFAULT = (0, uuid_1.v4)();
+WorkflowSettings.NODE_NAME_DEFAULT = "New API";
+WorkflowSettings.NODE_TYPE_DEFAULT = 0;
+WorkflowSettings.NODE_INPUT_MAX = 2;
+WorkflowSettings.NODE_INPUT_MIN = 0;
+WorkflowSettings.NODE_OUTPUT_MAX = 2;
+WorkflowSettings.NODE_OUTPUT_MIN = 0;
+WorkflowSettings.NODE_COLOR_DEFAULT = 'rgba(1, 1, 1)';
+WorkflowSettings.NODE_BACKGROUND_COLOR_DEFAULT = 'rgba(100, 100, 100)';
+WorkflowSettings.NODE_OUTLINE_COLOR_DEFAULT = 'rgba(50, 50, 50)';
+WorkflowSettings.NODE_WIDTH_DEFAULT = 25;
+WorkflowSettings.NODE_HEIGHT_DEFAULT = 25;
+WorkflowSettings.NODE_POS_X_DEFAULT = 10;
+WorkflowSettings.NODE_POS_Y_DEFAULT = 10;
+WorkflowSettings.NODE_POS_X_MAX = 1000;
+WorkflowSettings.NODE_POS_Y_MAX = 1000;
+WorkflowSettings.NODE_SHAPE_DEFAULT = "round-rect";
+WorkflowSettings.PANEL_COORDINATE = "bottom-left";
+WorkflowSettings.PANEL_ZOOM_DEFAULT = 1.5;
+WorkflowSettings.PANEL_ZOOM_MIN = 0.2;
+WorkflowSettings.PANEL_ZOOM_MAX = 4;
+WorkflowSettings.PANEL_SCALE = 1.0;
+;

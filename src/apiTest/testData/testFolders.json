@@ -1,0 +1,63 @@
+{
+  "folderCount": 4,
+  "folderInfo": [
+    {
+      "lastUpdatedDate": "2022-04-01T06:01:59:027",
+      "fileList": [
+        {
+          "fileName": "call-google",
+          "operationName": "POST",
+          "fileId": "1234"
+        }
+      ],
+      "companyId": "1",
+      "expiryDate": "1973-02-14T00:00:00:000",
+      "folderId": "3bee7a05-0c65-4bf6-a107-552acb4e5dfd",
+      "creationDate": "2022-03-31T17:12:08:707",
+      "folderName": "Rajan"
+    },
+    {
+      "lastUpdatedDate": "2022-03-31T19:31:58:637",
+      "expiryDate": "1973-02-14T00:00:00:000",
+      "companyId": "1",
+      "folderId": "40d90c84-03d1-4778-b88d-5cda986bf9df",
+      "creationDate": "2022-03-31T19:31:58:671",
+      "folderName": "Test API Folder"
+    },
+    {
+      "lastUpdatedDate": "2022-04-01T06:45:35:806",
+      "fileList": [
+        {
+          "fileName": "call-google",
+          "operationName": "POST",
+          "fileId": "1234"
+        }
+      ],
+      "expiryDate": "1973-02-14T00:00:00:000",
+      "companyId": "1",
+      "folderId": "466278ef-3ebc-47a9-96fe-e3c8bb6e44be",
+      "creationDate": "2022-04-01T06:45:35:841",
+      "folderName": "Rajan Copy"
+    },
+    {
+      "lastUpdatedDate": "2022-04-17T05:41:53:554",
+      "fileList": [
+        {
+          "fileName": "update-customer",
+          "operationName": "POST",
+          "fileId": "91142837-f4da-4170-bf01-8240ad35ac53"
+        },
+        {
+          "fileName": "add-customer",
+          "operationName": "POST",
+          "fileId": "f4efd4b2-5e9e-4f26-8995-de1018491389"
+        }
+      ],
+      "companyId": "1",
+      "expiryDate": "1973-02-14T00:00:00:000",
+      "folderId": "ea3c521b-97dd-4592-b469-e6efe5179343",
+      "creationDate": "2022-04-17T05:40:07:677",
+      "folderName": "SMSJourney APIs"
+    }
+  ]
+}

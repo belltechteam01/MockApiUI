@@ -1,0 +1,22 @@
+@import "styles/variables/_breakpoint.scss";
+@import "styles/variables/_color.scss";
+@import "styles/variables/_typography.scss";
+
+.dndflow {
+  display: flex;
+  flex-direction: column;
+  //   flex-grow: 1;
+  height: 100%;
+  width: 100%;
+}
+
+.reactflowWrapper {
+  flex-grow: 1;
+  height: 100%;
+}
+
+@media screen and (min-width: 768px) {
+  .dndflow {
+    flex-direction: row;
+  }
+}

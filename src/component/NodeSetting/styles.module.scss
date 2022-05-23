@@ -1,0 +1,26 @@
+@import 'styles/variables/_breakpoint.scss';
+@import 'styles/variables/_color.scss';
+@import 'styles/variables/_typography.scss';
+
+.borderLabel {
+  border: 1px solid $black;
+  background-color: $grayDark;
+  box-shadow: 2px 3px $grayDark;
+  text-align: center;
+  padding: 8px;
+}
+
+.responseWrapper {
+  margin-top: 60px;
+  width: 100%;
+
+  & .resSuccessBtn {
+    float: right;
+    text-decoration: underline;
+    color: $black;
+  }
+
+  & .resInputWrapper {
+    margin-top: 50px;
+  }
+}

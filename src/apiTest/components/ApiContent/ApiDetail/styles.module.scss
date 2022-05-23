@@ -1,0 +1,52 @@
+@import '../../../../styles/variables/_breakpoint.scss';
+@import '../../../../styles/variables/_color.scss';
+@import '../../../../styles/variables/_typography.scss';
+
+.apiWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  column-gap: 10px;
+  padding: 10px;
+  height: auto;
+
+  & .apiMethodUrl {
+    display: flex;
+    flex: 1;
+
+    // & .apiMethod {
+    //   // display: ;
+    // }
+
+    & .apiUrl {
+      flex: 1;
+    }
+  }
+
+  & .sendBtnWrapper {
+    width: auto;
+  }
+}
+
+.apiContentWrapper {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  // justify-content: space-between;
+  // align-items: flex-end;
+
+  & .reqInfoWrapper {
+    height: auto;
+    min-height: 100px;
+  }
+
+  & .resInfoWrapper {
+    // max-height: 400px;
+    min-height: 100px;
+    height: auto;
+    width: 100%;
+    margin-top: auto;
+    border-top: 1px solid $borderColor;
+    // align-self: flex-end;
+  }
+}

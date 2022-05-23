@@ -1,0 +1,9 @@
+export const NODE_TYPES = {
+  CALL_API: 'CALL_API',
+  CALL_RULE: 'CALL_RULE',
+  CHECK: 'CHECK',
+  WAIT: 'WAIT',
+  ACTION: 'ACTION',
+  MERGE: 'MERGE',
+  SPLIT: 'SPLIT'
+};

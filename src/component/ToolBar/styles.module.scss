@@ -1,0 +1,80 @@
+@import 'styles/variables/_breakpoint.scss';
+@import 'styles/variables/_color.scss';
+@import 'styles/variables/_typography.scss';
+
+aside {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  & .toolbar {
+    border-right: 1px solid #eee;
+    padding: 15px 10px;
+    font-size: 12px;
+    background: #fcfcfc;
+    height: 80%;
+
+    & .description {
+      margin-bottom: 10px;
+    }
+  }
+
+  & .controlPanel {
+    height: 20%;
+    padding: 15px 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.dndnode {
+  position: relative;
+  height: 20px;
+  padding: 4px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+
+  // &:hover {
+  //   cursor: pointer;
+  // }
+
+  &.input {
+    border-color: #0041d0;
+  }
+
+  &.output {
+    border-color: #ff0072;
+  }
+}
+
+.mainRoot {
+  cursor: grab;
+}
+
+.mergeRoot {
+  margin-top: 20px !important;
+}
+
+.splitRoot {
+  margin-top: 30px !important;
+}
+
+.reactflow-wrapper {
+  flex-grow: 1;
+  height: 100%;
+}
+
+.selectall {
+  margin-top: 10px;
+}
+
+@media screen and (min-width: 768px) {
+  aside {
+    width: 20%;
+    max-width: 250px;
+  }
+}

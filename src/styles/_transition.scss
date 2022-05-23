@@ -1,0 +1,99 @@
+.fade-enter {
+    opacity: 0;
+}
+.fade-enter-active {
+    opacity: 1;
+}
+.fade-exit {
+    opacity: 1;
+}
+.fade-exit-active {
+    opacity: 0;
+}
+.fade-enter-active,
+.fade-exit-active {
+    transition: all 400ms;
+}
+
+.quick-fade-appear,
+.quick-fade-enter {
+    opacity: 0;
+    z-index: 3;
+}
+.quick-fade-appear-active,
+.quick-fade-enter.quick-fade-enter-active {
+    opacity: 1;
+    transition: opacity 150ms linear 150ms;
+}
+
+.quick-fade-exit {
+    opacity: 1;
+    position: absolute;
+    display: none;
+    z-index: 0;
+}
+
+.quick-fade-exit.quick-fade-exit-active {
+    opacity: 0;
+    transition: opacity 75ms linear;
+}
+
+.list-appear,
+.list-enter {
+    opacity: 0;
+    z-index: 3;
+}
+.list-appear-active,
+.list-enter.list-enter-active {
+    opacity: 1;
+    transition: opacity 300ms linear 300ms;
+}
+
+.list-exit {
+    opacity: 1;
+    //position: absolute;
+    //display: none;
+    z-index: 0;
+}
+
+.list-exit.list-exit-active {
+    opacity: 0;
+    transition: opacity 150ms linear;
+}
+
+.card-enter {
+    opacity: 0;
+}
+.card-enter-active {
+    opacity: 1;
+    transition: all 150ms ease-in;
+}
+.card-exit {
+    opacity: 1;
+}
+.card-exit-active {
+    opacity: 0;
+    transition: all 150ms ease-in;
+}
+
+.absolute-card-enter {
+    opacity: 0;
+}
+.absolute-card-enter-active {
+    opacity: 1;
+    transition: all 150ms 150ms ease-in;
+}
+.absolute-card-exit {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 1;
+    transition: all 150ms ease-in;
+}
+.absolute-card-exit-active {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: all 150ms ease-in;
+}

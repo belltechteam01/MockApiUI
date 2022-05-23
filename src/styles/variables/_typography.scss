@@ -1,0 +1,170 @@
+// @mixin h1 {
+//     font-family: 'Open Sans';
+//     font-style: normal;
+//     font-weight: bold;
+//     font-size: 36px;
+//     line-height: 120%;
+//     letter-spacing: -0.01em;
+// }
+
+// @mixin h2 {
+//     font-family: 'Open Sans';
+//     font-style: normal;
+//     font-weight: bold;
+//     font-size: 24px;
+//     line-height: 130%;
+// }
+
+// @mixin h3 {
+//     font-family: 'Open Sans';
+//     font-style: normal;
+//     font-weight: bold;
+//     font-size: 22px;
+//     line-height: 130%;
+// }
+
+// @mixin h4 {
+//     font-family: 'Open Sans';
+//     font-style: normal;
+//     font-weight: bold;
+//     font-size: 18px;
+//     line-height: 130%;
+// }
+
+// @mixin h5 {
+//     font-family: 'Open Sans';
+//     font-style: normal;
+//     font-weight: bold;
+//     font-size: 16px;
+//     line-height: 130%;
+// }
+
+@mixin caption1 {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.01em;
+}
+
+@mixin caption2 {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+}
+
+// @mixin body {
+//     font-family: 'Open Sans';
+//     font-style: normal;
+//     font-weight: normal;
+//     font-size: 16px;
+//     line-height: 150%;
+// }
+
+@mixin bodyBold {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 150%;
+}
+
+@mixin bodySmall {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 150%;
+}
+
+@mixin btnText {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.01em;
+}
+
+@mixin textSmall {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+}
+
+@mixin link {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: 0.01em;
+}
+
+@mixin linkSmall {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 150%;
+  letter-spacing: 0.01em;
+}
+
+@mixin text-1 {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: normal;
+  font-size: 20px;
+  line-height: 150%;
+  letter-spacing: 0.01em;
+}
+
+@mixin text-2 {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 150%;
+  letter-spacing: 0.01em;
+}
+
+@mixin text-3 {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0.01em;
+}
+
+@mixin text-4 {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: 0.01em;
+}
+
+@mixin text-18-500 {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 23px;
+}
+
+@mixin text-16-500 {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 21px;
+}

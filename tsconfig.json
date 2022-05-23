@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "lib": ["ES5", "ES2015", "ES2016", "DOM", "ESNext"],
+    "types": ["node"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "outDir": "dist/esm",
+    "sourceMap": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "target": "ES5",
+    "baseUrl": "src",
+    "downlevelIteration": true,
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/utils/logic/*.ts"],
+  "exclude": ["dist", "node_modules", "src/**/*.test.tsx", "src/**/*.stories.tsx"]
+}
