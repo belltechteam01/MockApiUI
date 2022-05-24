@@ -1,18 +1,10 @@
-import { CWork as WorkBase } from "./workmodel/work"
-import { CWorkAction as Action } from "./workmodel/action"
-import { CWorkCallApi as CallApi } from "./workmodel/callapi"
-import { CWorkCallRule as CallRule } from "./workmodel/callrule"
-import { CWorkMerge as WorkMerge} from "./workmodel/merge"
-import { CWorkSplit as WorkSplit} from "./workmodel/split"
-import { CWorkWait as ProcessWait} from "./workmodel/wait"
-import { CWorkCheck as ProcessCheck} from "./workmodel/check"
-import { CWorkStop as ProcessStop} from "./workmodel/stop"
-import { CWorkStart as ProcessStart} from "./workmodel/start"
-
 import { CWorkMap as WorkMap} from "./workmap"
 import { ENM_FLOWTYPE } from "./workmap/worknode"
 
 import {WorkflowSettings} from "./settings";
+import * as WorkModel from "./workmodel";
+import * as Util from "./utils";
+import * as Types from "./types";
 
 
 export class CWorkflow {
@@ -20,16 +12,16 @@ export class CWorkflow {
     public name: string;
     public type: string = "COLLECTION";
 
-    public worklist: WorkMap<WorkBase>; 
+    public worklist: WorkMap<WorkModel.WorkNode>; 
 
     constructor(name?:string) {
         this.id = WorkflowSettings.WORKFLOW_ID_DEFAULT;
         this.name = name ?? WorkflowSettings.WORKFLOW_NAME_DEFAULT;
         
-        this.worklist = new WorkMap<WorkBase>();
+        this.worklist = new WorkMap<WorkModel.WorkNode>();
     }
 
-    add(model: WorkBase, type?: ENM_FLOWTYPE) {
+    add(model: WorkModel.WorkNode, type?: ENM_FLOWTYPE) {
         let _type = type;
         if(!_type) {
             WorkflowSettings.NODE_TYPE_DEFAULT;
@@ -58,18 +50,15 @@ export class CWorkflow {
     excute() {
         console.log("workflow excute");
     }
+
+    parseApiList( json: string ) {
+        let data = Util.parseJson(json);
+        if(data) {
+            // const apiDetail: Types.IApiDetail = 
+        }
+    }
 }
 
-export { 
-    WorkBase, 
-    Action,
-    CallApi,
-    CallRule,
-    WorkMerge,
-    WorkSplit,
-    ProcessWait,
-    ProcessCheck,
-    ProcessStop,
-    ProcessStart,
+export {
     CWorkflow as Workflow,
 };

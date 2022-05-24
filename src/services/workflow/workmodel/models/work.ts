@@ -1,5 +1,3 @@
-import {WorkflowSettings} from "../settings";
-
 export abstract class CWork{
     id: string;
     name: string

@@ -14,55 +14,70 @@ import ReactFlow, {
   useEdgesState,
   Controls
 } from 'react-flow-renderer';
+
 import { v4 as uuidv4 } from 'uuid';
 import ShapeNode from '../ShapeNode';
 import ToolBar from '../ToolBar';
 import NodeSetting from '../NodeSetting';
 
 import styles from './styles.module.scss';
-import { NODE_TYPES } from 'utils/constant';
 import { API_DETAIL_LIST, API_LIST } from 'testData/getApiList';
 
-// const nodeTypes = {
-//   shape: ShapeNode
-// };
+import {CWorkflow} from "../../services/workflow"
 
-const defaultNodes: Node[] = [];
+import * as Types from "../../services/workflow/types";
 
-const defaultEdgeOptions = {
-  type: 'smoothstep',
-  markerEnd: { type: MarkerType.ArrowClosed },
-  style: { strokeWidth: 2 }
-};
+//internal types
+export interface IApiListState {
+  value: string;
+  label: string;
+}
 
-const defaultEdges: Edge[] = [];
+interface IEdgeOptionMarker {
+  type: MarkerType;
+}
 
+interface IEdgeOptionsStyle {
+  strokeWidth: number;
+}
+
+export interface IEdgeOptions {
+  type: ConnectionLineType;
+  markerEnd: IEdgeOptionMarker;
+  style: IEdgeOptionsStyle
+}
+
+//constants
 const proOptions = { account: 'paid-pro', hideAttribution: true };
-
 const backgroundColor = '#fff';
 
+//component
 const ReactFlowWrapper = () => {
-  let id = 0;
-  // const getId = () => `dndnode_${id++}`;
+  //react flow usage
+  const nodeTypes = useMemo(() => ({ shape: ShapeNode }), []);
 
+  //define state
   const reactFlowWrapper: React.MutableRefObject<any> = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [apiListState, setApiListState] = useState<IApiListState[]>(API_LIST);
 
-  const nodeTypes = useMemo(() => ({ shape: ShapeNode }), []);
+  const [workflow, setWorkflow] = useState<CWorkflow> (new CWorkflow());
+
+  //check states
   useEffect(() => {
     if (selectedNode?.data && selectedNode?.data?.type) {
       switch (selectedNode?.data?.type) {
-        case NODE_TYPES.CALL_API:
+        case Types.FlowCatagory.API:
           setIsOpen(true);
           break;
-        case NODE_TYPES.CALL_RULE:
+        case Types.FlowCatagory.RULE:
           setIsOpen(true);
           break;
-        case NODE_TYPES.CHECK:
+        case Types.FlowCatagory.CHECK:
           setIsOpen(true);
           break;
         default:
@@ -74,51 +89,67 @@ const ReactFlowWrapper = () => {
     }
   }, [selectedNode?.data]);
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
-
-  const onDragOver = useCallback((event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
-  const onDrop = useCallback(
-    (event) => {
+  //actions
+  const onDragOver = useCallback(
+    (event: any) => {
       event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+    }, 
+    []
+  );
+  
+  const onDrop = useCallback(
+    (_event: any) => {
+      _event.preventDefault();
 
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const data = JSON.parse(event.dataTransfer.getData('application/reactflow'));
-      console.log('dragData==>', data);
+      const curNodeData = JSON.parse(_event.dataTransfer.getData('application/reactflow'));
 
-      // check if the dropped element is valid
-      if (typeof data === 'undefined' || !data) {
-        return;
-      }
+      console.log("[LOG] curNodeData => ", curNodeData.type);
+      if (typeof curNodeData === 'undefined' || !curNodeData) return;
 
       const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top
+        x: (_event.clientX - reactFlowBounds.left),
+        y: (_event.clientY - reactFlowBounds.top)
       });
-      const uuid = uuidv4();
-      console.log('uuid==>', uuid);
-      const newNode = {
-        id: uuid,
-        type: 'shape',
-        position,
-        data: {
-          type: data?.type,
-          width: 150,
-          height: 50,
-          color: data?.color || 'blue',
-          label: `${data?.text}`,
-          processing: false,
-          status: 'stop',
-          properties: {}
-        }
-      };
 
-      setNodes((nds) => nds.concat(newNode));
+      switch(curNodeData.type) {
+        case Types.FlowCatagory.API:
+
+        break;
+        case Types.FlowCatagory.ACTION:
+        break;
+      }
+
+      // let newNode = new WorkNode()
+      // const uuid = uuidv4();
+      // console.log('uuid==>', uuid);
+      // const newNode = {
+      //   id: uuid,
+      //   type: 'shape',
+      //   position,
+      //   data: {
+      //     type: data?.type,
+      //     width: 150,
+      //     height: 50,
+      //     color: data?.color || 'blue',
+      //     label: `${data?.text}`,
+      //     processing: false,
+      //     status: 'stop',
+      //     properties: {}
+      //   }
+      // };
+
+      // setNodes((nds) => nds.concat(newNode));
+
+
     },
     [reactFlowInstance]
+  );
+
+  const onConnect = useCallback(
+    (params: any) => setEdges((eds) => addEdge(params, eds)), 
+    []
   );
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
@@ -169,9 +200,9 @@ const ReactFlowWrapper = () => {
             nodeTypes={nodeTypes}
             nodes={nodes}
             edges={edges}
-            defaultNodes={defaultNodes}
-            defaultEdges={defaultEdges}
-            defaultEdgeOptions={defaultEdgeOptions}
+            // defaultNodes={defaultNodes}
+            // defaultEdges={defaultEdges}
+            // defaultEdgeOptions={defaultEdgeOptions}
             connectionLineType={ConnectionLineType.SmoothStep}
             connectionMode={ConnectionMode.Loose}
             onNodeClick={onNodeClick}
@@ -189,7 +220,12 @@ const ReactFlowWrapper = () => {
         </div>
       </ReactFlowProvider>
       {selectedNode && (
-        <NodeSetting onSave={(data) => handleSave(data)} isOpen={isOpen} onDrawerClose={handleSelectedNode} data={selectedNode?.data || {}} selectList={API_LIST} onSelectAPI={handleGetAPI} />
+        <NodeSetting 
+          onSave={(data) => handleSave(data)} 
+          isOpen={isOpen} onDrawerClose={handleSelectedNode} 
+          nodeInfo={selectedNode?.data || {}} 
+          selectList={apiListState} onSelectAPI={handleGetAPI} 
+        />
       )}
     </div>
   );

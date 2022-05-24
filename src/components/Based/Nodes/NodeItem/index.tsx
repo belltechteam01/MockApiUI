@@ -1,14 +1,15 @@
 import React from 'react';
 import cn from 'classnames';
 import { IBaseUIProps } from '../../types';
-import { NODE_TYPES } from '../../../../utils/constant';
 import styles from './styles.module.scss';
+
+import * as Types from "../../../../services/workflow/types";
 
 export interface INodeProps extends IBaseUIProps {
   text: string;
   width: number;
   height: number;
-  type: string;
+  type: Types.FlowCatagory;
   color?: string;
   selected?: boolean;
   onDragStart?: Function;
@@ -21,17 +22,17 @@ const NodeItem = (props: INodeProps) => {
 
   const renderShape = () => {
     switch (type) {
-      case NODE_TYPES.CALL_API:
+      case Types.FlowCatagory.API:
         return <rect x={0} y={0} rx={6} width={width} height={height} {...shapeStyles} />;
-      case NODE_TYPES.CALL_RULE:
+      case Types.FlowCatagory.RULE:
         return <rect x={0} y={0} rx={height / 2} width={width} height={height} {...shapeStyles} />;
-      case NODE_TYPES.WAIT:
+      case Types.FlowCatagory.DELAY:
         return <path d={`M10,0 L${width - 10},0  L${width},${height / 2} L${width - 10},${height} L10,${height} L0,${height / 2} z`} {...shapeStyles} />;
-      case NODE_TYPES.CHECK:
+      case Types.FlowCatagory.CHECK:
         return <path d={`M0,${height / 2} L${width / 2},0 L${width},${height / 2} L${width / 2},${height} z`} {...shapeStyles} />;
-      case NODE_TYPES.ACTION:
+      case Types.FlowCatagory.ACTION:
         return <path d={`M0,${height} L${width * 0.25},0 L${width},0 L${width - width * 0.25},${height} z`} {...shapeStyles} />;
-      case NODE_TYPES.MERGE:
+      case Types.FlowCatagory.MERGE:
         return (
           <>
             <rect x={0} y={0} width={width} height={height} {...shapeStyles}></rect>
@@ -39,7 +40,7 @@ const NodeItem = (props: INodeProps) => {
             <path d={`M 14,0 L 14,-10 M ${width - 14}, 0  L ${width - 14}, -10 M ${width / 2},${height} L ${width / 2}, ${height + 10} `} fill="white" stroke="#000"></path>
           </>
         );
-      case NODE_TYPES.SPLIT:
+      case Types.FlowCatagory.SPLIT:
         return (
           <>
             <rect x={0} y={0} width={width} height={height} {...shapeStyles}></rect>
