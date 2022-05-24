@@ -1,17 +1,24 @@
+/* 
+@Author: Star
+@Date: 2022-03-31 02:23:11
+@Last Modified by:   Star
+@Last Modified time: 2022-03-31 02:23:11
+This module is a wrapper for store.
+*/
 
-export function setRefreshToken(refreshToken) {
+export function setRefreshToken(refreshToken: any) {
   window.localStorage.setItem('refresh_token', refreshToken);
 }
 export function getRefreshToken() {
   return window.localStorage.getItem('refresh_token');
 }
-export function setToken(token) {
+export function setToken(token: any) {
   window.localStorage.setItem('access_token', token);
 }
 export function getToken() {
   return window.localStorage.getItem('access_token');
 }
-export function setAuth(auth) {
+export function setAuth(auth: any) {
   window.localStorage.setItem('auth', JSON.stringify(auth));
 }
 export function getAuth() {
@@ -21,7 +28,7 @@ export function getAuth() {
   } else return null;
 }
 
-export function setAppVars(appVars) {
+export function setAppVars(appVars: any) {
   window.localStorage.setItem('qn-vue-appVars', JSON.stringify(appVars));
 }
 export function getAppVars() {

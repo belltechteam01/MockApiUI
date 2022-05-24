@@ -1,4 +1,12 @@
-function decode(token) {
+/* 
+@Author: Star
+@Date: 2022-04-19 02:34:13
+@Last Modified by:   Star
+@Last Modified time: 2022-04-19 02:34:13
+This module is used to verify JWT Bearer Token
+*/
+
+function decode(token: any) {
   var base64Url = token.split('.')[1];
   var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
   var jsonPayload = decodeURIComponent(
@@ -12,7 +20,7 @@ function decode(token) {
 
   return JSON.parse(jsonPayload);
 }
-export const verifyToken = token => {
+export const verifyToken = (token: any) => {
   if (!token) return false;
   try {
     const { exp } = decode(token);

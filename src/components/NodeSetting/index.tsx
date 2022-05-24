@@ -8,17 +8,16 @@ import { Node } from 'react-flow-renderer';
 import ApiSetting, { IApiSettingProps } from './ApiSetting';
 import RuleSetting from './RuleSetting';
 import CheckSetting from './CheckSetting';
-import { NODE_TYPES } from '../../utils/constant';
-
 import styles from './styles.module.scss';
+import * as Types from '../../services/workflow/types';
 
 interface INodeSettingProps extends IApiSettingProps {
   isOpen?: boolean;
   children?: React.ReactNode;
-  data: any | null;
+  nodeInfo: any | null;
 }
 
-const NodeSetting: React.FC<INodeSettingProps> = ({ onSave, data, isOpen, selectList, onDrawerClose, onSelectAPI }) => {
+const NodeSetting: React.FC<INodeSettingProps> = ({ onSave, nodeInfo, isOpen, selectList, onDrawerClose, onSelectAPI }) => {
   const toggleDrawer = (anchor: Anchor, open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (event.type === 'keydown' && ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')) {
       return;
@@ -31,15 +30,17 @@ const NodeSetting: React.FC<INodeSettingProps> = ({ onSave, data, isOpen, select
 
   const renderSettings = (anchor: Anchor) => {
     let element = <></>;
-    if (data && data?.type) {
-      switch (data.type) {
-        case NODE_TYPES.CALL_API:
-          element = <ApiSetting properties={data?.properties} onSave={onSave} selectList={selectList} onSelectAPI={onSelectAPI} />;
+    if (nodeInfo && nodeInfo?.type) {
+      const nodeTypeStr = nodeInfo.type as string;
+      const nodeType: Types.FlowCatagory = Types.FlowCatagory[nodeTypeStr];
+      switch (nodeType) {
+        case Types.FlowCatagory.API:
+          element = <ApiSetting properties={nodeInfo?.properties} onSave={onSave} selectList={selectList} onSelectAPI={onSelectAPI} />;
           break;
-        case NODE_TYPES.CALL_RULE:
+        case Types.FlowCatagory.RULE:
           element = <RuleSetting />;
           break;
-        case NODE_TYPES.CHECK:
+        case Types.FlowCatagory.CHECK:
           element = <CheckSetting />;
 
         default:

@@ -128,6 +128,7 @@ export class CWorkNode<T extends {id: string}> {
             case ENM_EDIT_SUBSTATE.VALIDATE_FALIED: {
               
               //emit event - invalid connection
+              this.events.invokeEventHandler(EVENT_CODE.NODE_CONNECTION_INVALID)
 
               //update substate
               this.updateEditState(ENM_EDIT_SUBSTATE.EDITED);

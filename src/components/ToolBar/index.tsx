@@ -2,38 +2,17 @@ import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
 import NodeItem from '../Based/Nodes/NodeItem';
 import Button from '../Based/Button';
-import { Workflow } from '../../utils/test03';
 import styles from './styles.module.scss';
+import * as Types from "../../services/workflow/types";
 
 const ToolBar = () => {
-  const [workflow, setWorkflow] = useState<Workflow | null>(null);
-  const [workflowState, setWorkflowState] = useState(null);
-
-  useEffect(() => {
-    if (workflow == null) {
-      setWorkflow(new Workflow('1', 'parent'));
-      console.log('first create of workflow');
-    } else {
-      console.log('workflow updated');
-    }
-  }, [workflow]);
-
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>, data: string) => {
     event.dataTransfer.setData('application/reactflow', data);
     event.dataTransfer.effectAllowed = 'move';
   };
 
   const handleRun = () => {
-    console.log(workflow);
-    if (workflow) {
-      workflow.add();
-      workflow.add();
-      workflow.add();
 
-      workflow.moveto(1);
-
-      workflow.excute();
-    }
   };
 
   return (
@@ -45,7 +24,7 @@ const ToolBar = () => {
           classes={{ root: styles.mainRoot }}
           width={120}
           height={50}
-          type="CALL_API"
+          type={Types.FlowCatagory.API}
           color="#668de3"
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => handleDragStart(event, type)}
         />
@@ -54,7 +33,7 @@ const ToolBar = () => {
           classes={{ root: styles.mainRoot }}
           width={120}
           height={50}
-          type="CALL_RULE"
+          type={Types.FlowCatagory.RULE}
           color="#00d7ca"
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => handleDragStart(event, type)}
         />
@@ -63,7 +42,7 @@ const ToolBar = () => {
           classes={{ root: styles.mainRoot }}
           width={120}
           height={50}
-          type="WAIT"
+          type={Types.FlowCatagory.DELAY}
           color="#00d7ca"
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => handleDragStart(event, type)}
         />
@@ -72,7 +51,7 @@ const ToolBar = () => {
           classes={{ root: styles.mainRoot }}
           width={80}
           height={50}
-          type="CHECK"
+          type={Types.FlowCatagory.CHECK}
           color="#00d7ca"
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => handleDragStart(event, type)}
         />
@@ -81,7 +60,7 @@ const ToolBar = () => {
           classes={{ root: styles.mainRoot }}
           width={120}
           height={50}
-          type="ACTION"
+          type={Types.FlowCatagory.ACTION}
           color="#00d7ca"
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => handleDragStart(event, type)}
         />
@@ -90,7 +69,7 @@ const ToolBar = () => {
           classes={{ root: cn(styles.mergeRoot, styles.mainRoot) }}
           width={120}
           height={50}
-          type="MERGE"
+          type={Types.FlowCatagory.MERGE}
           color="#00d7ca"
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => handleDragStart(event, type)}
         />
@@ -99,7 +78,7 @@ const ToolBar = () => {
           classes={{ root: cn(styles.splitRoot, styles.mainRoot) }}
           width={120}
           height={50}
-          type="SPLIT"
+          type={Types.FlowCatagory.SPLIT}
           color="#00d7ca"
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => handleDragStart(event, type)}
         />
