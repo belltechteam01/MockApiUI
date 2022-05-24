@@ -13,5 +13,5 @@ export const API_DETAIL_LIST = [
     ],
     responseData: []
   },
-  { id: '124', label: 'getRoles', responseData: {}, requestData: {} }
+  { id: '124', label: 'getRoles', responseData: [], requestData: [] }
 ];

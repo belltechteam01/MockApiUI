@@ -5,6 +5,7 @@ import { FormControlContainer, Input, Label, ReactSelect, TextArea } from '../..
 import BasicModal from '../../Based/BasicModal';
 import Button from '../../Based/Button';
 import styles from './styles.module.scss';
+import { FROM_API_DATA, FROM_INPUT_DATA } from 'utils/constant';
 
 export interface IApiSettingProps extends IApiSettingEvent {
   selectList?: any[];
@@ -43,6 +44,10 @@ const ApiSetting = ({ onDrawerClose, onSave, properties, onSelectAPI, selectList
 
   const handleClick = () => {
     if (onSave) onSave(addFormData);
+  };
+
+  const handleSetData = () => {
+    console.log('====   ====');
   };
 
   return (
@@ -104,36 +109,41 @@ const ApiSetting = ({ onDrawerClose, onSave, properties, onSelectAPI, selectList
               )} */}
           </FormControl>
         </FormControlContainer>
-        <FormControlContainer>
-          <div className={styles.borderLabel}>{t('workflow.setting.form.label.requestData')}</div>
-        </FormControlContainer>
-        <FormControlContainer>
-          <TableContainer component={Paper}>
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Field Name</TableCell>
-                  <TableCell>Json Path/Constant</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {(properties?.requestData || []).map((element: any, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      '&:last-child td, &:last-child th': { border: 0 }
-                    }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {element.fieldName}
-                    </TableCell>
-                    <TableCell onClick={(e: any) => setIsModalOpen(true)}>{element?.path}</TableCell>
+        <div className={styles.requestWrapper}>
+          <FormControlContainer>
+            <div className={styles.borderLabel}>{t('workflow.setting.form.label.requestData')}</div>
+          </FormControlContainer>
+          <FormControlContainer>
+            <TableContainer component={Paper}>
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Field Name</TableCell>
+                    <TableCell>Json Path/Constant</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </FormControlContainer>
+                </TableHead>
+                <TableBody>
+                  {(properties?.requestData || []).map((element: any, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{
+                        '&:last-child td, &:last-child th': { border: 0 }
+                      }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {element.fieldName}
+                      </TableCell>
+                      <TableCell classes={{ root: styles.inputCell }} onClick={(e: any) => setIsModalOpen(true)}>
+                        <span className={styles.smallText}>{element.isConstant ? FROM_INPUT_DATA : FROM_API_DATA}</span>
+                        <p>{element?.path}</p>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </FormControlContainer>
+        </div>
         <div className={styles.responseWrapper}>
           <FormControlContainer>
             <div className={styles.borderLabel}>{t('workflow.setting.form.label.responseData')}</div>
@@ -220,36 +230,10 @@ const ApiSetting = ({ onDrawerClose, onSave, properties, onSelectAPI, selectList
           }}
           style={{ width: '100%' }}
         >
-          {/* <Button variant="contained" color="secondary" onClick={() => setIsModalOpen(true)} disabled={!workflowId}>
-                  Test Step
-                </Button> */}
           <Button variant="contained" text="Save" disabled={false} onClick={handleClick} />
           <Button text="Cancel" variant="outlined" onClick={onDrawerClose} />
         </Box>
       </Container>
-      <BasicModal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <TextArea
-          id="testStepData"
-          aria-describedby="testStep-helper-text"
-          placeholder="Test Data"
-          defaultValue={initTestStepData}
-          // {...register('testStepData')}
-          onChange={(e) => setTestData(e.target.value)}
-        ></TextArea>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            p: 1,
-            m: 1,
-            borderRadius: 1
-          }}
-        >
-          {/* <Button variant="contained" color="primary" disabled={isTestStepLoading} onClick={checkTestStep}>
-                Test
-              </Button> */}
-        </Box>
-      </BasicModal>
     </>
   );
 };

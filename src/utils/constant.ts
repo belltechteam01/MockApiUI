@@ -7,3 +7,6 @@ export const NODE_TYPES = {
   MERGE: 'MERGE',
   SPLIT: 'SPLIT'
 };
+
+export const FROM_INPUT_DATA = 'From Input Request Data';
+export const FROM_API_DATA = 'From API Call Response';
