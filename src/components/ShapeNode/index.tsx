@@ -1,6 +1,8 @@
 import React from 'react';
+import cn from 'classnames';
 import { Handle, Position } from 'react-flow-renderer';
 import { NODE_TYPES } from '../../utils/constant';
+import styles from './styles.module.scss';
 
 interface IShapeData {
   type: string;
@@ -15,7 +17,14 @@ interface IShapeNode {
   selected: boolean;
 }
 
-const handleStyle = { opacity: 0 };
+const handleTargetStyle = { opacity: 1, backgroundColor: 'blue' };
+const handleSourceStyle = { opacity: 1, backgroundColor: 'red' };
+const handleTargetStyle1 = { opacity: 1, backgroundColor: 'blue', left: 14, top: -14 };
+const handleTargetStyle2 = { opacity: 1, backgroundColor: 'blue', left: 136, top: -14 };
+const handleMergeSourceStyle = { opacity: 1, backgroundColor: 'red', top: 56 };
+const handleSourceStyle1 = { opacity: 1, backgroundColor: 'red', left: 14, top: 56 };
+const handleSourceStyle2 = { opacity: 1, backgroundColor: 'red', left: 136, top: 56 };
+const handleSplitTargetStyle = { opacity: 1, backgroundColor: 'blue', top: -14 };
 
 function useShape({ type, width, height, color = '#9ca8b3', selected }: IShapeData) {
   const shapeStyles = { fill: color, strokeWidth: selected ? 2 : 0, stroke: '#bbb' };
@@ -52,10 +61,76 @@ function useShape({ type, width, height, color = '#9ca8b3', selected }: IShapeDa
   }
 }
 
-function ShapeNode({ data, selected }: IShapeNode) {
+const renderHandle = (type) => {
+  switch (type) {
+    case NODE_TYPES.CALL_API:
+      return (
+        <>
+          <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
+          <Handle id="bottom" style={handleSourceStyle} position={Position.Bottom} type="source" />
+        </>
+      );
+    case NODE_TYPES.CALL_RULE:
+      return (
+        <>
+          <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
+          <Handle id="bottom" style={handleSourceStyle} position={Position.Bottom} type="source" />
+        </>
+      );
+    case NODE_TYPES.WAIT:
+      return (
+        <>
+          <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
+          <Handle id="bottom" style={handleSourceStyle} position={Position.Bottom} type="source" />
+        </>
+      );
+
+    case NODE_TYPES.CHECK:
+      return (
+        <>
+          <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
+          <Handle id="right" style={handleSourceStyle} position={Position.Right} type="source" />
+          <Handle id="bottom" style={handleSourceStyle} position={Position.Bottom} type="source" />
+        </>
+      );
+
+    case NODE_TYPES.ACTION:
+      return (
+        <>
+          <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
+          <Handle id="bottom" style={handleSourceStyle} position={Position.Bottom} type="source" />
+        </>
+      );
+
+    case NODE_TYPES.MERGE:
+      return (
+        <>
+          <Handle id="top-1" style={handleTargetStyle1} position={Position.Top} type="target" />
+          <Handle id="top-2" style={handleTargetStyle2} position={Position.Top} type="target" />
+          <Handle id="bottom" style={handleMergeSourceStyle} position={Position.Bottom} type="source" />
+        </>
+      );
+
+    case NODE_TYPES.SPLIT:
+      return (
+        <>
+          <Handle id="top" style={handleSplitTargetStyle} position={Position.Top} type="target" />
+          <Handle id="bottom-1" style={handleSourceStyle1} position={Position.Bottom} type="source" />
+          <Handle id="bottom-2" style={handleSourceStyle2} position={Position.Bottom} type="source" />
+        </>
+      );
+
+    default:
+      break;
+  }
+};
+
+const ShapeNode = ({ data, selected }: IShapeNode) => {
   console.log('data===>', data);
   const width = data?.width || 100;
   const height = data?.height || 100;
+  const nodeRoot = data?.node?.classes?.root;
+  const nodeStatus = data?.node?.nodeStatus || 'init';
   const shape = useShape({
     type: data?.type,
     width,
@@ -66,10 +141,11 @@ function ShapeNode({ data, selected }: IShapeNode) {
 
   return (
     <div style={{ position: 'relative' }}>
-      <Handle id="top" style={handleStyle} position={Position.Top} type="source" />
+      {/* <Handle id="top" style={handleStyle} position={Position.Top} type="source" />
       <Handle id="right" style={handleStyle} position={Position.Right} type="source" />
       <Handle id="bottom" style={handleStyle} position={Position.Bottom} type="source" />
-      <Handle id="left" style={handleStyle} position={Position.Left} type="source" />
+      <Handle id="left" style={handleStyle} position={Position.Left} type="source" /> */}
+      {renderHandle(data?.type)}
       <svg style={{ display: 'block', overflow: 'visible' }} width={width} height={height}>
         {shape}
       </svg>
@@ -96,8 +172,19 @@ function ShapeNode({ data, selected }: IShapeNode) {
           {data?.label}
         </div>
       </div>
+      <div
+        className={cn(styles.nodeStatus, nodeRoot, {
+          [styles.checkType]: data?.type === 'CHECK',
+          [styles.initStatus]: nodeStatus === 'init',
+          [styles.readyStatus]: nodeStatus === 'ready',
+          [styles.runningStatus]: nodeStatus === 'running',
+          [styles.successStatus]: nodeStatus === 'success',
+          [styles.failureStatus]: nodeStatus === 'failure',
+          [styles.endStatus]: nodeStatus === 'end'
+        })}
+      ></div>
     </div>
   );
-}
+};
 
 export default ShapeNode;
