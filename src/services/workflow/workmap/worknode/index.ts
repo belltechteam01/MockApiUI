@@ -59,7 +59,7 @@ export class CWorkNode<T extends {id: string}> {
       this.subState = 0;
 
       this.id = uuidv4();
-      // val.id = this.id;
+      val.id = this.id;
       this.value = val;
       this.type = type ?? ENM_FLOWTYPE.I0_O1;
       

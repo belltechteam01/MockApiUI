@@ -23,9 +23,12 @@ import NodeSetting from '../NodeSetting';
 import styles from './styles.module.scss';
 import { API_DETAIL_LIST, API_LIST } from 'testData/getApiList';
 
-import {CWorkflow} from "../../services/workflow"
+import {CWorkflow, Workflow} from "../../services/workflow"
 
 import * as Types from "../../services/workflow/types";
+// import { WorkNode } from 'services/workflow/workmodel';
+import * as WorkModel from "services/workflow/workmodel";
+import {WorkflowSettings} from 'services/workflow/settings';
 
 //internal types
 export interface IApiListState {
@@ -55,6 +58,7 @@ const backgroundColor = '#fff';
 const ReactFlowWrapper = () => {
   //react flow usage
   const nodeTypes = useMemo(() => ({ shape: ShapeNode }), []);
+
 
   //define state
   const reactFlowWrapper: React.MutableRefObject<any> = useRef(null);
@@ -108,86 +112,91 @@ const ReactFlowWrapper = () => {
       console.log("[LOG] curNodeData => ", curNodeData.type);
       if (typeof curNodeData === 'undefined' || !curNodeData) return;
 
-      const position = reactFlowInstance.project({
+      const newNodePos = reactFlowInstance.project({
         x: (_event.clientX - reactFlowBounds.left),
         y: (_event.clientY - reactFlowBounds.top)
       });
+      const newNodeColor = curNodeData.color;
 
+      let newNode: WorkModel.WorkNode | null= null;
       switch(curNodeData.type) {
         case Types.FlowCatagory.API:
-
+          newNode = new WorkModel.CallApi("untitled");
         break;
         case Types.FlowCatagory.ACTION:
+          newNode = new WorkModel.Action("untitled");
+        case Types.FlowCatagory.RULE:
+          newNode = new WorkModel.CallRule("untitled");
+        case Types.FlowCatagory.DELAY:
+          newNode = new WorkModel.Wait("untitled");
+        case Types.FlowCatagory.CHECK:
+          newNode = new WorkModel.Check("untitled");
+        case Types.FlowCatagory.MERGE:
+          newNode = new WorkModel.Merge("untitled");
+        case Types.FlowCatagory.SPLIT:
+          newNode = new WorkModel.Split("untitled");
         break;
       }
+      if(newNode) {
+        
+        workflow.add(newNode);
 
-      // let newNode = new WorkNode()
-      // const uuid = uuidv4();
-      // console.log('uuid==>', uuid);
-      // const newNode = {
-      //   id: uuid,
-      //   type: 'shape',
-      //   position,
-      //   data: {
-      //     type: data?.type,
-      //     width: 150,
-      //     height: 50,
-      //     color: data?.color || 'blue',
-      //     label: `${data?.text}`,
-      //     processing: false,
-      //     status: 'stop',
-      //     properties: {}
-      //   }
-      // };
+        const _new = {
+          id: newNode.id,
+          type: WorkflowSettings.NODE_SHAPE_DEFAULT,
+          position: newNodePos,
 
-      // setNodes((nds) => nds.concat(newNode));
+          data: newNode
+        }
 
-
+        //add node ui in react flow
+        setNodes((nodes) => nodes.concat(_new));
+      }
     },
+
     [reactFlowInstance]
   );
 
-  const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)), 
-    []
-  );
+  // const onConnect = useCallback(
+  //   (params: any) => setEdges((eds) => addEdge(params, eds)), 
+  //   []
+  // );
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    console.log('node click===>', node);
     setSelectedNode(node);
   }, []);
 
-  const handleSave = (data) => {
-    const newProperty = {
-      ...selectedNode?.data,
-      label: data?.nodeName,
-      properties: data
-    };
+  // const handleSave = (data) => {
+  //   const newProperty = {
+  //     ...selectedNode?.data,
+  //     label: data?.nodeName,
+  //     properties: data
+  //   };
 
-    const newNode: any = { ...selectedNode, ...{ data: newProperty } };
+  //   const newNode: any = { ...selectedNode, ...{ data: newProperty } };
 
-    const updateNodes = nodes.map((node) => {
-      if (node.id === selectedNode?.id) {
-        node = newNode;
-      }
-      return node;
-    });
-    setNodes(updateNodes);
-    setSelectedNode(null);
-  };
+  //   const updateNodes = nodes.map((node) => {
+  //     if (node.id === selectedNode?.id) {
+  //       node = newNode;
+  //     }
+  //     return node;
+  //   });
+  //   setNodes(updateNodes);
+  //   setSelectedNode(null);
+  // };
 
-  const handleSelectedNode = (event, value) => {
-    if (!value) setSelectedNode(null);
-  };
+  // const handleSelectedNode = (event, value) => {
+  //   if (!value) setSelectedNode(null);
+  // };
 
-  const handleGetAPI = (value) => {
-    console.log('selected API===>', value);
-    const selectedAPI = API_DETAIL_LIST.find((item) => item.id === value);
-    let tempNode: any = { ...selectedNode } || {};
-    tempNode.data.properties.requestData = selectedAPI?.requestData;
-    tempNode.data.properties.responseData = selectedAPI?.responseData;
-    setSelectedNode(tempNode);
-  };
+  // const handleGetAPI = (value) => {
+  //   console.log('selected API===>', value);
+  //   const selectedAPI = API_DETAIL_LIST.find((item) => item.id === value);
+  //   let tempNode: any = { ...selectedNode } || {};
+  //   tempNode.data.properties.requestData = selectedAPI?.requestData;
+  //   tempNode.data.properties.responseData = selectedAPI?.responseData;
+  //   setSelectedNode(tempNode);
+  // };
 
   return (
     <div className={styles.dndflow}>
@@ -208,11 +217,11 @@ const ReactFlowWrapper = () => {
             onNodeClick={onNodeClick}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
+            // onConnect={onConnect}
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
-            fitView
+            fitView={true}
           >
             <Background />
             <Controls />
@@ -221,10 +230,11 @@ const ReactFlowWrapper = () => {
       </ReactFlowProvider>
       {selectedNode && (
         <NodeSetting 
-          onSave={(data) => handleSave(data)} 
-          isOpen={isOpen} onDrawerClose={handleSelectedNode} 
+          // onSave={(data) => handleSave(data)} 
+          // isOpen={isOpen} onDrawerClose={handleSelectedNode} 
           nodeInfo={selectedNode?.data || {}} 
-          selectList={apiListState} onSelectAPI={handleGetAPI} 
+          selectList={apiListState} 
+          // onSelectAPI={handleGetAPI} 
         />
       )}
     </div>

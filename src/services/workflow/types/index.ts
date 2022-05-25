@@ -14,7 +14,9 @@ export enum FlowCatagory {
     ACTION,
     DELAY,
     MERGE,
-    SPLIT
+    SPLIT,
+    STOP,
+    START
 }
 
 enum FieldSourceType {
