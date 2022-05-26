@@ -1,5 +1,7 @@
+import * as Types from "../../types";
 import {WorkflowSettings} from "../../settings";
 import {Events, EVENT_CODE} from "../../events";
+import { CEdgeMap as EdgeMap} from "../edgemap"
 import { v4 as uuidv4 } from 'uuid';
 
 export enum ENM_FLOWTYPE {
@@ -47,6 +49,9 @@ export class CWorkNode<T extends {id: string}> {
     nexts: CWorkNode<T>[];
     prevs: CWorkNode<T>[];
     condition?: boolean;
+
+    sources: EdgeMap<Types.IEdge>;
+    targets: EdgeMap<Types.IEdge>;
   
     state: ENM_FLOW_STATE;
     subState: number;
@@ -66,9 +71,23 @@ export class CWorkNode<T extends {id: string}> {
       this.nexts = [];
       this.prevs = [];
 
+      this.sources = new EdgeMap();
+      this.targets = new EdgeMap();
+      
       this.events = new Events();
 
       this.updateState(ENM_FLOW_STATE.INITIALIZING);
+    }
+
+    public getInstance() : T {
+      return this.value;
+    }
+
+    public getEdges(isSrc = false) : EdgeMap<Types.IEdge> {
+      if(isSrc)
+        return this.sources;
+      else
+        return this.targets;
     }
     
     private updateEditState(subState: ENM_EDIT_SUBSTATE=0) {
@@ -183,5 +202,39 @@ export class CWorkNode<T extends {id: string}> {
       }
 
       return shouldBeRecursive;
+    }
+
+    public getFirstEdge(isSrc = false): Types.IEdge {
+      let edges : EdgeMap<Types.IEdge>;
+      if(isSrc)
+        edges = this.sources;
+      else
+        edges = this.targets;
+      
+      console.log("[LOG] edges instance", edges);
+      let ret = edges.getFirst();
+      if(!ret) {
+        ret = edges.append({id:"", source: "", target: ""});
+      }
+      
+      return ret;
+    }
+
+    public getSecondEdge(isSrc = false): Types.IEdge {
+      let edges : EdgeMap<Types.IEdge>;
+      if(isSrc)
+        edges = this.sources;
+      else
+        edges = this.targets;
+
+      let ret = edges.getSecond();
+      if(!ret) {
+        ret = edges.append({id:"", source: "", target: ""});
+        if(edges.size < 2) {
+          ret = edges.append({id:"", source: "", target: ""});
+        }
+      }
+      
+      return ret;
     }
   }

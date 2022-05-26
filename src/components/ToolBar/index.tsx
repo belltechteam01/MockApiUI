@@ -7,7 +7,7 @@ import * as Types from "../../services/workflow/types";
 
 const ToolBar = () => {
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>, data: string) => {
-    event.dataTransfer.setData('application/reactflow', data);
+    event.dataTransfer.setData('reactflow/type', data);
     event.dataTransfer.effectAllowed = 'move';
   };
 
@@ -84,7 +84,7 @@ const ToolBar = () => {
         />
       </div>
       <div className={styles.controlPanel}>
-        <Button text="Run" onClick={handleRun} />
+        {/* <Button text="Run" onClick={handleRun} /> */}
       </div>
     </aside>
   );

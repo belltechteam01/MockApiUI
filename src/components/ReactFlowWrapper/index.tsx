@@ -17,6 +17,8 @@ import ReactFlow, {
 
 import { v4 as uuidv4 } from 'uuid';
 import ShapeNode from '../ShapeNode';
+import NodeComponent from 'components/Workflow/NodeComponent';
+
 import ToolBar from '../ToolBar';
 import NodeSetting from '../NodeSetting';
 
@@ -57,7 +59,9 @@ const backgroundColor = '#fff';
 //component
 const ReactFlowWrapper = () => {
   //react flow usage
-  const nodeTypes = useMemo(() => ({ shape: ShapeNode }), []);
+  const nodeTypes = useMemo(() => ({ 
+    workNode: NodeComponent 
+  }), []);
 
 
   //define state
@@ -111,11 +115,7 @@ const ReactFlowWrapper = () => {
 
       console.log("[LOG] curNodeData => ", curNodeData.type);
       if (typeof curNodeData === 'undefined' || !curNodeData) return;
-
-      const newNodePos = reactFlowInstance.project({
-        x: (_event.clientX - reactFlowBounds.left),
-        y: (_event.clientY - reactFlowBounds.top)
-      });
+      
       const newNodeColor = curNodeData.color;
 
       let newNode: WorkModel.WorkNode | null= null;
@@ -138,18 +138,24 @@ const ReactFlowWrapper = () => {
         break;
       }
       if(newNode) {
-        
+
+        const newNodePos = reactFlowInstance.project({
+          x: (_event.clientX - reactFlowBounds.left),
+          y: (_event.clientY - reactFlowBounds.top)
+        });
+        newNode.setPosition((_event.clientX - reactFlowBounds.left), (_event.clientY - reactFlowBounds.top));
+
         workflow.add(newNode);
 
         const _new = {
           id: newNode.id,
           type: WorkflowSettings.NODE_SHAPE_DEFAULT,
           position: newNodePos,
-
-          data: newNode
+          data: workflow
         }
 
         //add node ui in react flow
+        console.log("[LOG] new node ", _new);
         setNodes((nodes) => nodes.concat(_new));
       }
     },

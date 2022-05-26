@@ -3,6 +3,7 @@ import cn from 'classnames';
 import { Handle, Position } from 'react-flow-renderer';
 import * as Types from "../../services/workflow/types";
 import styles from './styles.module.scss';
+import { Button } from '@mui/material';
 
 interface IShapeData {
   type: string;
@@ -61,23 +62,23 @@ function useShape({ type, width, height, color = '#9ca8b3', selected }: IShapeDa
   }
 }
 
-const renderHandle = (type) => {
+const renderHandle = (type: Types.FlowCatagory) => {
   switch (type) {
-    case NODE_TYPES.CALL_API:
+    case Types.FlowCatagory.API:
       return (
         <>
           <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
           <Handle id="bottom" style={handleSourceStyle} position={Position.Bottom} type="source" />
         </>
       );
-    case NODE_TYPES.CALL_RULE:
+    case Types.FlowCatagory.RULE:
       return (
         <>
           <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
           <Handle id="bottom" style={handleSourceStyle} position={Position.Bottom} type="source" />
         </>
       );
-    case NODE_TYPES.WAIT:
+    case Types.FlowCatagory.DELAY:
       return (
         <>
           <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
@@ -85,7 +86,7 @@ const renderHandle = (type) => {
         </>
       );
 
-    case NODE_TYPES.CHECK:
+    case Types.FlowCatagory.CHECK:
       return (
         <>
           <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
@@ -94,7 +95,7 @@ const renderHandle = (type) => {
         </>
       );
 
-    case NODE_TYPES.ACTION:
+    case Types.FlowCatagory.ACTION:
       return (
         <>
           <Handle id="top" style={handleTargetStyle} position={Position.Top} type="target" />
@@ -102,7 +103,7 @@ const renderHandle = (type) => {
         </>
       );
 
-    case NODE_TYPES.MERGE:
+    case Types.FlowCatagory.MERGE:
       return (
         <>
           <Handle id="top-1" style={handleTargetStyle1} position={Position.Top} type="target" />
@@ -111,7 +112,7 @@ const renderHandle = (type) => {
         </>
       );
 
-    case NODE_TYPES.SPLIT:
+    case Types.FlowCatagory.SPLIT:
       return (
         <>
           <Handle id="top" style={handleSplitTargetStyle} position={Position.Top} type="target" />
@@ -126,30 +127,27 @@ const renderHandle = (type) => {
 };
 
 const ShapeNode = ({ data, selected }: IShapeNode) => {
-  console.log('data===>', data);
-  const width = data?.width || 100;
-  const height = data?.height || 100;
-  const nodeRoot = data?.node?.classes?.root;
-  const nodeStatus = data?.node?.nodeStatus || 'init';
-  const shape = useShape({
-    type: data?.type,
-    width,
-    height,
-    color: data?.color,
-    selected
-  });
+  // console.log('data===>', data);
+  // const width = data?.width || 100;
+  // const height = data?.height || 100;
+  // const nodeRoot = data?.node?.classes?.root;
+  // const nodeStatus = data?.node?.nodeStatus || 'init';
+  // const shape = useShape({
+  //   type: data?.type,
+  //   width,
+  //   height,
+  //   color: data?.color,
+  //   selected
+  // });
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* <Handle id="top" style={handleStyle} position={Position.Top} type="source" />
-      <Handle id="right" style={handleStyle} position={Position.Right} type="source" />
-      <Handle id="bottom" style={handleStyle} position={Position.Bottom} type="source" />
-      <Handle id="left" style={handleStyle} position={Position.Left} type="source" /> */}
-      {renderHandle(data?.type)}
-      <svg style={{ display: 'block', overflow: 'visible' }} width={width} height={height}>
+      <Button>test</Button>
+      {/* {renderHandle(data?.type)} */}
+      {/* <svg style={{ display: 'block', overflow: 'visible' }} width={width} height={height}>
         {shape}
-      </svg>
-      <div
+      </svg> */}
+      {/* <div
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -169,12 +167,12 @@ const ShapeNode = ({ data, selected }: IShapeNode) => {
             fontSize: 12
           }}
         >
-          {data?.label}
+          {data?.name}
         </div>
       </div>
       <div
         className={cn(styles.nodeStatus, nodeRoot, {
-          [styles.checkType]: data?.type === 'CHECK',
+          [styles.checkType]: true,
           [styles.initStatus]: nodeStatus === 'init',
           [styles.readyStatus]: nodeStatus === 'ready',
           [styles.runningStatus]: nodeStatus === 'running',
@@ -182,7 +180,7 @@ const ShapeNode = ({ data, selected }: IShapeNode) => {
           [styles.failureStatus]: nodeStatus === 'failure',
           [styles.endStatus]: nodeStatus === 'end'
         })}
-      ></div>
+      ></div> */}
     </div>
   );
 };

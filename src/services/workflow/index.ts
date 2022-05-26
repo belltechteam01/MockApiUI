@@ -10,9 +10,9 @@ import * as Types from "./types";
 export class CWorkflow {
     public id: string = "123";
     public name: string;
-    public type: string = "COLLECTION";
+    public type: string = "Untitled";
 
-    public worklist: WorkMap<WorkModel.WorkNode>; 
+    public worklist: WorkMap<WorkModel.WorkNode>;
 
     constructor(name?:string) {
         this.id = WorkflowSettings.WORKFLOW_ID_DEFAULT;
@@ -39,6 +39,39 @@ export class CWorkflow {
         }
         
         this.worklist.append(model, _type);
+    }
+
+    addNew(type: Types.FlowCatagory): WorkModel.WorkNode {
+        let newNode: WorkModel.WorkNode | null = null;
+        switch(type) {
+            case Types.FlowCatagory.API:
+                newNode = new WorkModel.CallApi("untitled");
+            break;
+            case Types.FlowCatagory.ACTION:
+                newNode = new WorkModel.Action("untitled");
+            case Types.FlowCatagory.RULE:
+                newNode = new WorkModel.CallRule("untitled");
+            case Types.FlowCatagory.DELAY:
+                newNode = new WorkModel.Wait("untitled");
+            case Types.FlowCatagory.CHECK:
+                newNode = new WorkModel.Check("untitled");
+            case Types.FlowCatagory.MERGE:
+                newNode = new WorkModel.Merge("untitled");
+            case Types.FlowCatagory.SPLIT:
+                newNode = new WorkModel.Split("untitled");
+            break;
+            case Types.FlowCatagory.STOP:
+                newNode = new WorkModel.Stop("untitled");
+            break;
+        }
+        
+        if(!newNode) {
+            newNode = new WorkModel.Start("untitled");
+        }
+
+        this.add(newNode);
+        
+        return newNode;
     }
 
     moveTo(id: string) {

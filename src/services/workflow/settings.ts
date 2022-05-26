@@ -17,6 +17,7 @@ export class WorkflowSettings
     static readonly NODE_COLOR_DEFAULT = 'rgba(1, 1, 1)';
     static readonly NODE_BACKGROUND_COLOR_DEFAULT = 'rgba(100, 100, 100)';
     static readonly NODE_OUTLINE_COLOR_DEFAULT = 'rgba(50, 50, 50)';
+    static readonly NODE_OUTLINE_WIDTH_DEFAULT = '3';
 
     static readonly NODE_WIDTH_DEFAULT = 150;
     static readonly NODE_HEIGHT_DEFAULT = 50;
@@ -26,7 +27,9 @@ export class WorkflowSettings
     static readonly NODE_POS_X_MAX = 1000;
     static readonly NODE_POS_Y_MAX = 1000;
     
-    static readonly NODE_SHAPE_DEFAULT = "shape";
+    static readonly Node_EDGE_POS_OFFSET = 10;
+    
+    static readonly NODE_SHAPE_DEFAULT = "workNode";
     
     static readonly PANEL_COORDINATE = "bottom-left";
     static readonly PANEL_ZOOM_DEFAULT = 1.5;

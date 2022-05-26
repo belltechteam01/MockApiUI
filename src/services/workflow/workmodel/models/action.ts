@@ -14,6 +14,6 @@ export class CWorkAction extends CWork {
       this.type = Types.FlowCatagory.ACTION;
     }
     run() {
-    console.log("Action running")
+      console.log("Action running")
     }
 }

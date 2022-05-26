@@ -157,3 +157,9 @@ export interface IApiList {
     rulesDetails: IRulesDetails;
     checkCondition: ICheckCondition;
 }
+
+export interface IEdge {
+    id: string;
+    source: string;
+    target: string;
+}

@@ -1,4 +1,5 @@
-  import {CWorkNode, ENM_FLOWTYPE} from "./worknode"
+import {CWorkNode, ENM_FLOWTYPE} from "./worknode"
+import * as Types from "../types";
 
   export class CWorkMap<T extends {id:string}> {
   
@@ -6,7 +7,7 @@
       private _cur: CWorkNode<T> | null;
       private _length: number;
       private _hashmap: Map<string, CWorkNode<T>>;
-    
+
       constructor(...values: T[]) {
     
         this._hashmap = new Map();
@@ -20,7 +21,15 @@
           });
         }
       }
-  
+      
+      getMap() {
+        return this._hashmap;
+      }
+
+      get(id: string): CWorkNode<T> | null {
+        return this._hashmap.get(id) ?? null;
+      }
+      
       *iterator(): IterableIterator<T> {
         let currentItem = this._root;
     
@@ -92,7 +101,7 @@
       first(id: string): T | null {
         return this._root ? this._root.value : null;
       }
-  
+
       private isDuplicate(val: T): boolean {
         let set = new Set(this.toArray());
         return set.has(val);
