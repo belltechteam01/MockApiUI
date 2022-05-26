@@ -1,24 +1,22 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import * as MUI from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Node } from 'react-flow-renderer';
-// import useGetApis from '../../hooks/useGetApis';
-// import useAddStep from './../../hooks/useAddStep';
-// import useTestStep from '../../hooks/useTestStep';
-import ApiSetting, { IApiSettingProps } from './ApiSetting';
-import RuleSetting from './RuleSetting';
-import CheckSetting from './CheckSetting';
 import styles from './styles.module.scss';
+
+import * as ReactflowRenderer from 'react-flow-renderer';
+
 import * as Types from '../../services/workflow/types';
 import { CWorkflow } from 'services/workflow';
 
-interface INodeSettingProps extends IApiSettingProps {
-  
+// import ApiSetting, { IApiSettingProps } from './ApiSetting';
+
+interface INodeSettingProps {
   nodeId: string;
   isShow: boolean;
   workflow: CWorkflow;
   onClose: Function;
+  onSave: Function;
 }
+
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
 const NodeSetting: React.FC<INodeSettingProps> = (props: INodeSettingProps) => {
@@ -27,28 +25,31 @@ const NodeSetting: React.FC<INodeSettingProps> = (props: INodeSettingProps) => {
     nodeId,
     workflow,
     isShow,
-    onClose
+    onClose,
+    onSave
   } = props;
 
+  //props
+
+  //states  
   const [show, setShow] = useState(isShow);
+
   useEffect(() => {
+
     setShow(isShow);
-    console.log("[LOG] change state", isShow);
   }, [isShow]);
 
-  const toggleDrawer =
-    (anchor: Anchor, open: boolean) =>
+  //events
+  const toggleDrawer = (anchor: Anchor, open: boolean) =>
     (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
-        event &&
-        event.type === 'keydown' &&
+        event && event.type === 'keydown' &&
         ((event as React.KeyboardEvent).key === 'Tab' ||
           (event as React.KeyboardEvent).key === 'Shift')
       ) {
         return;
       }
-      
-      console.log("toggle drawer", open);
+
       setShow(open);
       onClose();
   };
@@ -63,9 +64,17 @@ const NodeSetting: React.FC<INodeSettingProps> = (props: INodeSettingProps) => {
           onOpen={toggleDrawer('right', true)}
         >
           <MUI.Box sx={{ width: 450 }} role="presentation">
-            <RuleSetting />
+            {/* apiSelector */}
+
+            {/* parameters editor */}
+
+            {/* response editor */}
+
+            {/* status code editor */}
+
+            {/* button group */}
+
           </MUI.Box>
-          {/* {list(anchor)} */}
         </MUI.SwipeableDrawer>
       </React.Fragment>
     </>
