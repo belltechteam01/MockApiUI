@@ -218,7 +218,7 @@ const ReactFlowWrapper = () => {
             // defaultEdgeOptions={defaultEdgeOptions}
             connectionLineType={ConnectionLineType.SmoothStep}
             connectionMode={ConnectionMode.Loose}
-            onNodeClick={onNodeClick}
+            onNodeClick={onNodeClick} 
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             // onConnect={onConnect}
@@ -232,15 +232,6 @@ const ReactFlowWrapper = () => {
           </ReactFlow>
         </div>
       </ReactFlowProvider>
-      {selectedNode && (
-        <NodeSetting 
-          // onSave={(data) => handleSave(data)} 
-          // isOpen={isOpen} onDrawerClose={handleSelectedNode} 
-          nodeInfo={selectedNode?.data || {}} 
-          selectList={apiListState} 
-          // onSelectAPI={handleGetAPI} 
-        />
-      )}
     </div>
   );
 };

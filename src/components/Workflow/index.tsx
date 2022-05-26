@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useCallback } from "react";
+import React, { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import styles from "./styles.module.scss";
 import ReactFlow from 'react-flow-renderer';
 import * as ReactflowRenderer from 'react-flow-renderer';
@@ -6,6 +6,7 @@ import ToolBar from '../ToolBar';
 import {CWorkflow} from "../../services/workflow"
 import {WorkflowSettings} from 'services/workflow/settings';
 import NodeComponent from 'components/Workflow/NodeComponent';
+import NodeSetting from '../NodeSetting';
 
 //interfaces
 
@@ -45,6 +46,11 @@ const Workflow = () => {
     const [edges, setEdges, onEdgesChange] = ReactflowRenderer.useEdgesState([]);
     const [workflow, setWorkflow] = useState<CWorkflow> (new CWorkflow());
 
+    //states
+    const [isEdit, setEdit] = useState(true);
+    const [selectedNode, setSelectedNode] = useState<string>("undefined");
+    const [showPropertyInspector, setShowPropertyInspector] = useState<boolean>(false);
+
     //callbacks
     const onDrop = useCallback((_event: any) => {
         _event.preventDefault();
@@ -68,7 +74,6 @@ const Workflow = () => {
             posInstance,
             workflow
         )));
-
     }, [reactFlowInstance]);
     
     const onDragOver = useCallback((event: any) => {
@@ -79,8 +84,23 @@ const Workflow = () => {
     const onConnect = (params:any) => {
         setEdges((eds) => ReactflowRenderer.addEdge(params, eds));
     };
-    //states
-    //const [isSelectable, setIsSelectable] = useState(false);
+
+    const onSave = (params: any) => {
+        console.log("[LOG] onsave params", params);
+    }
+
+    const onNodeClick = useCallback((event: React.MouseEvent, node: ReactflowRenderer.Node) => {
+        
+        setShowPropertyInspector(true);
+        setSelectedNode(node.id);
+        console.log("[LOG] node click", node.id);
+    }, []);
+
+    useEffect(() => {
+        if(selectedNode != "undefined") {
+
+        }
+    }, [selectedNode]);
 
     return (
         <div className={styles.root}>
@@ -99,6 +119,7 @@ const Workflow = () => {
                         onNodesChange={onNodesChange}
                         onEdgesChange={onEdgesChange}
                         onConnect={onConnect}
+                        onNodeClick={onNodeClick}
 
                         selectNodesOnDrag={false}
                         defaultZoom={1}
@@ -109,6 +130,15 @@ const Workflow = () => {
                     </ReactFlow>
                 </div>
             </ReactflowRenderer.ReactFlowProvider>
+            {isEdit && (
+                <NodeSetting 
+                    isShow={isEdit && showPropertyInspector}
+                    nodeId={selectedNode} 
+                    workflow={workflow} 
+                    onSave={onSave}
+                    onClose={() => {setShowPropertyInspector(false)}}
+                />
+            )}
         </div>
     );
 };
