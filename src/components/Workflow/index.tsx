@@ -6,7 +6,7 @@ import ToolBar from '../ToolBar';
 import {CWorkflow} from "../../services/workflow"
 import {WorkflowSettings} from 'services/workflow/settings';
 import NodeComponent from 'components/Workflow/NodeComponent';
-import NodeSetting from '../NodeSetting';
+import NodeSetting from '../SettingBar';
 
 //interfaces
 
