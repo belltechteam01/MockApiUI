@@ -36,7 +36,7 @@ import * as Types from "../types";
         while(currentItem) {
           yield currentItem.value
   
-          switch(currentItem.type) {
+          switch(currentItem.flowType) {
             case ENM_FLOWTYPE.I0_O1: 
             case ENM_FLOWTYPE.I2_O1: 
             case ENM_FLOWTYPE.I1_O1: {
@@ -80,7 +80,7 @@ import * as Types from "../types";
     
       // Add the element at the beginning of the linked list
       prepend(val: CWorkNode<T>): boolean {
-        if(val.type == ENM_FLOWTYPE.I0_O1) {
+        if(val.flowType == ENM_FLOWTYPE.I0_O1) {
           this._hashmap.set(val.id, val);
           this._root = val;
         }

@@ -154,7 +154,6 @@ const ReactFlowWrapper = () => {
         }
 
         //add node ui in react flow
-        console.log("[LOG] new node ", _new);
         setNodes((nodes) => nodes.concat(_new));
       }
     },

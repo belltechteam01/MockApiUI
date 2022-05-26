@@ -4,6 +4,11 @@ import * as ReactflowRenderer from 'react-flow-renderer';
 
 import ApiCallNode from "./ApiCallNode";
 import ApiRuleNode from "./ApiRuleNode";
+import ApiDelayNode from "./ApiDelayNode";
+import ApiActionNode from "./ApiActionNode";
+import ApiCheckNode from "./ApiCheckNode";
+import ApiMergeNode from "./ApiMergeNode";
+import ApiSplitNode from "./ApiSplitNode";
 
 import { CWorkflow } from "services/workflow";
 import {IBaseNodeComponentProps} from "./BaseNode";
@@ -33,11 +38,10 @@ const getNodeData = (id: string, workflow: CWorkflow):  IBaseNodeComponentProps 
     if(nodeData) {
         // const workModel = nodeData.getInstance();
         const workModel = nodeData;
-        
         let ret: IBaseNodeComponentProps = {
             id: workModel.id,
             position: { x: workModel.getInstance().xPos, y: workModel.getInstance().yPos },
-            type: Types.FlowCatagory[workModel.type],            
+            type: Types.FlowCatagory[workModel.getInstance().type],            
             data: workModel,
             
         };
@@ -78,24 +82,21 @@ const NodeComponent = (props: ReactflowRenderer.NodeProps<CWorkflow>) => {
             { nodeData && nodeCategory === Types.FlowCatagory.RULE &&
                 <ApiRuleNode {...nodeData} />
             }
-            {/* { nodeData && nodeCategory === Types.FlowCatagory.CHECK &&
-                <ApiCallNode {...nodeData} />
+            { nodeData && nodeCategory === Types.FlowCatagory.CHECK &&
+                <ApiCheckNode {...nodeData} />
             }
             { nodeData && nodeCategory === Types.FlowCatagory.DELAY &&
-                <ApiCallNode {...nodeData} />
+                <ApiDelayNode {...nodeData} />
             }
             { nodeData && nodeCategory === Types.FlowCatagory.MERGE &&
-                <ApiCallNode {...nodeData} />
+                <ApiMergeNode {...nodeData} />
             }
             { nodeData && nodeCategory === Types.FlowCatagory.SPLIT &&
-                <ApiCallNode {...nodeData} />
+                <ApiSplitNode {...nodeData} />
             }
-            { nodeData && nodeCategory === Types.FlowCatagory.START &&
-                <ApiCallNode {...nodeData} />
+            { nodeData && nodeCategory === Types.FlowCatagory.ACTION &&
+                <ApiActionNode {...nodeData} />
             }
-            { nodeData && nodeCategory === Types.FlowCatagory.STOP &&
-                <ApiCallNode {...nodeData} />
-            } */}
         </div>
     );
 };

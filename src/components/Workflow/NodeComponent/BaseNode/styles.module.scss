@@ -3,24 +3,25 @@
 @import 'styles/variables/_typography.scss';
 
 .root {
-  
+  position: relative;
 }
 
 .label {
-    display: 'flex';
-    justify-content: 'center';
-    align-items: 'center';
-    position: 'absolute';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
     top: 0;
     left: 0;
-    width: '100%';
-    height: '100%';
+    width: 100%;
+    height: 100%;
 
 }
 
 .label div {
-    font-family: 'monospace';
-    font-weight: 'bold';
-    color: 'black';
+    font-family: monospace;
+    font-weight: bold;
+    color: black;
     font-size: 12;
 }
+

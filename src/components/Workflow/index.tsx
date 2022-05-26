@@ -76,10 +76,9 @@ const Workflow = () => {
         event.dataTransfer.dropEffect = 'move';
     }, []);
 
-    const onConnect = useCallback(
-        (params) => setEdges((eds) => ReactflowRenderer.addEdge({ ...params, animated: true, style: { stroke: '#fff' } }, eds)),
-        []
-    );
+    const onConnect = (params:any) => {
+        setEdges((eds) => ReactflowRenderer.addEdge(params, eds));
+    };
     //states
     //const [isSelectable, setIsSelectable] = useState(false);
 
@@ -92,12 +91,16 @@ const Workflow = () => {
                         nodes={nodes}
                         edges={edges}
                         nodeTypes={nodeTypes}
+                        className="workflow"
                         
                         onInit={setReactFlowInstance}
                         onDrop={onDrop}
                         onDragOver={onDragOver}
                         onNodesChange={onNodesChange}
                         onEdgesChange={onEdgesChange}
+                        onConnect={onConnect}
+
+                        selectNodesOnDrag={false}
                         defaultZoom={1}
                         attributionPosition="bottom-left"
                     >

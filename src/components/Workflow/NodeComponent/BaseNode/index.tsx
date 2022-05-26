@@ -82,13 +82,14 @@ const getNodeShape = (type: Types.FlowCatagory): ReactNode => {
 
     const shapeStyles = {
         stroke: WorkflowSettings.NODE_OUTLINE_COLOR_DEFAULT,
-        strokeWidth: 0,
+        strokeWidth: 2,
         fill: fillColor
     }
 
     var shapeChilds: ReactNode;
+    
     switch (type) {
-        case Types.FlowCatagory.RULE: 
+        case Types.FlowCatagory.API: 
             shapeChilds = <rect 
                 x={0} 
                 y={0} 
@@ -98,7 +99,7 @@ const getNodeShape = (type: Types.FlowCatagory): ReactNode => {
                 {...shapeStyles} 
             />;
         break;
-        case Types.FlowCatagory.API:
+        case Types.FlowCatagory.RULE:
             shapeChilds = <rect 
                 x={0} 
                 y={0} 
@@ -169,8 +170,9 @@ const isEdgeValidation = (
         edgeIndex: number
     ) : boolean => 
 {
-    let bRet = true;
-
+    let bRet = false;
+    console.log("[LOG] validation connection", connection);
+    console.log("[LOG] validation node type", type);
     return bRet;
 }
 
@@ -187,16 +189,23 @@ const getNodeSources = (workNode: WorkNode<CWork>): ReactNode => {
 
     switch(nodeType) {
         case Types.FlowCatagory.API:
+        case Types.FlowCatagory.ACTION:
         case Types.FlowCatagory.RULE:
             if(nodeSourceCnt == 1) {
                 const first = workNode.getFirstEdge();
-                ret = <Handle type="source" position={Position.Bottom} id={first.id} />;
+                ret = <Handle type="source" position={Position.Bottom} id={first.id} 
+                    isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                />;
             } else {
                 const first = workNode.getFirstEdge();
                 const second = workNode.getSecondEdge();
                 ret = <>
-                    <Handle type="source" position={Position.Bottom} style={{left: offset}} id={first.id} />
-                    <Handle type="source" position={Position.Bottom} style={{left: width - offset}} id={second.id} />
+                    <Handle type="source" position={Position.Bottom} style={{left: offset}} id={first.id} 
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
+                    <Handle type="source" position={Position.Bottom} style={{left: width - offset}} id={second.id} 
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
                 </>;
             }
         break;
@@ -208,21 +217,29 @@ const getNodeSources = (workNode: WorkNode<CWork>): ReactNode => {
                 const first = workNode.getFirstEdge();
                 const second = workNode.getSecondEdge();
                 ret = <>
-                    <Handle type="source" position={Position.Bottom} id={first.id} />
-                    <Handle type="source" position={Position.Right} id={second.id} />
+                    <Handle type="source" position={Position.Bottom} id={first.id} 
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
+                    <Handle type="source" position={Position.Right} id={second.id} 
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
                 </>;
             }
         break;
         case Types.FlowCatagory.DELAY:
             if(nodeSourceCnt == 1) {
                 const first = workNode.getFirstEdge();
-                ret = <Handle type="source" position={Position.Bottom} id={first.id} />;
+                ret = <Handle type="source" position={Position.Bottom} id={first.id} 
+                    isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                />;
             }
         break;
         case Types.FlowCatagory.MERGE:
             if(nodeSourceCnt == 1) {
                 const first = workNode.getFirstEdge();
-                ret = <Handle type="source" position={Position.Bottom} id={first.id} />;
+                ret = <Handle type="source" position={Position.Bottom} id={first.id} 
+                    isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                />;
             }
         break;
         case Types.FlowCatagory.SPLIT:
@@ -230,8 +247,12 @@ const getNodeSources = (workNode: WorkNode<CWork>): ReactNode => {
                 const first = workNode.getFirstEdge();
                 const second = workNode.getSecondEdge();
                 ret = <>
-                    <Handle type="source" position={Position.Bottom} style={{left: offset}} id={first.id} />
-                    <Handle type="source" position={Position.Bottom} style={{left: width - offset}} id={second.id} />
+                    <Handle type="source" position={Position.Bottom} style={{left: offset}} id={first.id} 
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
+                    <Handle type="source" position={Position.Bottom} style={{left: width - offset}} id={second.id} 
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
                 </>;
             }
         break;
@@ -239,7 +260,9 @@ const getNodeSources = (workNode: WorkNode<CWork>): ReactNode => {
             if(nodeSourceCnt == 1) {
                 const first = workNode.getFirstEdge();
                 ret = <>
-                    <Handle type="source" position={Position.Bottom} id={first.id} />
+                    <Handle type="source" position={Position.Bottom} id={first.id} 
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
                 </>;
             }
         break;
@@ -259,15 +282,25 @@ const getNodeTargets = (workNode: WorkNode<CWork>): ReactNode => {
     switch(nodeType) {
         case Types.FlowCatagory.API:
         case Types.FlowCatagory.RULE:
+        case Types.FlowCatagory.ACTION:
             if(nodeTargetCnt == 1) {
                 const first = workNode.getFirstEdge(true);
-                ret = <Handle type="target" position={Position.Top} isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)} id={first.id} />;
+                ret = <Handle 
+                    type="target" 
+                    position={Position.Top} 
+                    isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    id={first.id} 
+                />;
             } else {
                 const first = workNode.getFirstEdge(true);
                 const second = workNode.getSecondEdge(true);
                 ret = <>
-                    <Handle type="target" position={Position.Top} style={{left: offset}} id={first.id} />
-                    <Handle type="target" position={Position.Top} style={{left: width - offset}} id={second.id} />
+                    <Handle type="target" position={Position.Top} style={{left: offset}} id={first.id}
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
+                    <Handle type="target" position={Position.Top} style={{left: width - offset}} id={second.id}
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 1)}
+                    />
                 </>;
             }
         break;
@@ -275,7 +308,9 @@ const getNodeTargets = (workNode: WorkNode<CWork>): ReactNode => {
         case Types.FlowCatagory.DELAY:
             if(nodeTargetCnt == 1) {
                 const first = workNode.getFirstEdge(true);
-                ret = <Handle type="target" position={Position.Top} id={first.id} />;
+                ret = <Handle type="target" position={Position.Top} id={first.id} 
+                    isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                />;
             }
         break;
         case Types.FlowCatagory.MERGE:
@@ -283,21 +318,29 @@ const getNodeTargets = (workNode: WorkNode<CWork>): ReactNode => {
                 const first = workNode.getFirstEdge(true);
                 const second = workNode.getSecondEdge(true);
                 ret = <>
-                    <Handle type="target" position={Position.Top} style={{left: offset}} id={first.id} />
-                    <Handle type="target" position={Position.Top} style={{left: width - offset}} id={second.id} />
+                    <Handle type="target" position={Position.Top} style={{left: offset}} id={first.id}
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
+                    <Handle type="target" position={Position.Top} style={{left: width - offset}} id={second.id} 
+                        isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                    />
                 </>;
             }
         break;
         case Types.FlowCatagory.SPLIT:
             if(nodeTargetCnt == 1) {
                 const first = workNode.getFirstEdge(true);
-                ret = <Handle type="target" position={Position.Top} id={first.id} />;
+                ret = <Handle type="target" position={Position.Top} id={first.id} 
+                    isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                />;
             }
         break;
         case Types.FlowCatagory.STOP:
             if(nodeTargetCnt == 1) {
                 const first = workNode.getFirstEdge(true);
-                ret = <Handle type="target" position={Position.Top} id={first.id} />;
+                ret = <Handle type="target" position={Position.Top} id={first.id} 
+                    isValidConnection = {(connection) => isEdgeValidation(connection, nodeType, 0)}
+                />;
             }
         break;
     }

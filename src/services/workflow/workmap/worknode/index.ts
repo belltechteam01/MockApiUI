@@ -44,7 +44,7 @@ export enum ENM_EDIT_SUBSTATE {
 export class CWorkNode<T extends {id: string}> {
     id: string;
     value: T;
-    type: ENM_FLOWTYPE;
+    flowType: ENM_FLOWTYPE;
     
     nexts: CWorkNode<T>[];
     prevs: CWorkNode<T>[];
@@ -66,7 +66,7 @@ export class CWorkNode<T extends {id: string}> {
       this.id = uuidv4();
       val.id = this.id;
       this.value = val;
-      this.type = type ?? ENM_FLOWTYPE.I0_O1;
+      this.flowType = type ?? ENM_FLOWTYPE.I0_O1;
       
       this.nexts = [];
       this.prevs = [];
