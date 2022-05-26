@@ -37,7 +37,9 @@ const getNodeData = (id: string, workflow: CWorkflow):  IBaseNodeComponentProps 
         let ret: IBaseNodeComponentProps = {
             id: workModel.id,
             position: { x: workModel.getInstance().xPos, y: workModel.getInstance().yPos },
-            data: workModel
+            type: Types.FlowCatagory[workModel.type],            
+            data: workModel,
+            
         };
 
         return ret;

@@ -113,7 +113,6 @@ const ReactFlowWrapper = () => {
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
       const curNodeData = JSON.parse(_event.dataTransfer.getData('application/reactflow'));
 
-      console.log("[LOG] curNodeData => ", curNodeData.type);
       if (typeof curNodeData === 'undefined' || !curNodeData) return;
       
       const newNodeColor = curNodeData.color;

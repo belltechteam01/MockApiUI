@@ -86,10 +86,9 @@ const getNodeShape = (type: Types.FlowCatagory): ReactNode => {
         fill: fillColor
     }
 
-    let shapeChilds: ReactNode;
-
+    var shapeChilds: ReactNode;
     switch (type) {
-        case Types.FlowCatagory.API: 
+        case Types.FlowCatagory.RULE: 
             shapeChilds = <rect 
                 x={0} 
                 y={0} 
@@ -99,7 +98,7 @@ const getNodeShape = (type: Types.FlowCatagory): ReactNode => {
                 {...shapeStyles} 
             />;
         break;
-        case Types.FlowCatagory.RULE:
+        case Types.FlowCatagory.API:
             shapeChilds = <rect 
                 x={0} 
                 y={0} 
@@ -158,7 +157,6 @@ const getNodeShape = (type: Types.FlowCatagory): ReactNode => {
                 </>);
         break;
     }
-    
     let ret = <svg style={{ display: 'block', overflow: 'visible' }} width={w} height={h}>
         {shapeChilds}
     </svg>
@@ -307,9 +305,21 @@ const getNodeTargets = (workNode: WorkNode<CWork>): ReactNode => {
     return ret;
 }
 
+const getNodeName = (WorkNode: WorkNode<CWork>): ReactNode => {
+    const name = WorkNode.getInstance().name;
+    return <>
+        <div className={styles.label}>
+            <div>
+                {name}
+            </div>
+        </div>
+    </>
+}
+
 //events
 
 const BaseNodeComponent = (props: IBaseNodeComponentProps) => {
+
     const {
         type,
         ...other
@@ -318,11 +328,13 @@ const BaseNodeComponent = (props: IBaseNodeComponentProps) => {
     const nodeType = nodeTypeToEnum(type);
     const {width, height} = getNodeSize(nodeType);
     const workNode: WorkNode<CWork> = props.data;
+    const workNodeData: CWork = workNode.getInstance();
 
     //states
     const [shape, setShape] = useState<ReactNode>();
     const [sources, setSources] = useState<ReactNode>();
     const [targets, setTargets] = useState<ReactNode>();
+    const [label, setLabel] = useState<ReactNode>();
     
     useEffect(() => {
         const nodeShape = getNodeShape(nodeType);
@@ -339,12 +351,17 @@ const BaseNodeComponent = (props: IBaseNodeComponentProps) => {
         if(nodeTargets) {
             setTargets(nodeTargets);
         }
+
+        const nodeLabel = getNodeName(workNode);
+        console.log(nodeLabel);
+        setLabel(nodeLabel);
     }, [nodeType]);
 
     return (
         <div className={styles.root}>
             {/* body */}
             {shape}
+            {label}
 
             {/* sources */}
             {sources}

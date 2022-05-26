@@ -1,4 +1,4 @@
-import * as Types from "../../types";
+import * as Types from "../types";
 import { v4 as uuidv4 } from 'uuid';
 
 export class CEdgeMap<T extends {id:string}> {
@@ -42,7 +42,6 @@ export class CEdgeMap<T extends {id:string}> {
   }
 
   getFirst(): T | null {
-    console.log("edgemap first");
     if(this.size == 0) return null;
 
     const first = this._hashmap.entries().next();

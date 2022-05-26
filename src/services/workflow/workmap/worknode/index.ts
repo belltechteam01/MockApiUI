@@ -1,7 +1,7 @@
 import * as Types from "../../types";
 import {WorkflowSettings} from "../../settings";
 import {Events, EVENT_CODE} from "../../events";
-import { CEdgeMap as EdgeMap} from "../edgemap"
+import { CEdgeMap as EdgeMap} from "../../edgemap"
 import { v4 as uuidv4 } from 'uuid';
 
 export enum ENM_FLOWTYPE {
@@ -211,7 +211,6 @@ export class CWorkNode<T extends {id: string}> {
       else
         edges = this.targets;
       
-      console.log("[LOG] edges instance", edges);
       let ret = edges.getFirst();
       if(!ret) {
         ret = edges.append({id:"", source: "", target: ""});

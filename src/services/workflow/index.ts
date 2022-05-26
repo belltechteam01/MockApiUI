@@ -42,27 +42,35 @@ export class CWorkflow {
     }
 
     addNew(type: Types.FlowCatagory): WorkModel.WorkNode {
+
         let newNode: WorkModel.WorkNode | null = null;
         switch(type) {
+
             case Types.FlowCatagory.API:
                 newNode = new WorkModel.CallApi("untitled");
             break;
             case Types.FlowCatagory.ACTION:
                 newNode = new WorkModel.Action("untitled");
+            break;
             case Types.FlowCatagory.RULE:
                 newNode = new WorkModel.CallRule("untitled");
+            break;
             case Types.FlowCatagory.DELAY:
                 newNode = new WorkModel.Wait("untitled");
+            break;
             case Types.FlowCatagory.CHECK:
                 newNode = new WorkModel.Check("untitled");
+            break;
             case Types.FlowCatagory.MERGE:
                 newNode = new WorkModel.Merge("untitled");
+            break;
             case Types.FlowCatagory.SPLIT:
                 newNode = new WorkModel.Split("untitled");
             break;
             case Types.FlowCatagory.STOP:
                 newNode = new WorkModel.Stop("untitled");
             break;
+            
         }
         
         if(!newNode) {

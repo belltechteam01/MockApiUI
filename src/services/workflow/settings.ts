@@ -15,7 +15,7 @@ export class WorkflowSettings
     static readonly NODE_OUTPUT_MIN = 0;
 
     static readonly NODE_COLOR_DEFAULT = 'rgba(1, 1, 1)';
-    static readonly NODE_BACKGROUND_COLOR_DEFAULT = 'rgba(100, 100, 100)';
+    static readonly NODE_BACKGROUND_COLOR_DEFAULT = 'rgba(255, 255, 255, 1)';
     static readonly NODE_OUTLINE_COLOR_DEFAULT = 'rgba(50, 50, 50)';
     static readonly NODE_OUTLINE_WIDTH_DEFAULT = '3';
 

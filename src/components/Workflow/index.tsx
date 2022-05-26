@@ -26,7 +26,7 @@ const getReactNodeProps = (id: string, pos: ReactflowRenderer.XYPosition, data: 
 
     return {
         id: id,
-        type: WorkflowSettings.NODE_SHAPE_DEFAULT,
+        type: 'workNode',
         position: pos,
         data: data
     }
@@ -71,10 +71,15 @@ const Workflow = () => {
 
     }, [reactFlowInstance]);
     
-    const onDragOver = useCallback((event) => {
+    const onDragOver = useCallback((event: any) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     }, []);
+
+    const onConnect = useCallback(
+        (params) => setEdges((eds) => ReactflowRenderer.addEdge({ ...params, animated: true, style: { stroke: '#fff' } }, eds)),
+        []
+    );
     //states
     //const [isSelectable, setIsSelectable] = useState(false);
 
@@ -91,8 +96,10 @@ const Workflow = () => {
                         onInit={setReactFlowInstance}
                         onDrop={onDrop}
                         onDragOver={onDragOver}
-                        
-                        fitView
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
+                        defaultZoom={1}
+                        attributionPosition="bottom-left"
                     >
                         <ReactflowRenderer.Background />
                         <ReactflowRenderer.Controls />
