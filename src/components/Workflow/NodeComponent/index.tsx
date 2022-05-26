@@ -71,6 +71,7 @@ const NodeComponent = (props: ReactflowRenderer.NodeProps<CWorkflow>) => {
     } = props;
 
     const workflow = data;
+    
     const nodeCategory = getNodeCatagory(id, workflow);
     const nodeData = getNodeData(id, workflow);
 

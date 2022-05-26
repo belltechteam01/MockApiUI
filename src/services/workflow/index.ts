@@ -1,10 +1,13 @@
-import { CWorkMap as WorkMap} from "./workmap"
+import { CWorkMap as WorkMap} from "./workmap";
+import { CWorkNode as WorkNode} from "./workmap/worknode";
+import { CEdgeMap as EdgeMap } from "./edgemap";
 import { ENM_FLOWTYPE } from "./workmap/worknode"
 
 import {WorkflowSettings} from "./settings";
 import * as WorkModel from "./workmodel";
 import * as Util from "./utils";
 import * as Types from "./types";
+import { CWork } from "./workmodel/models/work";
 
 
 export class CWorkflow {
@@ -13,12 +16,14 @@ export class CWorkflow {
     public type: string = "Untitled";
 
     public worklist: WorkMap<WorkModel.WorkNode>;
+    private _edgelist: EdgeMap<Types.IEdge>;
 
     constructor(name?:string) {
         this.id = WorkflowSettings.WORKFLOW_ID_DEFAULT;
         this.name = name ?? WorkflowSettings.WORKFLOW_NAME_DEFAULT;
         
         this.worklist = new WorkMap<WorkModel.WorkNode>();
+        this._edgelist = new EdgeMap<Types.IEdge>();
     }
 
     add(model: WorkModel.WorkNode, type?: ENM_FLOWTYPE) {
@@ -97,6 +102,19 @@ export class CWorkflow {
         if(data) {
             // const apiDetail: Types.IApiDetail = 
         }
+    }
+
+    //get edges
+    getEdges(): EdgeMap<Types.IEdge>  {
+        this._edgelist.removeAll();
+        for(var value of this.worklist.getMap().values()) {
+
+            const work: WorkNode<CWork> = value;
+            const edges = work.getEdgeAll();
+            this._edgelist.appendMany( edges );
+
+        }
+        return this._edgelist;
     }
 }
 

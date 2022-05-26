@@ -8,6 +8,7 @@ export interface IEvent {
 }
 
 export enum FlowCatagory {
+    NONE,
     API,
     RULE,
     CHECK,

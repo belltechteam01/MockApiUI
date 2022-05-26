@@ -171,8 +171,6 @@ const isEdgeValidation = (
     ) : boolean => 
 {
     let bRet = false;
-    console.log("[LOG] validation connection", connection);
-    console.log("[LOG] validation node type", type);
     return bRet;
 }
 
@@ -182,7 +180,7 @@ const getNodeSources = (workNode: WorkNode<CWork>): ReactNode => {
     const nodeType = workNode.getInstance().type;
     
     const nodeEdges = workNode.getEdges();
-
+    
     if(nodeSourceCnt == 0) return ret;
     const {width, height} = getNodeSize(nodeType);
     const offset = WorkflowSettings.Node_EDGE_POS_OFFSET;
@@ -396,7 +394,7 @@ const BaseNodeComponent = (props: IBaseNodeComponentProps) => {
         }
 
         const nodeLabel = getNodeName(workNode);
-        console.log(nodeLabel);
+
         setLabel(nodeLabel);
     }, [nodeType]);
 

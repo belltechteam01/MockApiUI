@@ -24,11 +24,17 @@ export class CEdgeMap<T extends {id:string}> {
     return this._hashmap.size;
   }
 
+  appendMany(values: T[]) {
+    values.forEach((value) => {
+      this.append(value);
+    });
+  }
+
   // Adds the element at the end of the linked list
   append(val: T): T {
 
     let newItem = val;
-    if( !newItem || newItem.id === undefined || newItem.id === null) {
+    if( !newItem || newItem.id === undefined || newItem.id === null || newItem.id == "") {
       newItem.id = uuidv4();
     }
 
@@ -39,6 +45,10 @@ export class CEdgeMap<T extends {id:string}> {
   remove(id: string | undefined): boolean {
     if(id) return this._hashmap.delete(id);
     return false;
+  }
+
+  removeAll() {
+    this._hashmap.clear();
   }
 
   getFirst(): T | null {

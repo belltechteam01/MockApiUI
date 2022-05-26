@@ -236,4 +236,15 @@ export class CWorkNode<T extends {id: string}> {
       
       return ret;
     }
+
+    public getEdgeAll(): Types.IEdge[] {
+      var ret = Array();
+      for(var edges of this.sources.getMap().values()) {
+        ret.push(edges);
+      }
+      for(var edges of this.targets.getMap().values()) {
+        ret.push(edges);
+      }
+      return ret;
+    }
   }
