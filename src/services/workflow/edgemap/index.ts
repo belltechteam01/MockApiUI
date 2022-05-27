@@ -54,15 +54,14 @@ export class CEdgeMap<T extends {id:string}> {
   getFirst(): T | null {
     if(this.size == 0) return null;
 
-    const first = this._hashmap.entries().next();
-    return first.value;
+    const first = this._hashmap.values()[0];
+    return first;
   }
 
   getSecond(): T | null {
     if(this.size < 2) return null;
 
-    const second = this._hashmap.entries()[1];
-    return second.value;
+    return this._hashmap.values()[1];
   }
 }
   
