@@ -170,7 +170,7 @@ const isEdgeValidation = (
         edgeIndex: number
     ) : boolean => 
 {
-    let bRet = false;
+    let bRet = true;
     return bRet;
 }
 

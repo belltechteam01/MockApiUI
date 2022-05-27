@@ -15,38 +15,6 @@
   height: 100vh;
 }
 
-.workflow .react-flow__node {
-  width: 150px;
-  border-radius: 5px;
-  padding: 10px;
-  color: #555;
-  border: 1px solid #ddd;
-  text-align: center;
-  font-size: 12px;
-}
-
-.workflow .react-flow__node-customnode {
-  background: #e6e6e9;
-  border: 1px solid #ddd;
-}
-
-.react-flow__node-customnode .react-flow__handle {
-  background: #e6e6e9;
-}
-react-flow__handle
-.workflow .react-flow__node-customnode {
-  background: #fff;
-
-}
-
-.workflow .react-flow__handle-connecting {
-  background: #ff6060;
-}
-
-.react-flow__handle-valid {
-  background: #55dd99;
-}
-
 @media screen and (min-width: 768px) {
   .root {
     flex-direction: row;

@@ -81,8 +81,26 @@ const Workflow = () => {
         event.dataTransfer.dropEffect = 'move';
     }, []);
 
-    const onConnect = (params:any) => {
-        setEdges((eds) => ReactflowRenderer.addEdge(params, eds));
+    const onConnect = (params: any) => {
+        console.log('params===>', params);
+        params.label = 'test-edge';
+        params.className = 'normal-edge';
+        params.style = { stroke: 'blue', strokeWidth: 3 };
+        params.markerEnd = {
+        type: ReactflowRenderer.MarkerType.ArrowClosed,
+        color: 'red'
+        };
+        params.data = {
+        lineWidth: 2,
+        lineColor: '#de6543'
+        };
+        // params.markerEnd.type = MarkerType.ArrowClosed;
+
+        setEdges((eds) => {
+        console.log('edges===>', eds);
+
+        return ReactflowRenderer.addEdge(params, eds);
+        });
     };
 
     const onSave = (params: any) => {
@@ -111,7 +129,7 @@ const Workflow = () => {
                         nodes={nodes}
                         edges={edges}
                         nodeTypes={nodeTypes}
-                        className="workflow"
+                        className={styles.workflow}
                         
                         onInit={setReactFlowInstance}
                         onDrop={onDrop}
