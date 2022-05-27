@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, ReactNode, useEffect } from 'react';
+import React, { MouseEventHandler, ReactNode, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Container, Drawer, FormControl, FormHelperText, Grid, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Typography } from '@mui/material';
 import { FormControlContainer, Input, Label, ReactSelect, TextArea } from '../../../styled';
@@ -38,24 +38,24 @@ const actionOption = [
 ];
 
 //functions
-const getApiNameEditor = (workData: CWork | undefined, t: Function): ReactNode => {
-  return <>
-    {/* apiSelector */}
-    <FormControlContainer>
-      <FormControl fullWidth>
-        <Label htmlFor="name">{t('workflow.setting.form.label.name')}</Label>
+const getApiNameEditor = (apiName: string, workData: CWork | undefined, t: Function): ReactNode => {
+  const node = useRef<HTMLInputElement>(null);
+  let ret: ReactNode =
         <Input
           id="name"
+          ref={node}
           aria-describedby="stepName-helper-text"
           placeholder={t('workflow.setting.form.placeholder.name')}
-          value={workData?.name}
-          onChange={(e) => {
+          onBlur={(e) => {
             console.log("[LOG] api name changed ", e.target.value);
+            if(workData !== undefined) {
+              workData.name = e.target.value;
+            }
           }}
-        />
-      </FormControl>
-    </FormControlContainer>
-  </>
+        />;
+
+  node?.current?.setAttribute('value', apiName);
+  return ret;
 }
 
 const getApiSelector = (apiList: Array<IApiDetail> | undefined, t: Function) : ReactNode => {
@@ -214,10 +214,13 @@ const SettingPane = (props: ISettingPaneProps) => {
   } = props;
 
   const { t } = useTranslation();
+  //props
+  let workNode = workflow.worklist.get(nodeId);
+  let workData = workNode?.getInstance();
   
-  const workNode = workflow.worklist.get(nodeId);
-  const workData = workNode?.getInstance();
-  
+  console.log("[LOG] workflow =>", workflow);
+
+  //states
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectAction, setSelectAction] = React.useState('');
   const [fieldName, setFieldName] = React.useState('');
@@ -227,6 +230,7 @@ const SettingPane = (props: ISettingPaneProps) => {
   const [apis, setApis] = React.useState<IApiDetail[]>();
   const [requests, setRequests] = React.useState<IRequestItem[]>();
   const [responses, setResponses] = React.useState<IResponseItem[]>();
+  const [apiName, setApiName] = React.useState<string>( workData? workData.name: "untitled");
   
   useEffect(() => {
     if(workNode) {
@@ -236,8 +240,8 @@ const SettingPane = (props: ISettingPaneProps) => {
     }
   }, [workNode]);
   //functions
-  
-  const apiNameEditor = getApiNameEditor(workData, t);
+
+  const apiNameEditor = getApiNameEditor(apiName, workData, t);
   const apiSelector = getApiSelector(apis, t);
   const reqeustList = getReqeuestList(requests, t);
   const responseList = getResponseList(responses, t);
