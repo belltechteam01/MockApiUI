@@ -2,15 +2,6 @@
 @import 'styles/variables/_color.scss';
 @import 'styles/variables/_typography.scss';
 
-.root {
-  display: flex;
-  flex-direction: column;
-}
-
-.sub-container {
-  width: 45px;
-}
-
 .borderLabel {
   border: 1px solid $black;
   background-color: $grayDark;
@@ -56,3 +47,19 @@
   color: $black;
 }
 
+.subContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: space-between;
+  padding: 1px;
+  margin: 1px;
+  border-radius: 1px;
+  width: 100%;
+}

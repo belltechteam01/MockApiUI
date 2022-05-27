@@ -6,7 +6,7 @@ import ToolBar from '../ToolBar';
 import {CWorkflow} from "../../services/workflow"
 import {WorkflowSettings} from 'services/workflow/settings';
 import NodeComponent from 'components/Workflow/NodeComponent';
-import NodeSetting from '../SettingBar';
+import SettingBar from '../SettingBar';
 
 //interfaces
 
@@ -131,7 +131,7 @@ const Workflow = () => {
                 </div>
             </ReactflowRenderer.ReactFlowProvider>
             {isEdit && (
-                <NodeSetting 
+                <SettingBar 
                     isShow={isEdit && showPropertyInspector}
                     nodeId={selectedNode} 
                     workflow={workflow} 

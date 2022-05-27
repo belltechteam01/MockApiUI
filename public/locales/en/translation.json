@@ -39,7 +39,7 @@
         },
         "placeholder": {
           "name": "Name",
-          "selectedAPI": "Select the API"
+          "api-selector": "Select the API"
         }
       }
     }

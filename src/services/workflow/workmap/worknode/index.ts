@@ -3,6 +3,7 @@ import {WorkflowSettings} from "../../settings";
 import {Events, EVENT_CODE} from "../../events";
 import { CEdgeMap as EdgeMap} from "../../edgemap"
 import { v4 as uuidv4 } from 'uuid';
+import {WorkflowSevice} from "services/api";
 
 export enum ENM_FLOWTYPE {
     I0_O1,
@@ -245,6 +246,29 @@ export class CWorkNode<T extends {id: string}> {
       for(var edges of this.targets.getMap().values()) {
         ret.push(edges);
       }
+      return ret;
+    }
+
+    public async getRequests(): Promise<Types.IRequestItem[]> {
+      var ret: Array<Types.IRequestItem> = [];
+
+      return ret;
+    }
+    public async getApiList(): Promise<Types.IApiDetail[]> {
+      var ret: Array<Types.IApiDetail> = [];
+
+      const apiList: any = await WorkflowSevice.getCustomerDetails();
+      console.log("[CALL] getCustomerDetails reqs =>", apiList);
+
+      if(apiList.result) {
+        ret = apiList.data;
+      }
+
+      return ret;
+    }
+    public async getResponses(): Promise<Types.IResponseItem[]> {
+      var ret: Array<Types.IResponseItem> = [];
+
       return ret;
     }
   }

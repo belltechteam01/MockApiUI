@@ -1,15 +1,26 @@
 import * as MUI from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import styles from './styles.module.scss';
+import React, {
+    useEffect, 
+    useRef, 
+    useState,
+    useCallback,
+    ReactNode
+} from "react";
+import { useTranslation } from 'react-i18next';
+import * as Styled from '../../styled';
 
 import * as ReactflowRenderer from 'react-flow-renderer';
 
+import styles from './styles.module.scss';
+
 import * as Types from '../../services/workflow/types';
-import { CWorkflow } from 'services/workflow';
+import { CWorkflow, Workflow } from 'services/workflow';
+import { CWorkNode as WorkNode} from "services/workflow/workmap/worknode";
+import { CWork } from "services/workflow/workmodel/models/work";
+import SettingPane from "./pane";
 
 // import ApiSetting, { IApiSettingProps } from './ApiSetting';
-
-interface INodeSettingProps {
+interface ISettingBarProps {
   nodeId: string;
   isShow: boolean;
   workflow: CWorkflow;
@@ -17,9 +28,40 @@ interface INodeSettingProps {
   onSave: Function;
 }
 
-type Anchor = 'top' | 'left' | 'bottom' | 'right';
+//functions
+const getApiSelector = (workNode: WorkNode<CWork> | null, t: Function): ReactNode => {
+  var ret: ReactNode;
+  if(workNode) {
 
-const NodeSetting: React.FC<INodeSettingProps> = (props: INodeSettingProps) => {
+    const workData = workNode.getInstance();
+    ret = <>
+      <Styled.FormControlContainer>
+        <MUI.FormControl fullWidth>
+          <Styled.Label htmlFor="name">{t('workflow.setting.form.label.name')}</Styled.Label>
+          <Styled.Input
+            id="name"
+            aria-describedby="stepName-helper-text"
+            placeholder={t('workflow.setting.form.placeholder.name')}
+            value={workData.name}
+            // onChange={(e) => setAddFormData({ nodeName: e.target.value })}
+            // defaultValue={getValues('workflow.stepName')}
+            // {...register('workflow.stepName')}
+          />
+          {/* {formState.errors?.workflow?.stepName && (
+              <FormHelperText id="stepName-helper-text" error>
+                {formState.errors.workflow.stepName.message}
+              </FormHelperText>
+            )} */}
+        </MUI.FormControl>
+      </Styled.FormControlContainer>
+    </>
+  }
+  return ret;
+}
+
+const SettingBar: React.FC<ISettingBarProps> = (props: ISettingBarProps) => {
+  //constants
+  const { t } = useTranslation();
 
   let {
     nodeId,
@@ -30,6 +72,8 @@ const NodeSetting: React.FC<INodeSettingProps> = (props: INodeSettingProps) => {
   } = props;
 
   //props
+  const workNode = workflow.worklist.get(nodeId);
+  const workData = workNode?.getInstance();
 
   //states  
   const [show, setShow] = useState(isShow);
@@ -39,8 +83,11 @@ const NodeSetting: React.FC<INodeSettingProps> = (props: INodeSettingProps) => {
     setShow(isShow);
   }, [isShow]);
 
+  //functions
+  const apiSelector = getApiSelector(workNode, t);
+
   //events
-  const toggleDrawer = (anchor: Anchor, open: boolean) =>
+  const toggleDrawer = (open: boolean) =>
     (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
         event && event.type === 'keydown' &&
@@ -55,29 +102,20 @@ const NodeSetting: React.FC<INodeSettingProps> = (props: INodeSettingProps) => {
   };
 
   return (
-    <>
-     <React.Fragment key={'right'}>
+    <div className={styles.root}>
+      <React.Fragment>
         <MUI.SwipeableDrawer
           anchor={'right'}
           open={show}
-          onClose={toggleDrawer('right', false)}
-          onOpen={toggleDrawer('right', true)}
+          onClose={toggleDrawer(false)}
+          onOpen={toggleDrawer(true)}
         >
-          <MUI.Box sx={{ width: 450 }} role="presentation">
-            {/* apiSelector */}
-
-            {/* parameters editor */}
-
-            {/* response editor */}
-
-            {/* status code editor */}
-
-            {/* button group */}
-
+          <MUI.Box className={styles.subContainer} role="presentation">
+            <SettingPane nodeId={nodeId} workflow={workflow} />
           </MUI.Box>
         </MUI.SwipeableDrawer>
       </React.Fragment>
-    </>
+    </div>
   );
 };
-export default NodeSetting;
+export default SettingBar;

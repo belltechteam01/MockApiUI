@@ -7,7 +7,8 @@ const service = axios.create({
   baseURL: Api.baseURL,
   headers: {
     "Content-Type": "application/json",
-    "X-Requested-With": "XMLHttpRequest"
+    // "x-api-key": process.env.REACT_APP_X_API_KEY as string,
+    // "X-Requested-With": "XMLHttpRequest"
   },
   // withCredentials: true,
   // httpsAgent: new https.Agent({

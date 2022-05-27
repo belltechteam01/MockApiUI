@@ -154,7 +154,7 @@ export interface IApiList {
     parentFlowItemId:       string;
     successChildFlowItemId: string;
     failureChildFlowItemId: string;
-    apiDetails: IApiDetail;
+    apiDetails: IApiDetail[];
     rulesDetails: IRulesDetails;
     checkCondition: ICheckCondition;
 }
