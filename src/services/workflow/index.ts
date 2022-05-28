@@ -14,6 +14,7 @@ export class CWorkflow {
     public id: string = "123";
     public name: string;
     public type: string = "Untitled";
+    public changed: boolean = false;
 
     public worklist: WorkMap<WorkModel.WorkNode>;
     private _edgelist: EdgeMap<Types.IEdge>;
@@ -116,6 +117,7 @@ export class CWorkflow {
         }
         return this._edgelist;
     }
+
 }
 
 export {

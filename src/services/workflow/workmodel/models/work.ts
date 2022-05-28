@@ -1,5 +1,6 @@
 import * as Types from "../../types";
 import {WorkflowSettings} from "../../settings";
+import { RefObject } from "react";
 
 export abstract class CWork{
     public id: string;
@@ -10,6 +11,7 @@ export abstract class CWork{
     public abstract type: Types.FlowCatagory;
     public abstract readonly inputs: number;
     public abstract readonly outputs: number;
+    public labelRef: RefObject<HTMLDivElement>;
 
     constructor(name: string) {
         this.id = "undefined";
@@ -25,4 +27,13 @@ export abstract class CWork{
     run() {
         console.log("Work base running");
     }
+
+    changeNodeName(name: string) {
+        if(name) {
+        this.labelRef?.current?.replaceChildren(name);
+        this.name = name;
+            this.labelRef?.current?.replaceChildren(name);
+            this.name = name;
+        }
+    }              
 }

@@ -111,7 +111,6 @@ const Workflow = () => {
         
         setShowPropertyInspector(true);
         setSelectedNode(node.id);
-        console.log("[LOG] node click", node.id);
     }, []);
 
     useEffect(() => {

@@ -41,20 +41,17 @@ const actionOption = [
 const getApiNameEditor = (apiName: string, workData: CWork | undefined, t: Function): ReactNode => {
   const node = useRef<HTMLInputElement>(null);
   let ret: ReactNode =
-        <Input
-          id="name"
-          ref={node}
-          aria-describedby="stepName-helper-text"
-          placeholder={t('workflow.setting.form.placeholder.name')}
-          onBlur={(e) => {
-            console.log("[LOG] api name changed ", e.target.value);
-            if(workData !== undefined) {
-              workData.name = e.target.value;
-            }
-          }}
-        />;
+    <Input
+      id="name"
+      ref={node}
+      aria-describedby="stepName-helper-text"
+      placeholder={t('workflow.setting.form.placeholder.name')}
+      onBlur={(e) => {
+        workData?.changeNodeName(e.target.value);
+      }}
+    />;
 
-  node?.current?.setAttribute('value', apiName);
+    node?.current?.setAttribute('value', apiName);
   return ret;
 }
 
@@ -218,8 +215,6 @@ const SettingPane = (props: ISettingPaneProps) => {
   let workNode = workflow.worklist.get(nodeId);
   let workData = workNode?.getInstance();
   
-  console.log("[LOG] workflow =>", workflow);
-
   //states
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectAction, setSelectAction] = React.useState('');

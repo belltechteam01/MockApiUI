@@ -346,15 +346,18 @@ const getNodeTargets = (workNode: WorkNode<CWork>): ReactNode => {
     return ret;
 }
 
-const getNodeName = (WorkNode: WorkNode<CWork>): ReactNode => {
-    const name = WorkNode.getInstance().name;
-    return <>
+const getNodeName = (workNode: WorkNode<CWork>): ReactNode => {
+    const name = workNode.getInstance().name;
+    const nodeRef = useRef<HTMLDivElement>(null);
+    let ret = <>
         <div className={styles.label}>
-            <div>
+            <div ref={nodeRef}>
                 {name}
             </div>
         </div>
     </>
+    workNode.getInstance().labelRef = nodeRef;
+    return ret;
 }
 
 //events
@@ -369,13 +372,13 @@ const BaseNodeComponent = (props: IBaseNodeComponentProps) => {
     const nodeType = nodeTypeToEnum(type);
     const {width, height} = getNodeSize(nodeType);
     const workNode: WorkNode<CWork> = props.data;
-    const workNodeData: CWork = workNode.getInstance();
+    const nodeLabel = getNodeName(workNode);
 
     //states
     const [shape, setShape] = useState<ReactNode>();
     const [sources, setSources] = useState<ReactNode>();
     const [targets, setTargets] = useState<ReactNode>();
-    const [label, setLabel] = useState<ReactNode>();
+    const [label, setLabel] = useState<ReactNode>(nodeLabel);
     
     useEffect(() => {
         const nodeShape = getNodeShape(nodeType);
@@ -392,8 +395,6 @@ const BaseNodeComponent = (props: IBaseNodeComponentProps) => {
         if(nodeTargets) {
             setTargets(nodeTargets);
         }
-
-        const nodeLabel = getNodeName(workNode);
 
         setLabel(nodeLabel);
     }, [nodeType]);
