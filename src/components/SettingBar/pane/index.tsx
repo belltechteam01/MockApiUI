@@ -9,6 +9,8 @@ import { FROM_API_DATA, FROM_INPUT_DATA } from 'utils/constant';
 import { CWorkflow } from 'services/workflow';
 import { CWork } from 'services/workflow/workmodel/models/work';
 import { IApiDetail, IRequestItem, IResponseItem } from 'services/workflow/types';
+import * as RequestModal  from 'components/Modals/RequestModal';
+import * as ResponseModal from 'components/Modals/ResponseModal';
 
 export interface ISettingPaneProps extends ISettingPaneEvent {
   nodeId: string;
@@ -22,20 +24,6 @@ export interface ISettingPaneEvent {
   onDrawerClose?: (event: React.KeyboardEvent | React.MouseEvent, isOpen: boolean) => void;
   onSelectAPI?: Function;
 }
-
-const initAction = '';
-const initActionName = '';
-const initTestStepData = '';
-const actionOption = [
-  {
-    label: 'API',
-    value: 'api'
-  },
-  {
-    label: 'Rule',
-    value: 'rule'
-  }
-];
 
 //functions
 const getApiNameEditor = (apiName: string, workData: CWork | undefined, t: Function): ReactNode => {
@@ -65,7 +53,7 @@ const getApiSelector = (apiList: Array<IApiDetail> | undefined, t: Function) : R
           id="api-selector"
           aria-describedby="action-helper-text"
           placeholder={t('workflow.setting.form.placeholder.api-selector')}
-          defaultValue={initAction}
+          // defaultValue={}
           options={apiList}
           onChange={(value: any) => {
             // if (onSelectAPI) onSelectAPI(newValue.value);
@@ -90,6 +78,16 @@ const setIsModalOpen = (isOpen: boolean) => {
     
 }
 
+const onRequestEdit = (row) => {
+  console.log("[LOG] show edit");
+
+}
+
+const onRequestAdd = () => {
+  console.log("[LOG] show add");
+  
+}
+
 const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function) : ReactNode => {
   var ret: ReactNode;
   ret = 
@@ -99,7 +97,9 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function)
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableHead>
-              <TableRow>
+              <TableRow
+                onClick={onRequestAdd}
+              >
                 <TableCell>Field Name</TableCell>
                 <TableCell>Json Path/Constant</TableCell>
               </TableRow>
@@ -108,6 +108,7 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function)
               {(requests || []).map((element: any, index) => (
                 <TableRow
                   key={index}
+                  onClick={onRequestEdit}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
@@ -197,14 +198,20 @@ const getResponseList = (responses: Array<IResponseItem> | undefined, t: Functio
   return ret;
 }
 
+const getRequestModal = (isAdd: boolean = true): ReactNode => {
+  let ret: ReactNode;
+  ret = <>
+    <RequestModal.Modal id="123" type={RequestModal.ModalType.Add} data={{}} />
+  </>
+  return ret;
+}
+
 const SettingPane = (props: ISettingPaneProps) => {
 
   const {
     onDrawerClose, 
     onSaveParent, 
     properties, 
-    onSelectAPI, 
-    selectList,
 
     nodeId,
     workflow
@@ -214,7 +221,7 @@ const SettingPane = (props: ISettingPaneProps) => {
   //props
   let workNode = workflow.worklist.get(nodeId);
   let workData = workNode?.getInstance();
-  
+
   //states
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectAction, setSelectAction] = React.useState('');
@@ -227,6 +234,11 @@ const SettingPane = (props: ISettingPaneProps) => {
   const [responses, setResponses] = React.useState<IResponseItem[]>();
   const [apiName, setApiName] = React.useState<string>( workData? workData.name: "untitled");
   
+  const apiNameEditor = getApiNameEditor(apiName, workData, t);
+  const apiSelector = getApiSelector(apis, t);
+  const reqeustList = getReqeuestList(requests, t);
+  const responseList = getResponseList(responses, t);
+
   useEffect(() => {
     if(workNode) {
       workNode.getApiList(). then((r) => { setApis(r) });
@@ -234,12 +246,6 @@ const SettingPane = (props: ISettingPaneProps) => {
       workNode.getResponses(). then((r) => { setResponses(r) });
     }
   }, [workNode]);
-  //functions
-
-  const apiNameEditor = getApiNameEditor(apiName, workData, t);
-  const apiSelector = getApiSelector(apis, t);
-  const reqeustList = getReqeuestList(requests, t);
-  const responseList = getResponseList(responses, t);
 
   //events
   const onSave = () => {
@@ -269,6 +275,12 @@ const SettingPane = (props: ISettingPaneProps) => {
             onClick={onDrawerClose} 
           />
         </Box>
+      
+        {/* request modal */}
+        {getRequestModal()}
+
+        {/* response modal */}
+        {/* <ResponseModal /> */}
       </Container>
     </>
   );

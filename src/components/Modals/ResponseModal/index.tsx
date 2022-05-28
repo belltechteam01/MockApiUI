@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 const properties = [];
 
-const ResponseModal = () => {
+export const ResponseModal = () => {
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleSetData = () => {
@@ -88,4 +88,3 @@ const ResponseModal = () => {
   );
 };
 
-export default ResponseModal;

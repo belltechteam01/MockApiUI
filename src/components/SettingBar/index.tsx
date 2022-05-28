@@ -43,15 +43,7 @@ const getApiSelector = (workNode: WorkNode<CWork> | null, t: Function): ReactNod
             aria-describedby="stepName-helper-text"
             placeholder={t('workflow.setting.form.placeholder.name')}
             value={workData.name}
-            // onChange={(e) => setAddFormData({ nodeName: e.target.value })}
-            // defaultValue={getValues('workflow.stepName')}
-            // {...register('workflow.stepName')}
           />
-          {/* {formState.errors?.workflow?.stepName && (
-              <FormHelperText id="stepName-helper-text" error>
-                {formState.errors.workflow.stepName.message}
-              </FormHelperText>
-            )} */}
         </MUI.FormControl>
       </Styled.FormControlContainer>
     </>
@@ -82,9 +74,6 @@ const SettingBar: React.FC<ISettingBarProps> = (props: ISettingBarProps) => {
 
     setShow(isShow);
   }, [isShow]);
-
-  //functions
-  const apiSelector = getApiSelector(workNode, t);
 
   //events
   const toggleDrawer = (open: boolean) =>

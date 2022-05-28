@@ -4,12 +4,30 @@ import BasicModal from 'components/Based/BasicModal';
 import styles from './styles.module.scss';
 import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
+import { IRequestItem } from 'services/workflow/types';
 
 const properties = [];
+export enum ModalType {
+  Edit,
+  Add
+}
 
-const RequestModal = () => {
+export interface RequestModalProps {
+  id: string;
+  type: ModalType;
+  data: any
+}
+
+export const Modal = (props: RequestModalProps) => {
+  
+  const {
+    id,
+    type, 
+    data
+  } = props;
+
   const { t } = useTranslation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const handleSetData = () => {
     console.log('====');
   };
@@ -87,5 +105,3 @@ const RequestModal = () => {
     </BasicModal>
   );
 };
-
-export default RequestModal;
