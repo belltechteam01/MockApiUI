@@ -25,6 +25,24 @@ export interface ISettingPaneEvent {
   onSelectAPI?: Function;
 }
 
+enum ModalType {
+  Response,
+  Request
+}
+
+interface ILocalState {
+  modalType: ModalType; 
+  showModal: boolean;
+  selectedRow: number;
+}
+
+export  const setStateMany = (fn: Function, d: Object) => {
+  if(d && typeof d === "object") {
+    console.log("[state] setMany", d);
+    fn(p => ({...p, ...d}));
+  }
+}
+
 //functions
 const getApiNameEditor = (apiName: string, workData: CWork | undefined, t: Function): ReactNode => {
   const node = useRef<HTMLInputElement>(null);
@@ -74,22 +92,9 @@ const getApiSelector = (apiList: Array<IApiDetail> | undefined, t: Function) : R
   return ret;
 }
 
-const setIsModalOpen = (isOpen: boolean) => {
-    
-}
-
-const onRequestEdit = (row) => {
-  console.log("[LOG] show edit");
-
-}
-
-const onRequestAdd = () => {
-  console.log("[LOG] show add");
-  
-}
-
-const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function) : ReactNode => {
+const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function, showModal: Function) : ReactNode => {
   var ret: ReactNode;
+  const d = {showModal:true, selectedRow: -1};
   ret = 
     <div className={styles.requestWrapper}>
       <FormControlContainer>
@@ -98,7 +103,7 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function)
           <Table aria-label="simple table">
             <TableHead>
               <TableRow
-                onClick={onRequestAdd}
+                onClick={() => setStateMany(showModal, d)}
               >
                 <TableCell>Field Name</TableCell>
                 <TableCell>Json Path/Constant</TableCell>
@@ -108,7 +113,7 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function)
               {(requests || []).map((element: any, index) => (
                 <TableRow
                   key={index}
-                  onClick={onRequestEdit}
+                  onClick={(row) => setStateMany(showModal,{selectedRow:row, showModal: true})}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
@@ -116,7 +121,7 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function)
                   <TableCell component="th" scope="row">
                     {element.fieldName}
                   </TableCell>
-                  <TableCell classes={{ root: styles.inputCell }} onClick={(e: any) => setIsModalOpen(true)}>
+                  <TableCell classes={{ root: styles.inputCell }}>
                     <span className={styles.smallText}>{element.isConstant ? FROM_INPUT_DATA : FROM_API_DATA}</span>
                     <p>{element?.path}</p>
                   </TableCell>
@@ -130,7 +135,7 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function)
   return ret;
 }
 
-const getResponseList = (responses: Array<IResponseItem> | undefined, t: Function) : ReactNode => {
+const getResponseList = (responses: Array<IResponseItem> | undefined, t: Function, showModal: Function) : ReactNode => {
   var ret: ReactNode;
 
   ret = 
@@ -170,14 +175,17 @@ const getResponseList = (responses: Array<IResponseItem> | undefined, t: Functio
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableHead>
-              <TableRow>
+              <TableRow
+                onClick={() => showModal({})}
+              >
                 <TableCell>Field Name</TableCell>
                 <TableCell>Json Path/Constant</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {(responses || []).map((element: any, index) => (
-                <TableRow
+              <TableRow
+                  onClick={(row) => showModal(row)}
                   key={index}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
@@ -198,10 +206,13 @@ const getResponseList = (responses: Array<IResponseItem> | undefined, t: Functio
   return ret;
 }
 
-const getRequestModal = (isAdd: boolean = true): ReactNode => {
+const getRequestModal = (localState: ILocalState, data: any): ReactNode => {
   let ret: ReactNode;
   ret = <>
-    <RequestModal.Modal id="123" type={RequestModal.ModalType.Add} data={{}} />
+      { localState.showModal && localState.modalType == ModalType.Request && 
+        <RequestModal.Modal id="123" selectedRow={localState.selectedRow} data={data} /> }
+      { localState.showModal && localState.modalType == ModalType.Response && 
+        <ResponseModal.Modal /> }
   </>
   return ret;
 }
@@ -223,7 +234,18 @@ const SettingPane = (props: ISettingPaneProps) => {
   let workData = workNode?.getInstance();
 
   //states
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [localState, setLocalState] = React.useState<ILocalState>({
+    showModal: false,
+    modalType: ModalType.Request,
+    selectedRow: -1,
+  });
+
+  useEffect(() => {
+    
+    console.log("[LOG] changed local state", localState);
+
+  },[localState]);
+
   const [selectAction, setSelectAction] = React.useState('');
   const [fieldName, setFieldName] = React.useState('');
   const [testData, setTestData] = React.useState('');
@@ -236,8 +258,8 @@ const SettingPane = (props: ISettingPaneProps) => {
   
   const apiNameEditor = getApiNameEditor(apiName, workData, t);
   const apiSelector = getApiSelector(apis, t);
-  const reqeustList = getReqeuestList(requests, t);
-  const responseList = getResponseList(responses, t);
+  const reqeustList = getReqeuestList(requests, t, setLocalState);
+  const responseList = getResponseList(responses, t, setLocalState);
 
   useEffect(() => {
     if(workNode) {
@@ -277,7 +299,7 @@ const SettingPane = (props: ISettingPaneProps) => {
         </Box>
       
         {/* request modal */}
-        {getRequestModal()}
+        {getRequestModal(localState, workflow)}
 
         {/* response modal */}
         {/* <ResponseModal /> */}

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 const properties = [];
 
-export const ResponseModal = () => {
+export const Modal = () => {
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleSetData = () => {

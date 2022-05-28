@@ -14,7 +14,7 @@ export enum ModalType {
 
 export interface RequestModalProps {
   id: string;
-  type: ModalType;
+  selectedRow: ModalType;
   data: any
 }
 
@@ -22,10 +22,12 @@ export const Modal = (props: RequestModalProps) => {
   
   const {
     id,
-    type, 
+    selectedRow, 
     data
   } = props;
 
+  const modalType = (selectedRow >= 0);
+  
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(true);
   const handleSetData = () => {
