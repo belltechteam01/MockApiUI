@@ -24,7 +24,7 @@ const getEditableCheck = (onCheck: Function, t: Function): ReactNode => {
   let ret: ReactNode;
 
   ret = <>
-    <MUI.FormControlLabel control={<MUI.Checkbox defaultChecked onChange={(e) => onCheck(e.target.checked)} />} 
+    <MUI.FormControlLabel sx={{mb: 1}} control={<MUI.Checkbox defaultChecked onChange={(e) => onCheck(e.target.checked)} />} 
       label={t('workflow.setting.modal.request.newable')} />
   </>;
 
@@ -35,7 +35,7 @@ const getSourceSelector = (onSelect: Function, t: Function, isSelectable: boolea
 
   let ret: ReactNode;
   ret = <>
-    <MUI.Box sx={{mb: 4}}>
+    <MUI.Box sx={{mb: 3}}>
       <div className={styles.borderLabel}>{t('workflow.setting.modal.request.sourcesLabel')}</div>
       { !isSelectable && 
         <MUI.Select
@@ -67,22 +67,24 @@ const getSourceSelector = (onSelect: Function, t: Function, isSelectable: boolea
 const getPathEditor = (onChange: Function, t: Function, data: any, isSelectable:boolean = false): ReactNode => {
   let ret: ReactNode;
   ret = <>
-    <div className={styles.borderLabel}>{t('workflow.setting.modal.request.path')}</div>
-    { isSelectable &&
-      <MUI.TextField 
-        id="outlined-size-normal"
-        sx={{width: '100%'}}
-        // label={t('workflow.setting.modal.request.valueLabel')}
-        placeholder="Request Path"
-        defaultValue="" />
-    }
-    { !isSelectable && 
-      <MUI.TextField 
-        sx={{width: '100%'}}
-        // label={t('workflow.setting.modal.request.sourcesLabel')} 
-        id="outlined-size-normal" 
-        defaultValue="" />
-    }
+    <MUI.Box sx={{mb: 3}}>
+      <div className={styles.borderLabel}>{t('workflow.setting.modal.request.path')}</div>
+      { isSelectable &&
+        <MUI.TextField 
+          id="outlined-size-normal"
+          sx={{width: '100%'}}
+          // label={t('workflow.setting.modal.request.valueLabel')}
+          placeholder="Request Path"
+          defaultValue="" />
+      }
+      { !isSelectable && 
+        <MUI.TextField 
+          sx={{width: '100%'}}
+          // label={t('workflow.setting.modal.request.sourcesLabel')} 
+          id="outlined-size-normal" 
+          defaultValue="" />
+      }
+    </MUI.Box>
   </>;
   return ret;
 }
@@ -137,23 +139,21 @@ export const Modal = (props: RequestModalProps) => {
   return (
     <BasicModal open={showModal} onClose={() => setShowModal(false)}>
       {/* body */}
-      <div className={styles.successWrapper}>
-        {/* checkbox - editable */}
+      {/* checkbox - editable */}
         {editableCheck}
 
-        {/* request souorce path */}
+      {/* request souorce path */}
         {sourceSelector}
 
-        {/* value path */}
+      {/* value path */}
         {pathEditor}
-      </div>
 
       {/* button group */}
       <MUI.Box
         sx={{
           display: 'flex',
           justifyContent: 'center',
-          borderRadius: 1
+          borderRadius: 1,
         }}
       >
         <Button variant="outlined" classes={{ root: styles.btnOk }} onClick={onOk} text="OK" />

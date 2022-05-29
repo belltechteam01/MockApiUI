@@ -26,8 +26,8 @@ export interface ISettingPaneEvent {
 }
 
 enum ModalType {
-  Response,
-  Request
+  Response = 1,
+  Request = 2
 }
 
 interface ILocalState {
@@ -47,16 +47,18 @@ export  const setStateMany = (fn: Function, d: Object) => {
 const getApiNameEditor = (apiName: string, workData: CWork | undefined, t: Function): ReactNode => {
   const node = useRef<HTMLInputElement>(null);
   let ret: ReactNode =
-    <Input
-      id="name"
-      ref={node}
-      aria-describedby="stepName-helper-text"
-      placeholder={t('workflow.setting.form.placeholder.name')}
-      onBlur={(e) => {
-        workData?.changeNodeName(e.target.value);
-      }}
-    />;
-
+    <Box sx={{mt: 3, mb: 3}}>
+      <div >{t('workflow.setting.form.label.apiname')}</div>
+      <Input
+        id="name"
+        ref={node}
+        aria-describedby="stepName-helper-text"
+        placeholder={t('workflow.setting.form.placeholder.name')}
+        onBlur={(e) => {
+          workData?.changeNodeName(e.target.value);
+        }}
+      />
+    </Box>
     node?.current?.setAttribute('value', apiName);
   return ret;
 }
@@ -94,7 +96,8 @@ const getApiSelector = (apiList: Array<IApiDetail> | undefined, t: Function) : R
 
 const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function, showModal: Function) : ReactNode => {
   var ret: ReactNode;
-  const d = {showModal:true, selectedRow: -1};
+
+  const d = {showModal:true,modalType: ModalType.Request, selectedRow: -1};
   ret = 
     <div className={styles.requestWrapper}>
       <FormControlContainer>
@@ -113,7 +116,7 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function,
               {(requests || []).map((element: any, index) => (
                 <TableRow
                   key={index}
-                  onClick={(row) => setStateMany(showModal,{selectedRow:row, showModal: true})}
+                  onClick={(row) => setStateMany(showModal,{...d, selectedRow:row})}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
@@ -137,46 +140,17 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function,
 
 const getResponseList = (responses: Array<IResponseItem> | undefined, t: Function, showModal: Function) : ReactNode => {
   var ret: ReactNode;
+  const d = {showModal:true,modalType: ModalType.Response, selectedRow: -1};
 
   ret = 
     <div className={styles.responseWrapper}>
       <FormControlContainer>
         <div className={styles.borderLabel}>{t('workflow.setting.form.label.responseData')}</div>
-      </FormControlContainer>
-      <Button text={t('workflow.setting.form.label.resSuccessBtn')} classes={{ root: styles.resSuccessBtn }} clean />
-      <div className={styles.resInputWrapper}>
-        <FormControlContainer>
-          <FormControl fullWidth>
-            <Label>{t('campaigns.create.workflow.inputFieldName')}</Label>
-          </FormControl>
-          <Grid container gap={2}>
-            <Grid item lg={5}>
-              <Input
-                id="fieldName"
-                aria-describedby="fieldName-helper-text"
-                placeholder={t('campaigns.create.workflow.fieldName')}
-                onChange={(e: any) => {
-                  // setFieldName(e.target.value)
-                  console.log("[LOG] response changed ", e.target);
-                }}
-              />
-            </Grid>
-            <Grid item lg={6}>
-              <Input
-                id="fieldPath"
-                aria-describedby="fieldPath-helper-text"
-                placeholder={t('campaigns.create.workflow.fieldPath')}
-              />
-            </Grid>
-          </Grid>
-        </FormControlContainer>
-      </div>
-      <FormControlContainer>
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableHead>
               <TableRow
-                onClick={() => showModal({})}
+                onClick={() => setStateMany(showModal, d)}
               >
                 <TableCell>Field Name</TableCell>
                 <TableCell>Json Path/Constant</TableCell>
@@ -184,25 +158,28 @@ const getResponseList = (responses: Array<IResponseItem> | undefined, t: Functio
             </TableHead>
             <TableBody>
               {(responses || []).map((element: any, index) => (
-              <TableRow
-                  onClick={(row) => showModal(row)}
+                <TableRow
                   key={index}
+                  onClick={(row) => setStateMany(showModal,{...d, selectedRow:row})}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
                 >
                   <TableCell component="th" scope="row">
-                    {element[Object.keys(element)[0]].attributeName}
+                    {element.fieldName}
                   </TableCell>
-                  <TableCell>{element[Object.keys(element)[0]]?.fieldPath}</TableCell>
+                  <TableCell classes={{ root: styles.inputCell }}>
+                    <span className={styles.smallText}>{element.isConstant ? FROM_INPUT_DATA : FROM_API_DATA}</span>
+                    <p>{element?.path}</p>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
+        <Button text={t('workflow.setting.form.label.resSuccessBtn')} classes={{ root: styles.resSuccessBtn }} clean />
       </FormControlContainer>
     </div>
-
   return ret;
 }
 
@@ -212,7 +189,7 @@ const getRequestModal = (localState: ILocalState, data: any, onClose: Function):
       { localState.showModal && localState.modalType == ModalType.Request && 
         <RequestModal.Modal id="123" selectedRow={localState.selectedRow} data={data} onClose={onClose} /> }
       { localState.showModal && localState.modalType == ModalType.Response && 
-        <ResponseModal.Modal onClose={onClose} /> }
+        <ResponseModal.Modal id="123" selectedRow={localState.selectedRow} data={data} onClose={onClose} /> }
   </>
   return ret;
 }
