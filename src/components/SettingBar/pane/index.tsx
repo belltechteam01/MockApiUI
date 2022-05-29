@@ -9,8 +9,11 @@ import { FROM_API_DATA, FROM_INPUT_DATA } from 'utils/constant';
 import { CWorkflow } from 'services/workflow';
 import { CWork } from 'services/workflow/workmodel/models/work';
 import { IApiDetail, IRequestItem, IResponseItem } from 'services/workflow/types';
+
+import {ModalType} from '../../Modals';
 import * as RequestModal  from 'components/Modals/RequestModal';
 import * as ResponseModal from 'components/Modals/ResponseModal';
+import * as StatusCodeModal from 'components/Modals/StatusCodeModal';
 
 export interface ISettingPaneProps extends ISettingPaneEvent {
   nodeId: string;
@@ -23,11 +26,6 @@ export interface ISettingPaneEvent {
   onSaveParent?: Function;
   onDrawerClose?: (event: React.KeyboardEvent | React.MouseEvent, isOpen: boolean) => void;
   onSelectAPI?: Function;
-}
-
-enum ModalType {
-  Response = 1,
-  Request = 2
 }
 
 interface ILocalState {
@@ -177,19 +175,26 @@ const getResponseList = (responses: Array<IResponseItem> | undefined, t: Functio
             </TableBody>
           </Table>
         </TableContainer>
-        <Button text={t('workflow.setting.form.label.resSuccessBtn')} classes={{ root: styles.resSuccessBtn }} clean />
+        <Button 
+          text={t('workflow.setting.form.label.resSuccessBtn')} 
+          classes={{ root: styles.resSuccessBtn }} 
+          clean 
+          onClick={() => (setStateMany(showModal,{...d, modalType:ModalType.StatusCode}))}
+        />
       </FormControlContainer>
     </div>
   return ret;
 }
 
-const getRequestModal = (localState: ILocalState, data: any, onClose: Function): ReactNode => {
+const getModal = (localState: ILocalState, data: any, onClose: Function): ReactNode => {
   let ret: ReactNode;
   ret = <>
       { localState.showModal && localState.modalType == ModalType.Request && 
-        <RequestModal.Modal id="123" selectedRow={localState.selectedRow} data={data} onClose={onClose} /> }
+        <RequestModal.Modal id="modal-1" selectedRow={localState.selectedRow} data={data} onClose={onClose} /> }
       { localState.showModal && localState.modalType == ModalType.Response && 
-        <ResponseModal.Modal id="123" selectedRow={localState.selectedRow} data={data} onClose={onClose} /> }
+        <ResponseModal.Modal id="modal-2" selectedRow={localState.selectedRow} data={data} onClose={onClose} /> }
+      { localState.showModal && localState.modalType == ModalType.StatusCode && 
+        <StatusCodeModal.Modal id="modal-3" selectedRow={localState.selectedRow} data={data} onClose={onClose} /> }
   </>
   return ret;
 }
@@ -265,7 +270,9 @@ const SettingPane = (props: ISettingPaneProps) => {
         {reqeustList}
       {/* response editor */}
         {responseList}
-      {/* status code editor */}
+
+      {/* modal */}
+        {getModal(localState, workflow, onModalClose)}
 
       {/* button group */}
         <Box className={styles.buttonGroup}>
@@ -276,10 +283,6 @@ const SettingPane = (props: ISettingPaneProps) => {
             onClick={onDrawerClose} 
           />
         </Box>
-      
-        {/* request modal */}
-        {getRequestModal(localState, workflow, onModalClose)}
-
       </Container>
     </>
   );

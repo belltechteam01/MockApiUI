@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-export interface iBasicModalProps {
+export interface IBasicModalProps extends IBaseUIProps {
   title?: string;
   text?: string;
   open: boolean;

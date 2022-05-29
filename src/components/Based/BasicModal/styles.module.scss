@@ -1,0 +1,24 @@
+@import 'styles/variables/_breakpoint.scss';
+@import 'styles/variables/_color.scss';
+@import 'styles/variables/_typography.scss';
+
+.root {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  background-color: $white;
+  box-shadow: 24px;
+
+  & .header {
+    text-align: center;
+    padding: 10px;
+    @include bodyBold;
+  }
+
+  & .body {
+    display: block;
+    padding: 24px;
+  }
+}

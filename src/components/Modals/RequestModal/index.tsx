@@ -7,13 +7,9 @@ import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
 import { IRequestItem } from 'services/workflow/types';
 import { CWorkflow } from 'services/workflow';
+import {ModalType} from '../index';
 
-export enum ModalType {
-  Edit,
-  Add
-}
-
-interface RequestModalProps {
+interface IModalProps {
   id: string;
   selectedRow: ModalType;
   data: any,
@@ -89,7 +85,7 @@ const getPathEditor = (onChange: Function, t: Function, data: any, isSelectable:
   return ret;
 }
 
-export const Modal = (props: RequestModalProps) => {
+export const Modal = (props: IModalProps) => {
   
   const {
     id,
@@ -100,7 +96,7 @@ export const Modal = (props: RequestModalProps) => {
 
   //props
   const workflow: CWorkflow = data;
-  const modalType: ModalType = (selectedRow >= 0) ? ModalType.Edit : ModalType.Add;
+  const isEditMode: boolean = (selectedRow >= 0);
   const properties = [];
 
   //states
@@ -137,7 +133,11 @@ export const Modal = (props: RequestModalProps) => {
   const pathEditor = getPathEditor(onChange, t, {});
 
   return (
-    <BasicModal open={showModal} onClose={() => setShowModal(false)}>
+    <BasicModal 
+      open={showModal} 
+      onClose={() => setShowModal(false)}
+      title={"Request Modal"}
+    >
       {/* body */}
       {/* checkbox - editable */}
         {editableCheck}
