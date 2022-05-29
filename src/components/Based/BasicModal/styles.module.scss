@@ -10,15 +10,21 @@
   width: 400px;
   background-color: $white;
   box-shadow: 24px;
+  border-radius: 14px;
+
+  &:focus-visible {
+    outline: none;
+  }
 
   & .header {
     text-align: center;
     padding: 10px;
+    border-bottom: 1px solid $grayDark;
     @include bodyBold;
   }
 
   & .body {
     display: block;
-    padding: 24px;
+    padding: 12px 24px;
   }
 }

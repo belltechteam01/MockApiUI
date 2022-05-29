@@ -8,6 +8,9 @@ aside {
   align-items: stretch;
 
   & .toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     border-right: 1px solid #eee;
     padding: 15px 10px;
     font-size: 12px;

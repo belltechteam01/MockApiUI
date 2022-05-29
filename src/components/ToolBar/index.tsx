@@ -3,7 +3,7 @@ import cn from 'classnames';
 import NodeItem from '../Based/Nodes/NodeItem';
 import Button from '../Based/Button';
 import styles from './styles.module.scss';
-import * as Types from "../../services/workflow/types";
+import * as Types from '../../services/workflow/types';
 
 const ToolBar = () => {
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>, data: string) => {
@@ -11,9 +11,7 @@ const ToolBar = () => {
     event.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleRun = () => {
-
-  };
+  const handleRun = () => {};
 
   return (
     <aside>
@@ -49,7 +47,7 @@ const ToolBar = () => {
         <NodeItem
           text="CHECK"
           classes={{ root: styles.mainRoot }}
-          width={80}
+          width={120}
           height={50}
           type={Types.FlowCatagory.CHECK}
           color="#00d7ca"
@@ -83,9 +81,7 @@ const ToolBar = () => {
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => handleDragStart(event, type)}
         />
       </div>
-      <div className={styles.controlPanel}>
-        {/* <Button text="Run" onClick={handleRun} /> */}
-      </div>
+      <div className={styles.controlPanel}>{/* <Button text="Run" onClick={handleRun} /> */}</div>
     </aside>
   );
 };

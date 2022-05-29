@@ -3,7 +3,57 @@
 @import 'styles/variables/_typography.scss';
 
 .title {
-    font-size: larger;
-    font-weight: 600;
-    margin-bottom: 300px;
+  font-size: larger;
+  font-weight: 600;
+  margin-bottom: 300px;
+}
+
+.modalBody {
+  width: 100%;
+}
+
+.borderLabel {
+  margin-bottom: 10px;
+  @include text-16-500;
+}
+
+.sourceWrapper {
+  width: 100%;
+  margin-bottom: 20px;
+  & .selectRoot {
+    width: 100% !important;
+    padding: 8px 32px 8px 14px;
+  }
+
+  & .textWrapper {
+    width: 100%;
+    padding: 8px 14px;
+  }
+}
+
+.pathEditor {
+  width: 100%;
+  & .textWrapper {
+    width: 100%;
+    padding: 8px 14px;
+  }
+}
+
+.btnWrapper {
+  display: flex;
+  padding: 16px 0;
+  justify-content: flex-end;
+
+  & .btnOkWrapper {
+    margin-right: 10px;
+
+    & .btnOk {
+      color: $white;
+      background-color: $priBlue;
+    }
+  }
+  & .btnCancel {
+    color: $priBlue;
+    border: 1px solid $priBlue;
+  }
 }
