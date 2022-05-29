@@ -7,11 +7,17 @@ import { useTranslation } from 'react-i18next';
 
 const properties = [];
 
-export const Modal = () => {
+export const Modal = (props: any) => {
+  const {
+
+    onClose
+  } = props;
+
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleSetData = () => {
-    console.log('====');
+  const onOk = () => {
+    
+    onClose();
   };
 
   return (
@@ -81,7 +87,7 @@ export const Modal = () => {
           borderRadius: 1
         }}
       >
-        <Button variant="outlined" classes={{ root: styles.btnOk }} onClick={handleSetData} text="OK" />
+        <Button variant="outlined" classes={{ root: styles.btnOk }} onClick={onOk} text="OK" />
         <Button variant="outlined" classes={{ root: styles.btnCancel }} onClick={(e: any) => setIsModalOpen(false)} text="Cancel" />
       </Box>
     </BasicModal>

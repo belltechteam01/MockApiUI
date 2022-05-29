@@ -206,13 +206,13 @@ const getResponseList = (responses: Array<IResponseItem> | undefined, t: Functio
   return ret;
 }
 
-const getRequestModal = (localState: ILocalState, data: any): ReactNode => {
+const getRequestModal = (localState: ILocalState, data: any, onClose: Function): ReactNode => {
   let ret: ReactNode;
   ret = <>
       { localState.showModal && localState.modalType == ModalType.Request && 
-        <RequestModal.Modal id="123" selectedRow={localState.selectedRow} data={data} /> }
+        <RequestModal.Modal id="123" selectedRow={localState.selectedRow} data={data} onClose={onClose} /> }
       { localState.showModal && localState.modalType == ModalType.Response && 
-        <ResponseModal.Modal /> }
+        <ResponseModal.Modal onClose={onClose} /> }
   </>
   return ret;
 }
@@ -240,10 +240,12 @@ const SettingPane = (props: ISettingPaneProps) => {
     selectedRow: -1,
   });
 
-  useEffect(() => {
-    
-    console.log("[LOG] changed local state", localState);
+  const onModalClose = () => {        
+    setStateMany(setLocalState,{showModal: false, selectedRow: -1});
+  }
 
+  useEffect(() => {
+    console.log("[LOG] changed local state", localState);
   },[localState]);
 
   const [selectAction, setSelectAction] = React.useState('');
@@ -299,10 +301,8 @@ const SettingPane = (props: ISettingPaneProps) => {
         </Box>
       
         {/* request modal */}
-        {getRequestModal(localState, workflow)}
+        {getRequestModal(localState, workflow, onModalClose)}
 
-        {/* response modal */}
-        {/* <ResponseModal /> */}
       </Container>
     </>
   );

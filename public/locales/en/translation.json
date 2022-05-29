@@ -41,6 +41,19 @@
           "name": "Name",
           "api-selector": "Select the API"
         }
+      },
+      "modal": {
+        "request": {
+          "title": "Select Request Source",
+          "sourcesLabel": "Sources",
+          "newfieldPlaceholder": "New source",
+          "path": "Request path",
+          "newable": "create new field",
+          "valueLabel": "value"
+        },
+        "response": {
+
+        }
       }
     }
   }
