@@ -2,6 +2,11 @@
 @import 'styles/variables/_color.scss';
 @import 'styles/variables/_typography.scss';
 
+.inputTextWrapper {
+  width: 100%;
+  margin-top: 30px;
+}
+
 .borderLabel {
   border: 1px solid $black;
   background-color: $grayDark;
@@ -25,7 +30,7 @@
 }
 
 .responseWrapper {
-  margin-top: 60px;
+  margin-top: 10px;
   width: 100%;
 
   & .resSuccessBtn {
@@ -39,14 +44,6 @@
   }
 }
 
-.btnOk {
-  color: $black;
-}
-
-.btnCancel {
-  color: $black;
-}
-
 .subContainer {
   display: flex;
   flex-direction: column;
@@ -55,16 +52,27 @@
   margin-bottom: 10px;
 }
 
-.buttonGroup {
+.btnWrapper {
   display: flex;
   justify-content: space-between;
+  column-gap: 20px;
   padding: 1px;
   margin: 1px;
   border-radius: 1px;
   width: 100%;
+  margin-top: 20px;
+  & .btnSave {
+    background-color: $priBlue;
+    color: $white;
+  }
+
+  & .btnCancel {
+    border: 1px solid $priBlue;
+    color: $priBlue;
+  }
 }
 
 // .row {
-//   &:last-child td, &:last-child th: 
+//   &:last-child td, &:last-child th:
 //   { border: 0 }
 // }

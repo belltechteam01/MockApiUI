@@ -4,13 +4,13 @@ import BasicModal from 'components/Based/BasicModal';
 import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
 import styles from './styles.module.scss';
-import {ModalType} from '../index';
+import { ModalType } from '../index';
 
 interface IModalProps {
   id: string;
   selectedRow: ModalType;
-  data: any,
-  onClose: Function
+  data: any;
+  onClose: Function;
 }
 
 interface ICode {
@@ -19,24 +19,16 @@ interface ICode {
 }
 
 export const Modal = (props: IModalProps) => {
-  
-  const {
-    id,
-    selectedRow, 
-    data,
-    onClose
-  } = props;
+  const { id, selectedRow, data, onClose } = props;
 
-  const {
-
-  } = data;
+  const {} = data;
 
   const successCodes: ICode[] = [];
   const failureCodes: ICode[] = [];
 
   const onSetCodes = (dt: any) => {
-    console.log("[LOG] onSetCodes", dt);
-  }
+    console.log('[LOG] onSetCodes', dt);
+  };
 
   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(true);
@@ -142,7 +134,7 @@ export const Modal = (props: IModalProps) => {
       </div>
       <div className={styles.failureWrapper}>
         <div className={styles.borderLabel}>{t('workflow.setting.form.label.failure')}</div>
-        <TableContainer component={Paper} sx={{ marginTop: 1 }}>
+        <TableContainer component={Paper} sx={{ marginTop: 1, marginBottom: 1 }}>
           <Table aria-label="simple table">
             <TableHead>
               <TableRow>
@@ -184,18 +176,14 @@ export const Modal = (props: IModalProps) => {
           </Table>
         </TableContainer>
       </div>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          p: 1,
-          m: 1,
-          borderRadius: 1
-        }}
-      >
-        <Button variant="outlined" classes={{ root: styles.btnOk }} onClick={handleSetData} text="OK" />
-        <Button variant="outlined" classes={{ root: styles.btnCancel }} onClick={(e: any) => onClose(false)} text="Cancel" />
-      </Box>
+      <div className={styles.btnWrapper}>
+        <div className={styles.btnOkWrapper}>
+          <Button variant="outlined" classes={{ root: styles.btnOk }} onClick={handleSetData} text="OK" />
+        </div>
+        <div className={styles.btnCancelWrapper}>
+          <Button variant="outlined" classes={{ root: styles.btnCancel }} onClick={(e: any) => onClose(false)} text="Cancel" />
+        </div>
+      </div>
     </BasicModal>
   );
 };

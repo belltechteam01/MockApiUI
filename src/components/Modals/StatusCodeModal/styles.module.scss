@@ -24,3 +24,23 @@
     transition: none;
   }
 }
+
+.btnWrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+
+  & .btnOkWrapper {
+    margin-right: 10px;
+
+    & .btnOk {
+      color: $white;
+      background-color: $priBlue;
+    }
+  }
+
+  & .btnCancel {
+    color: $priBlue;
+    border: 1px solid $priBlue;
+  }
+}
