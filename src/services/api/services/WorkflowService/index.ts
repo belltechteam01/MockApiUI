@@ -1,9 +1,11 @@
 import { apiCall } from "../..";
+import {testData} from "../testdata";
 
 const getCustomerDetails = async () => {
     let apiURL = '/test/api-folder/v101/1';
     let httpMethod = 'get';
-    return await apiCall(apiURL, httpMethod, {});
+    return testData;
+    // return await apiCall(apiURL, httpMethod, {});
 };
 
 const getAll = async () => {

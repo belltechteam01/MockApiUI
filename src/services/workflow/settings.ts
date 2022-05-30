@@ -37,4 +37,5 @@ export class WorkflowSettings
     static readonly PANEL_ZOOM_MAX = 4;
 
     static readonly PANEL_SCALE = 1.0;
+    static readonly FLOW_PATH_DELIMITER = '.';
 };

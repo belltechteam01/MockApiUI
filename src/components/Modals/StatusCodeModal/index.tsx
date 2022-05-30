@@ -27,7 +27,7 @@ export const Modal = (props: IModalProps) => {
   const failureCodes: ICode[] = [];
 
   const onSetCodes = (dt: any) => {
-    console.log('[LOG] onSetCodes', dt);
+    // console.log('[LOG] onSetCodes', dt);
   };
 
   const { t } = useTranslation();

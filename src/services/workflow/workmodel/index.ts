@@ -10,7 +10,7 @@ import {CWorkStop} from "./models/stop"
 import {CWorkWait} from "./models/wait"
 
 export {
-    CWork as WorkNode,
+    CWork as Work,
     CWorkAction as Action,
     CWorkCallApi as CallApi,
     CWorkCallRule as CallRule,

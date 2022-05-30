@@ -6,6 +6,7 @@ import { initReactI18next } from 'react-i18next';
 import WorkflowPanel from "../components/Workflow"
 
 import styles from './styles.module.scss';
+import { CWorkflow } from 'services/workflow';
 
 i18n
   .use(LanguageDetector)
@@ -27,11 +28,12 @@ i18n
     }
   });
 
-const WorkflowSetupPage: React.FC = () => {
+
+const WorkflowSetupPage: React.FC<any> = (props) => {
   return (
     <div className={styles.container}>
       {/* <ReactFlowWrapper /> */}
-      <WorkflowPanel />
+      <WorkflowPanel/>
     </div>
   );
 };

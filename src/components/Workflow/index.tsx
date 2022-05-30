@@ -8,8 +8,12 @@ import { WorkflowSettings } from 'services/workflow/settings';
 import NodeComponent from 'components/Workflow/NodeComponent';
 import SettingBar from '../SettingBar';
 import styles from './styles.module.scss';
+import { ENM_EDIT_SUBSTATE, ENM_FLOW_STATE } from 'services/workflow/workmap/worknode';
 
 //interfaces
+const nodeTypes = {
+  workNode: NodeComponent
+};
 
 //functions
 
@@ -33,21 +37,18 @@ const getReactNodeProps = (id: string, pos: ReactflowRenderer.XYPosition, data: 
   };
 };
 
-const Workflow = () => {
-  //react flow usage
-  const nodeTypes = useMemo(
-    () => ({
-      workNode: NodeComponent
-    }),
-    []
-  );
+var workflow: CWorkflow = new CWorkflow();
+// console.log("[LOG] panel render");
+
+const Workflow = (props: any) => {
+
+  //react flow usage  
 
   //reactflow state wrapper
   const reactFlowWrapper: React.MutableRefObject<any> = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [nodes, setNodes, onNodesChange] = ReactflowRenderer.useNodesState([]);
   const [edges, setEdges, onEdgesChange] = ReactflowRenderer.useEdgesState([]);
-  const [workflow, setWorkflow] = useState<CWorkflow>(new CWorkflow());
   const [showToolbar, setShowToolbar] = useState<boolean>(true);
 
   //states
@@ -68,13 +69,17 @@ const Workflow = () => {
 
       const droppedNode = JSON.parse(_event.dataTransfer.getData('reactflow/type'));
       if (typeof droppedNode === 'undefined' || !droppedNode) return;
-
-      const worknode = workflow.addNew(droppedNode.type);
-
+      
       const posInstance = reactFlowInstance.project(posDropped);
-      worknode.setPosition(posDropped.x, posDropped.y);
 
-      setNodes((nodes) => nodes.concat(getReactNodeProps(worknode.id, posInstance, workflow)));
+      // console.log("[LOG] workflow state", workflow);
+      //[LOGIC] place node
+      if(workflow) {
+        const worknode = workflow.placeNode(droppedNode.type);
+        worknode.setPosition(posDropped.x, posDropped.y);
+
+        setNodes((nodes) => nodes.concat(getReactNodeProps(worknode.id, posInstance, workflow)));
+      }
     },
     [reactFlowInstance]
   );
@@ -84,8 +89,21 @@ const Workflow = () => {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
+  const onNodeClick = useCallback((event: React.MouseEvent, node: ReactflowRenderer.Node) => {
+
+    if(workflow) {
+      const workNode = workflow.worklist.get(node.id);
+      const updatedResult = workNode?.gotoState(ENM_FLOW_STATE.EDIT, ENM_EDIT_SUBSTATE.INIT_PARAM);
+
+      if( workNode &&  updatedResult) {
+        setShowPropertyInspector(true);
+        setSelectedNode(node.id);
+      }
+    }
+  }, []);
+
   const onConnect = (params: any) => {
-    console.log('params===>', params);
+    // console.log('params===>', params);
     params.label = 'test-edge';
     params.className = 'normal-edge';
     params.style = { stroke: 'blue', strokeWidth: 3 };
@@ -100,25 +118,15 @@ const Workflow = () => {
     // params.markerEnd.type = MarkerType.ArrowClosed;
 
     setEdges((eds) => {
-      console.log('edges===>', eds);
+      // console.log('edges===>', eds);
 
       return ReactflowRenderer.addEdge(params, eds);
     });
   };
 
   const onSave = (params: any) => {
-    console.log('[LOG] onsave params', params);
+    // console.log('[LOG] onsave params', params);
   };
-
-  const onNodeClick = useCallback((event: React.MouseEvent, node: ReactflowRenderer.Node) => {
-    setShowPropertyInspector(true);
-    setSelectedNode(node.id);
-  }, []);
-
-  useEffect(() => {
-    if (selectedNode != 'undefined') {
-    }
-  }, [selectedNode]);
 
   const handleToolbar = () => {
     setShowToolbar(!showToolbar);

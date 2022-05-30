@@ -8,7 +8,8 @@ import styles from './styles.module.scss';
 import { FROM_API_DATA, FROM_INPUT_DATA } from 'utils/constant';
 import { CWorkflow } from 'services/workflow';
 import { CWork } from 'services/workflow/workmodel/models/work';
-import { IApiDetail, IRequestItem, IResponseItem } from 'services/workflow/types';
+import * as Types from 'services/workflow/types';
+import { EVENT_CODE } from 'services/workflow/events';
 
 import { ModalType } from '../../Modals';
 import * as RequestModal from 'components/Modals/RequestModal';
@@ -17,13 +18,13 @@ import * as StatusCodeModal from 'components/Modals/StatusCodeModal';
 
 export interface ISettingPaneProps extends ISettingPaneEvent {
   nodeId: string;
-  workflow: CWorkflow;
+  workflow: CWorkflow | undefined;
   selectList?: any[];
   properties?: any;
 }
 
 export interface ISettingPaneEvent {
-  onSaveParent?: Function;
+  onSave?: Function;
   onDrawerClose?: (event: React.KeyboardEvent | React.MouseEvent, isOpen: boolean) => void;
   onSelectAPI?: Function;
 }
@@ -36,7 +37,7 @@ interface ILocalState {
 
 export const setStateMany = (fn: Function, d: Object) => {
   if (d && typeof d === 'object') {
-    console.log('[state] setMany', d);
+    // console.log('[state] setMany', d);
     fn((p) => ({ ...p, ...d }));
   }
 };
@@ -63,8 +64,14 @@ const getApiNameEditor = (apiName: string, workData: CWork | undefined, t: Funct
   return ret;
 };
 
-const getApiSelector = (apiList: Array<IApiDetail> | undefined, t: Function): ReactNode => {
+const getApiSelector = (flowSteps: Array<Types.IFlowStep> | undefined, t: Function, onSelect: Function): ReactNode => {
   var ret: ReactNode;
+  if(flowSteps == undefined) flowSteps = [];
+  
+  // console.log("[LOG] getApiSelector", flowSteps);
+  let apiList = flowSteps.map((flowStep) => {
+    return {value: flowStep.apiDetails.apiId, label: flowStep.apiDetails.apiName};
+  })
 
   ret = (
     <>
@@ -76,10 +83,7 @@ const getApiSelector = (apiList: Array<IApiDetail> | undefined, t: Function): Re
             placeholder={t('workflow.setting.form.placeholder.api-selector')}
             // defaultValue={}
             options={apiList}
-            onChange={(value: any) => {
-              // if (onSelectAPI) onSelectAPI(newValue.value);
-              console.log('[LOG] api selected changing', value);
-            }}
+            onChange={(e) => onSelect(e)}
             styles={{
               menuPortal: (provided) => ({
                 ...provided,
@@ -96,9 +100,10 @@ const getApiSelector = (apiList: Array<IApiDetail> | undefined, t: Function): Re
   return ret;
 };
 
-const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function, showModal: Function): ReactNode => {
+const getReqeuestList = (requests: Array<Types.IRequestItem> | undefined, t: Function, showModal: Function): ReactNode => {
   var ret: ReactNode;
-
+  if(!Array.isArray(requests)) requests = [];
+  // console.log("[LOG] getRequestsList", requests);
   const d = { showModal: true, modalType: ModalType.Request, selectedRow: -1 };
   ret = (
     <div className={styles.requestWrapper}>
@@ -113,20 +118,22 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function,
               </TableRow>
             </TableHead>
             <TableBody>
-              {(requests || []).map((element: any, index) => (
+              {(requests || []).map((request: Types.IRequestItem, index) => (
                 <TableRow
-                  key={index}
-                  onClick={(row) => setStateMany(showModal, { ...d, selectedRow: row })}
+                  key={request.fieldId}
+                  onClick={() => setStateMany(showModal, { ...d, selectedRow: request.fieldId })}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
                 >
                   <TableCell component="th" scope="row">
-                    {element.fieldName}
+                    {request.fieldName}
                   </TableCell>
                   <TableCell classes={{ root: styles.inputCell }}>
-                    <span className={styles.smallText}>{element.isConstant ? FROM_INPUT_DATA : FROM_API_DATA}</span>
-                    <p>{element?.path}</p>
+                    <span className={styles.smallText}>
+                      {request.fieldSourceType == Types.FieldSourceType["INPUTDATA"] ? FROM_INPUT_DATA : FROM_API_DATA}
+                    </span>
+                    <p>{request.fieldSourceValuePath}</p>
                   </TableCell>
                 </TableRow>
               ))}
@@ -139,10 +146,10 @@ const getReqeuestList = (requests: Array<IRequestItem> | undefined, t: Function,
   return ret;
 };
 
-const getResponseList = (responses: Array<IResponseItem> | undefined, t: Function, showModal: Function): ReactNode => {
+const getResponseList = (responses: Array<Types.IResponseItem> | undefined, t: Function, showModal: Function): ReactNode => {
   var ret: ReactNode;
   const d = { showModal: true, modalType: ModalType.Response, selectedRow: -1 };
-
+  if(!Array.isArray(responses)) responses = [];
   ret = (
     <div className={styles.responseWrapper}>
       <FormControlContainer>
@@ -156,20 +163,19 @@ const getResponseList = (responses: Array<IResponseItem> | undefined, t: Functio
               </TableRow>
             </TableHead>
             <TableBody>
-              {(responses || []).map((element: any, index) => (
+              {(responses || []).map((response: Types.IResponseItem, index) => (
                 <TableRow
-                  key={index}
-                  onClick={(row) => setStateMany(showModal, { ...d, selectedRow: row })}
+                  key={response.fieldId}
+                  onClick={() => setStateMany(showModal, { ...d, selectedRow: response.fieldId })}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
                 >
                   <TableCell component="th" scope="row">
-                    {element.fieldName}
+                    {response.fieldName}
                   </TableCell>
                   <TableCell classes={{ root: styles.inputCell }}>
-                    <span className={styles.smallText}>{element.isConstant ? FROM_INPUT_DATA : FROM_API_DATA}</span>
-                    <p>{element?.path}</p>
+                    <p>{response.fieldSourceValuePath}</p>
                   </TableCell>
                 </TableRow>
               ))}
@@ -200,19 +206,23 @@ const getModal = (localState: ILocalState, data: any, onClose: Function): ReactN
   return ret;
 };
 
+const setApiDetails = () => {
+  // console.log("[LOG] fill api list");
+}
+
 const SettingPane = (props: ISettingPaneProps) => {
   const {
     onDrawerClose,
-    onSaveParent,
+    onSave,
     properties,
 
     nodeId,
     workflow
   } = props;
-
+  
   const { t } = useTranslation();
   //props
-  let workNode = workflow.worklist.get(nodeId);
+  let workNode = workflow?.worklist.get(nodeId);
   let workData = workNode?.getInstance();
 
   //states
@@ -227,44 +237,44 @@ const SettingPane = (props: ISettingPaneProps) => {
   };
 
   useEffect(() => {
-    console.log('[LOG] changed local state', localState);
+    // console.log('[LOG] changed local state', localState);
   }, [localState]);
 
-  const [selectAction, setSelectAction] = React.useState('');
-  const [fieldName, setFieldName] = React.useState('');
-  const [testData, setTestData] = React.useState('');
   const [addFormData, setAddFormData] = React.useState<any>(properties || {});
 
-  const [apis, setApis] = React.useState<IApiDetail[]>();
-  const [requests, setRequests] = React.useState<IRequestItem[]>();
-  const [responses, setResponses] = React.useState<IResponseItem[]>();
+  const [flowSteps, setFlowSteps] = React.useState<Types.IFlowStep[]>();
+  const [requests, setRequests] = React.useState<Types.IRequestItem[]>();
+  const [responses, setResponses] = React.useState<Types.IResponseItem[]>();
   const [apiName, setApiName] = React.useState<string>(workData ? workData.name : 'untitled');
 
+
+  const onSelect = (apiId) => {
+
+    const requests = workflow?.getRequests("12342", "123");
+    if(requests)  
+      setRequests(requests);
+
+    const responses = workflow?.getResponses("12342", "123");
+    if(responses)
+      setResponses(responses);
+
+    // const attrib = workflow?.getAttribute("flowSteps.apiDetails.requestData.fieldSourceType");
+    // console.log("[LOG] test getAttrib ", attrib)
+  }
+
   const apiNameEditor = getApiNameEditor(apiName, workData, t);
-  const apiSelector = getApiSelector(apis, t);
+  const apiSelector = getApiSelector(flowSteps, t, onSelect);
   const reqeustList = getReqeuestList(requests, t, setLocalState);
   const responseList = getResponseList(responses, t, setLocalState);
 
   useEffect(() => {
-    if (workNode) {
-      workNode.getApiList().then((r) => {
-        setApis(r);
-      });
-      workNode.getRequests().then((r) => {
-        setRequests(r);
-      });
-      workNode.getResponses().then((r) => {
-        setResponses(r);
-      });
+    if(workflow) {
+      let flowData = CWorkflow.getFlowData();
+      if(flowData && flowData.flowSteps) {
+          setFlowSteps(flowData.flowSteps);
+      };
     }
-  }, [workNode]);
-
-  //events
-  const onSave = () => {
-    if (onSaveParent) onSaveParent(addFormData);
-  };
-
-  const handleSetData = () => {};
+  }, [workflow]);
 
   return (
     <>
@@ -282,7 +292,7 @@ const SettingPane = (props: ISettingPaneProps) => {
 
         {/* button group */}
         <div className={styles.btnWrapper}>
-          <Button variant="contained" text="Save" classes={{ root: styles.btnSave }} disabled={false} onClick={onSave} />
+          <Button variant="contained" text="Save" classes={{ root: styles.btnSave }} disabled={false} onClick={() => onSave} />
           <Button text="Cancel" variant="outlined" classes={{ root: styles.btnCancel }} onClick={onDrawerClose} />
         </div>
       </Container>

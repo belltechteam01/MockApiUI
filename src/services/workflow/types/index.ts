@@ -20,20 +20,20 @@ export enum FlowCatagory {
     START
 }
 
-enum FieldSourceType {
+export enum FieldSourceType {
     API,
     INPUTDATA,
     RULE
 }
 
-enum ComparisonCategory {
+export enum ComparisonCategory {
     STRING,
     NUMBERIC,
     BOOLEAN,
     DATE
 }
 
-enum ComparisonOprType {
+export enum ComparisonOprType {
     EQUALS,
     NOTEQUALS,
     CONTAINS,
@@ -41,7 +41,7 @@ enum ComparisonOprType {
     BETWEEN
 }
 
-enum NextJsonType {
+export enum NextJsonType {
     NONE,
     AND,
     OR
@@ -148,19 +148,29 @@ export interface ICheckCondition {
     failedActions: Array<IFailedActions>
 }
 
-export interface IApiList {
+export interface IFlowStep {
     flowStepId:             string;
     flowItemCategory:       FlowCatagory;
     parentFlowItemId:       string;
     successChildFlowItemId: string;
     failureChildFlowItemId: string;
-    apiDetails: IApiDetail[];
+    apiDetails: IApiDetail;
     rulesDetails: IRulesDetails;
     checkCondition: ICheckCondition;
+}
+
+export interface IFlow {
+    flowId:     string;
+    flowName:   string;
+    flowSteps:  Array<IFlowStep>;
 }
 
 export interface IEdge {
     id: string;
     source: string;
     target: string;
+}
+
+export interface IRequestPathItem {
+    
 }

@@ -17,6 +17,6 @@ configUrl = {
   baseURL: "https://duxyugjj4k.execute-api.us-east-1.amazonaws.com"
 
 };
-console.log("baseURL==>", configUrl.baseURL);
+// console.log("baseURL==>", configUrl.baseURL);
 
 export default configUrl;

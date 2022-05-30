@@ -17,39 +17,16 @@ import SettingPane from './pane';
 interface ISettingBarProps {
   nodeId: string;
   isShow: boolean;
-  workflow: CWorkflow;
+  workflow: CWorkflow | undefined;
   onClose: Function;
   onSave: Function;
 }
-
-//functions
-const getApiSelector = (workNode: WorkNode<CWork> | null, t: Function): ReactNode => {
-  var ret: ReactNode;
-  if (workNode) {
-    const workData = workNode.getInstance();
-    ret = (
-      <>
-        <Styled.FormControlContainer>
-          <MUI.FormControl fullWidth>
-            <Styled.Label htmlFor="name">{t('workflow.setting.form.label.name')}</Styled.Label>
-            <Styled.Input id="name" aria-describedby="stepName-helper-text" placeholder={t('workflow.setting.form.placeholder.name')} value={workData.name} />
-          </MUI.FormControl>
-        </Styled.FormControlContainer>
-      </>
-    );
-  }
-  return ret;
-};
 
 const SettingBar: React.FC<ISettingBarProps> = (props: ISettingBarProps) => {
   //constants
   const { t } = useTranslation();
 
-  let { nodeId, workflow, isShow, onClose, onSave } = props;
-
-  //props
-  const workNode = workflow.worklist.get(nodeId);
-  const workData = workNode?.getInstance();
+  let { nodeId, workflow, isShow, onClose } = props;
 
   //states
   const [show, setShow] = useState(isShow);
@@ -73,7 +50,7 @@ const SettingBar: React.FC<ISettingBarProps> = (props: ISettingBarProps) => {
       <React.Fragment>
         <MUI.SwipeableDrawer anchor={'right'} sx={{ width: 450 }} open={show} onClose={toggleDrawer(false)} onOpen={toggleDrawer(true)}>
           <MUI.Box className={styles.subContainer} role="presentation">
-            <SettingPane nodeId={nodeId} workflow={workflow} />
+            <SettingPane nodeId={nodeId} workflow={workflow}/>
           </MUI.Box>
         </MUI.SwipeableDrawer>
       </React.Fragment>

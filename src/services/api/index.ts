@@ -25,7 +25,6 @@ export const getAccessToken = (isForceToRefreshToken = false): Promise<string> =
           timeout: 15000, // Wait for 5 seconds
         })
           .then(response => {
-            console.log(response);
             if (response && response.status == 200) {
               storageHelper.setToken(response.data);
             //   resolve(response.token);

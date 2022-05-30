@@ -10,8 +10,8 @@ export const testData =
       "successChildFlowItemId": "",
       "failureChildFlowItemId": "",
       "apiDetails": {
-        "apiId": "",
-        "apiName": "",
+        "apiId": "123",
+        "apiName": "Get Customer Details",
         "successHttpCodes": [
           "200",
           "202"
@@ -26,8 +26,17 @@ export const testData =
         "requestData": [
           {
             "displaySeq": "1",
-            "fieldId": "",
-            "fieldName": "",
+            "fieldId": "11",
+            "fieldName": "customerId",
+            "fieldSourceType": "API/INPUTDATA/RULE",
+            "fieldSourceValue": "API 001",
+            "fieldSourceId": "APIID001",
+            "fieldSourceValuePath": "JSONPATH"
+          },
+          {
+            "displaySeq": "1",
+            "fieldId": "22",
+            "fieldName": "applicationNm",
             "fieldSourceType": "API/INPUTDATA/RULE",
             "fieldSourceValue": "API 001",
             "fieldSourceId": "APIID001",
@@ -37,8 +46,8 @@ export const testData =
         "outputData": [
           {
             "displaySeq": "1",
-            "fieldId": "",
-            "fieldName": "",
+            "fieldId": "111",
+            "fieldName": "applicationNm",
             "fieldSourceType": "API/INPUTDATA/RULE",
             "fieldSourceValue": "API 001",
             "fieldSourceId": "APIID001",

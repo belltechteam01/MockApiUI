@@ -77,7 +77,7 @@ export class CWorkNode<T extends {id: string}> {
       
       this.events = new Events();
 
-      this.updateState(ENM_FLOW_STATE.INITIALIZING);
+      this.gotoState(ENM_FLOW_STATE.INITIALIZING);
     }
 
     public getInstance() : T {
@@ -117,31 +117,55 @@ export class CWorkNode<T extends {id: string}> {
     private isValidConnection() {
       return true;
     }
+    
+    public gotoState(state: ENM_FLOW_STATE, subState: number=0) : boolean {
+      let bRet = false;
+
+      const nRetry = 10;
+      var i = 0, bResult = true;
+      
+      while (i < nRetry && bResult) {
+        bResult = this.updateState(state, subState);
+        i++;
+      }
+
+      bRet = (i !== nRetry);
+      
+      if(!bRet) {
+        console.log("[ERR] developer check - state flow");
+      }
+
+      return bRet;
+    }
 
     public updateState(state: ENM_FLOW_STATE, subState: number=0) {
 
-      let shouldBeRecursive = false;
-
+      var shouldBeRecursive = false;
+      // console.log("[STATE] current state(" + this.state + ") update state(" + state + ")");
       switch(this.state) {
         case ENM_FLOW_STATE.INITIALIZING: {
 
+          // console.log("[STATE] INITIALIZING - subState(" + subState + ")");
           if(state == ENM_FLOW_STATE.EDIT) {
             this.state = ENM_FLOW_STATE.EDIT;
             this.subState = ENM_EDIT_SUBSTATE.INIT_PARAM;
+            shouldBeRecursive = true;
           }          
         }
         break;
         case ENM_FLOW_STATE.EDIT: {
 
+          // console.log("[STATE] EDIT - subState(" + subState + ")");
           this.subState = this.updateEditState(subState);
           switch(this.subState) {
             case ENM_EDIT_SUBSTATE.EDITED: {
               
               //simple validate for the connection
               if(this.isValidConnection()) {
-                this.updateEditState(ENM_EDIT_SUBSTATE.VALIDATE_FALIED);
-              } else {
                 this.state = ENM_FLOW_STATE.VALIDATE;
+                shouldBeRecursive = true;
+              } else {
+                this.updateEditState(ENM_EDIT_SUBSTATE.VALIDATE_FALIED);
               }
             }
             break;
@@ -158,25 +182,32 @@ export class CWorkNode<T extends {id: string}> {
         }
         break;
         case ENM_FLOW_STATE.VALIDATE: {
+
+          console.log("[STATE] VALIDATE - subState(" + subState + ")");
           this.subState = this.updateValidateState(subState);
           switch(this.subState) {
             case ENM_VALIDATE_SUBSTATE.VALIDATED: {
+
               this.state = ENM_FLOW_STATE.RUN;
-            } break;
+              shouldBeRecursive = true;
+            } 
+            break;
             case ENM_VALIDATE_SUBSTATE.VALIDATION_FAILED: {
 
               //emit event - failed workflow validation (error_code)
               this.events.invokeEventHandler(EVENT_CODE.WORKFLOW_VALIDATION_FAIL)
               //
               this.state = ENM_FLOW_STATE.EDIT;
-
-            } break;
+              shouldBeRecursive = true;
+            }
+            break;
           }
         }
         break;
         case ENM_FLOW_STATE.RUN: {
-          this.subState = this.updateRunState(subState);
 
+          console.log("[STATE] RUN - subState(" + subState + ")");
+          this.subState = this.updateRunState(subState);
           switch(this.subState) {
             case ENM_RUN_SUBSTATE.TERMINATED_SUCCESS: {
 
@@ -246,29 +277,6 @@ export class CWorkNode<T extends {id: string}> {
       for(var edges of this.targets.getMap().values()) {
         ret.push(edges);
       }
-      return ret;
-    }
-
-    public async getRequests(): Promise<Types.IRequestItem[]> {
-      var ret: Array<Types.IRequestItem> = [];
-
-      return ret;
-    }
-    public async getApiList(): Promise<Types.IApiDetail[]> {
-      var ret: Array<Types.IApiDetail> = [];
-
-      const apiList: any = await WorkflowSevice.getCustomerDetails();
-      console.log("[CALL] getCustomerDetails reqs =>", apiList);
-
-      if(apiList.result) {
-        ret = apiList.data;
-      }
-
-      return ret;
-    }
-    public async getResponses(): Promise<Types.IResponseItem[]> {
-      var ret: Array<Types.IResponseItem> = [];
-
       return ret;
     }
   }

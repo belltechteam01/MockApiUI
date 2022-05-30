@@ -12,6 +12,7 @@ export enum EVENT_CODE {
     NODE_VALIDATION_SUCCESS,
     NODE_VALIDATION_FAIL,
     NODE_CONNECTION_INVALID,
+    NODE_SETTING_GET_APILIST,
 }
 
 type CallbackFunc = (param: Types.IEvent) => void;
@@ -92,13 +93,6 @@ export class Events
             break;
         }
         return ret;
-    }
-
-    protected getApiList = async () => {
-        let ret: Types.IApiList;
-        const response = await WorkflowSevice.getCustomerDetails();
-        
-        return {};
     }
 
     // protected selectApi(apiId: string, nodeId: string): Types.IApiDetail {

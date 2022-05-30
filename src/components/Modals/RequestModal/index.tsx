@@ -127,7 +127,7 @@ export const Modal = (props: IModalProps) => {
   const pathEditor = getPathEditor(onChange, t, {});
 
   return (
-    <BasicModal open={showModal} onClose={() => setShowModal(false)} title={'Request Modal'}>
+    <BasicModal open={showModal} onClose={() => setShowModal(false)} title={'Edit Request Parameters'}>
       {/* body */}
       <div className={styles.modalBody}>
         {/* checkbox - editable */}
