@@ -4,14 +4,7 @@ import BasicModal from 'components/Based/BasicModal';
 import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
 import styles from './styles.module.scss';
-import { ModalType } from '../index';
-
-interface IModalProps {
-  id: string;
-  selectedRow: ModalType;
-  data: any;
-  onClose: Function;
-}
+import { ModalType, IModalProps } from '../index';
 
 interface ICode {
   code: string;
@@ -19,7 +12,7 @@ interface ICode {
 }
 
 export const Modal = (props: IModalProps) => {
-  const { id, selectedRow, data, onClose } = props;
+  const { id, selectedId, data, onClose } = props;
 
   const {} = data;
 

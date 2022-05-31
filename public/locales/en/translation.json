@@ -50,7 +50,8 @@
           "newfieldPlaceholder": "New source",
           "path": "Request path",
           "newable": "create new field",
-          "valueLabel": "value"
+          "valueLabel": "value",
+          "selectorPlaceholder": "Select source"
         },
         "response": {
           "title": "Select Request Source",

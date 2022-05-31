@@ -55,6 +55,8 @@ export interface IRequestItem {
     fieldSourceValue: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
+    id?: string;
+    path?: string;
 }
 
 export interface IResponseItem {
@@ -65,6 +67,8 @@ export interface IResponseItem {
     fieldSourceValue: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
+    id?: string;
+    path?: string;
 }
 
 export interface IInputDataItem {
@@ -74,19 +78,22 @@ export interface IInputDataItem {
     fieldSourceName: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
-}
+    id?: string;
+    path?: string;}
 
 export interface IOutputDataItem {
     displaySeq: number;
     fieldId: string;
     fieldName: string;
     fieldSourceValuePath: string;
+    id?: string;
+    path?: string;
 }
 
 export interface IRulesDetails {
     ruleId: string;
     ruleName: string;
-    requestData: Array<IInputDataItem>;
+    inputData: Array<IInputDataItem>;
     outputData: Array<IOutputDataItem>;
     parentFlowId: string;
     childFlowId: string;

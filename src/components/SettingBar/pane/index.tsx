@@ -32,12 +32,12 @@ export interface ISettingPaneEvent {
 interface ILocalState {
   modalType: ModalType;
   showModal: boolean;
-  selectedRow: number;
+  selectedId: string;
 }
 
 export const setStateMany = (fn: Function, d: Object) => {
   if (d && typeof d === 'object') {
-    // console.log('[state] setMany', d);
+    console.log('[state] setMany', d);
     fn((p) => ({ ...p, ...d }));
   }
 };
@@ -70,7 +70,7 @@ const getApiSelector = (flowSteps: Array<Types.IFlowStep> | undefined, t: Functi
   
   // console.log("[LOG] getApiSelector", flowSteps);
   let apiList = flowSteps.map((flowStep) => {
-    return {value: flowStep.apiDetails.apiId, label: flowStep.apiDetails.apiName};
+    return {value: flowStep.flowStepId, label: flowStep.apiDetails.apiName};
   })
 
   ret = (
@@ -83,7 +83,7 @@ const getApiSelector = (flowSteps: Array<Types.IFlowStep> | undefined, t: Functi
             placeholder={t('workflow.setting.form.placeholder.api-selector')}
             // defaultValue={}
             options={apiList}
-            onChange={(e) => onSelect(e)}
+            onChange={(e:any) => onSelect(e.value)}
             styles={{
               menuPortal: (provided) => ({
                 ...provided,
@@ -104,7 +104,7 @@ const getReqeuestList = (requests: Array<Types.IRequestItem> | undefined, t: Fun
   var ret: ReactNode;
   if(!Array.isArray(requests)) requests = [];
   // console.log("[LOG] getRequestsList", requests);
-  const d = { showModal: true, modalType: ModalType.Request, selectedRow: -1 };
+  const d = { showModal: true, modalType: ModalType.Request, selectedId: "" };
   ret = (
     <div className={styles.requestWrapper}>
       <FormControlContainer>
@@ -120,8 +120,8 @@ const getReqeuestList = (requests: Array<Types.IRequestItem> | undefined, t: Fun
             <TableBody>
               {(requests || []).map((request: Types.IRequestItem, index) => (
                 <TableRow
-                  key={request.fieldId}
-                  onClick={() => setStateMany(showModal, { ...d, selectedRow: request.fieldId })}
+                  key={request.id}
+                  onClick={() => setStateMany(showModal, { ...d, selectedId: request.id })}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
@@ -148,7 +148,7 @@ const getReqeuestList = (requests: Array<Types.IRequestItem> | undefined, t: Fun
 
 const getResponseList = (responses: Array<Types.IResponseItem> | undefined, t: Function, showModal: Function): ReactNode => {
   var ret: ReactNode;
-  const d = { showModal: true, modalType: ModalType.Response, selectedRow: -1 };
+  const d = { showModal: true, modalType: ModalType.Response, selectedId: "" };
   if(!Array.isArray(responses)) responses = [];
   ret = (
     <div className={styles.responseWrapper}>
@@ -165,8 +165,8 @@ const getResponseList = (responses: Array<Types.IResponseItem> | undefined, t: F
             <TableBody>
               {(responses || []).map((response: Types.IResponseItem, index) => (
                 <TableRow
-                  key={response.fieldId}
-                  onClick={() => setStateMany(showModal, { ...d, selectedRow: response.fieldId })}
+                  key={response.id}
+                  onClick={() => setStateMany(showModal, { ...d, selectedId: response.id })}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
@@ -198,9 +198,15 @@ const getModal = (localState: ILocalState, data: any, onClose: Function): ReactN
   let ret: ReactNode;
   ret = (
     <>
-      {localState.showModal && localState.modalType == ModalType.Request && <RequestModal.Modal id="modal-1" selectedRow={localState.selectedRow} data={data} onClose={onClose} />}
-      {localState.showModal && localState.modalType == ModalType.Response && <ResponseModal.Modal id="modal-2" selectedRow={localState.selectedRow} data={data} onClose={onClose} />}
-      {localState.showModal && localState.modalType == ModalType.StatusCode && <StatusCodeModal.Modal id="modal-3" selectedRow={localState.selectedRow} data={data} onClose={onClose} />}
+      { localState.showModal && localState.modalType == ModalType.Request && 
+        <RequestModal.Modal id="modal-1" selectedId={localState.selectedId} data={data} onClose={onClose} />
+      }
+      { localState.showModal && localState.modalType == ModalType.Response && 
+        <ResponseModal.Modal id="modal-2" selectedId={localState.selectedId} data={data} onClose={onClose} />
+      }
+      { localState.showModal && localState.modalType == ModalType.StatusCode && 
+        <StatusCodeModal.Modal id="modal-3" selectedId={localState.selectedId} data={data} onClose={onClose} />
+      }
     </>
   );
   return ret;
@@ -229,11 +235,11 @@ const SettingPane = (props: ISettingPaneProps) => {
   const [localState, setLocalState] = React.useState<ILocalState>({
     showModal: false,
     modalType: ModalType.Request,
-    selectedRow: -1
+    selectedId: ""
   });
 
   const onModalClose = () => {
-    setStateMany(setLocalState, { showModal: false, selectedRow: -1 });
+    setStateMany(setLocalState, { showModal: false, selectedId: "" });
   };
 
   useEffect(() => {
@@ -248,18 +254,21 @@ const SettingPane = (props: ISettingPaneProps) => {
   const [apiName, setApiName] = React.useState<string>(workData ? workData.name : 'untitled');
 
 
-  const onSelect = (apiId) => {
+  const onSelect = (flowStepId: string) => {
 
-    const requests = workflow?.getRequests("12342", "123");
+    // flowSteps.flowStepId.12342.apiDetails.requestData.fieldSourceType
+    // const fieldPath = "flowSteps.flowStepId.1.apiDetails.requestData.id.11";
+    // let attrib = workflow?.getAttribute(fieldPath);
+    // // console.log("[LOG] attrib", attrib);
+    // attrib.fieldSourceValuePath = fieldPath;
+
+    const requests = workflow?.getRequests(flowStepId);
     if(requests)  
       setRequests(requests);
-
-    const responses = workflow?.getResponses("12342", "123");
+      
+    const responses = workflow?.getResponses(flowStepId);
     if(responses)
       setResponses(responses);
-
-    // const attrib = workflow?.getAttribute("flowSteps.apiDetails.requestData.fieldSourceType");
-    // console.log("[LOG] test getAttrib ", attrib)
   }
 
   const apiNameEditor = getApiNameEditor(apiName, workData, t);

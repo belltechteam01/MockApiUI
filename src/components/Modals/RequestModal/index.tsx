@@ -7,61 +7,64 @@ import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
 import { IRequestItem } from 'services/workflow/types';
 import { CWorkflow } from 'services/workflow';
-import { ModalType } from '../index';
+import { ModalType, IModalProps } from '../index';
 
-interface IModalProps {
-  id: string;
-  selectedRow: ModalType;
-  data: any;
-  onClose: Function;
-}
-
-const getEditableCheck = (onCheck: Function, t: Function): ReactNode => {
+const getEditableCheck = (isCheck: boolean, onCheck: Function, t: Function): ReactNode => {
   let ret: ReactNode;
 
   ret = (
     <>
-      <MUI.FormControlLabel sx={{ mb: 1 }} control={<MUI.Checkbox defaultChecked onChange={(e) => onCheck(e.target.checked)} />} label={t('workflow.setting.modal.request.newable')} />
+      <MUI.FormControlLabel sx={{ mb: 1 }} control={<MUI.Checkbox defaultChecked={isCheck} onChange={(e) => onCheck(e.target.checked)} />} label={t('workflow.setting.modal.request.newable')} />
+    </>
+  );
+
+  return ret;
+};
+const getSourceSelector = (selected: IRequestItem | undefined, onSelect: Function, t: Function, isSelectable: boolean = true, data: any): ReactNode => {
+  let ret: ReactNode;
+
+  const requests: Array<IRequestItem> = data;
+  const requestList = requests.map((request) => {
+    return {value: request.id, label: request.path};
+  });
+
+  const selectedItem = {value: selected?.id, label: selected?.fieldSourceValuePath};
+
+  ret = (
+    <>
+      <MUI.FormControl fullWidth variant="standard" sx={{mb :3}}>
+        {!isSelectable && (
+          <ReactSelect
+            id="api-selector"
+            aria-describedby="action-helper-text"
+            placeholder={t('workflow.setting.modal.request.selectorPlaceholder')}
+            defaultValue={selectedItem}
+            options={requestList}
+            onChange={(e:any) => onSelect(selectedItem.value, e.value)}
+            styles={{
+              menuPortal: (provided) => ({
+                ...provided,
+                zIndex: 1001
+              }),
+              menu: (provided) => ({ ...provided, zIndex: 1001 })
+            }}
+          />
+	      )}
+        {isSelectable && (
+          <MUI.TextField
+            InputProps={{ classes: { input: styles.textWrapper } }}
+            id="outlined-size-normal"
+            defaultValue=""
+          />
+        )}
+      </MUI.FormControl>
     </>
   );
 
   return ret;
 };
 
-const getSourceSelector = (onSelect: Function, t: Function, isSelectable: boolean = true, data: any): ReactNode => {
-  let ret: ReactNode;
-  ret = (
-    <div className={styles.sourceWrapper}>
-      <MUI.FormControl fullWidth>
-        <div className={styles.borderLabel}>{t('workflow.setting.modal.request.sourcesLabel')}</div>
-        {!isSelectable && (
-          <MUI.Select
-            classes={{ select: styles.selectRoot }}
-            value={10}
-            // label=""
-            onChange={() => ({})}
-          >
-            <MUI.MenuItem value={10}>Ten</MUI.MenuItem>
-            <MUI.MenuItem value={20}>Twenty</MUI.MenuItem>
-            <MUI.MenuItem value={30}>Thirty</MUI.MenuItem>
-          </MUI.Select>
-        )}
-        {isSelectable && (
-          <MUI.TextField
-            InputProps={{ classes: { input: styles.textWrapper } }}
-            // label={t('workflow.setting.modal.request.sourcesLabel')}
-            id="outlined-size-normal"
-            defaultValue=""
-          />
-        )}
-      </MUI.FormControl>
-    </div>
-  );
-
-  return ret;
-};
-
-const getPathEditor = (onChange: Function, t: Function, data: any, isSelectable: boolean = false): ReactNode => {
+const getPathEditor = (selected: IRequestItem | undefined, onChange: Function, t: Function, data: any, isSelectable: boolean = false): ReactNode => {
   let ret: ReactNode;
   ret = (
     <div className={styles.pathEditor}>
@@ -91,18 +94,22 @@ const getPathEditor = (onChange: Function, t: Function, data: any, isSelectable:
 };
 
 export const Modal = (props: IModalProps) => {
-  const { id, selectedRow, data, onClose } = props;
+  const { id, selectedId, data, onClose } = props;
 
   //props
   const workflow: CWorkflow = data;
-  const isEditMode: boolean = selectedRow >= 0;
+  const isUpdateMode: boolean = selectedId !== "";
   const properties = [];
 
+  let requestAll: Array<IRequestItem> = workflow?.getRequest();
+  let requests: Array<IRequestItem> = workflow?.getRequest(selectedId);
+  const selected = (isUpdateMode && requests.length > 0) ? requests[0] : undefined;
+  
   //states
   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(true);
-  const [source, setSource] = React.useState(20);
-  const [isEdit, setEdit] = useState(true);
+  const [source, setSource] = React.useState(0);
+  const [isEdit, setEdit] = useState(!isUpdateMode);
 
   //functions
   const onOk = () => {
@@ -113,7 +120,18 @@ export const Modal = (props: IModalProps) => {
     setEdit(bChecked);
   };
 
-  const onSelect = () => {};
+  const onSelect = (curId: string, selectedId: string) => {
+    
+    const requests = workflow.getRequestMap();
+
+    const _cur = requests.get(curId);
+    const _selected = requests.get(selectedId);
+
+    if(_cur && _selected) {
+      _cur.fieldSourceValuePath = _selected.path ?? "";
+      _cur.fieldSourceType = _selected.fieldSourceType;
+    }
+  };
 
   const onChange = () => {};
 
@@ -122,9 +140,9 @@ export const Modal = (props: IModalProps) => {
     if (!showModal) onClose();
   }, [showModal]);
 
-  const editableCheck = getEditableCheck(onCheck, t);
-  const sourceSelector = getSourceSelector(onSelect, t, isEdit, {});
-  const pathEditor = getPathEditor(onChange, t, {});
+  const editableCheck = getEditableCheck(!isUpdateMode ,onCheck, t);
+  const sourceSelector = getSourceSelector(selected, onSelect, t, isEdit, requestAll);
+  const pathEditor = getPathEditor(selected, onChange, t, requestAll);
 
   return (
     <BasicModal open={showModal} onClose={() => setShowModal(false)} title={'Edit Request Parameters'}>

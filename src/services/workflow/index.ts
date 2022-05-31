@@ -9,6 +9,9 @@ import * as Util from "./utils";
 import * as Types from "./types";
 import { CWork } from "./workmodel/models/work";
 import {WorkflowSevice} from "services/api";
+import { v4 as uuidv4 } from 'uuid';
+import { request } from "http";
+
 
 export class CWorkflow {
     public id: string = "123";
@@ -20,6 +23,8 @@ export class CWorkflow {
     private _edgelist: EdgeMap<Types.IEdge>;
 
     static flowData: Types.IFlow;
+    private requests: Map<string, Types.IRequestItem>;
+    private responses: Map<string, Types.IResponseItem>;
 
     constructor(name?:string) {
         this.id = WorkflowSettings.WORKFLOW_ID_DEFAULT;
@@ -30,6 +35,8 @@ export class CWorkflow {
 
         // console.log("[LOG] new workflow");
         CWorkflow.getFlowData();
+        this.requests = new Map();
+        this.responses = new Map();
     }
 
     add(model: WorkModel.Work, type?: ENM_FLOWTYPE) {
@@ -165,42 +172,154 @@ export class CWorkflow {
 
       return ret;
     }
-   
-    public getRequests(flowStepId: string, apiId: string): Types.IRequestItem[] {
+
+    public getRequestMap(): Map<string, Types.IRequestItem> {
+
+        if(this.requests.size == 0) {
+            const flowData = CWorkflow.getFlowData();
+
+            for(let flowStep of flowData.flowSteps) {
+                const requests = this.getRequests(flowStep.flowStepId);
+                for(let request of requests) {
+                    if(request && request.id)
+                        this.requests.set(request.id, request);
+                }
+            }
+        }
+
+        return this.requests;
+    }
+
+    public getResponseMap(): Map<string, Types.IResponseItem> {
+
+        if(this.requests.size == 0) {
+            const flowData = CWorkflow.getFlowData();
+
+            for(let flowStep of flowData.flowSteps) {
+                const responses = this.getResponses(flowStep.flowStepId);
+                for(let response of responses) {
+                    if(response && response.id)
+                        this.responses.set(response.id, response);
+                }
+            }
+        }
+
+        return this.responses;
+    }
+
+    public getRequest(requestId: string = ""): Types.IRequestItem[] {
+        var ret: Array<Types.IRequestItem> = [];
+        const flowData = CWorkflow.getFlowData();
+
+        for(let flowStep of flowData.flowSteps) {
+            const requests = this.getRequests(flowStep.flowStepId);
+            ret = ret.concat(requests);
+        }
+
+        if(requestId != "") {
+            var bExist = false;
+            for(let request of ret) {
+                if(request.id == requestId) {
+                    ret = [request];
+                    bExist = true;
+                    break;
+                }
+            }
+            if(!bExist) ret = [];
+        }
+
+        return ret;
+    }
+
+    public getRequests(flowStepId: string): Types.IRequestItem[] {
       var ret: Array<Types.IRequestItem> = [];
       
       const flowData = CWorkflow.getFlowData();
       
-      const requestItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_REQUESTS, "2344", flowStepId, apiId ) as Array<Types.IRequestItem>;
+      const requestItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_REQUESTS, "2344", flowStepId ) as Array<Types.IRequestItem>;
       if(requestItems) {
-
-          ret = requestItems;
+        for(let itm of requestItems) {
+            itm.path = "flowSteps.flowStepId."+flowStepId+".apiDetails.requestData.fieldId";
+            if(itm.id == undefined) itm.id = uuidv4();
+        }
+        ret = requestItems;
       }
 
       return ret;
     }
 
-    public getResponses(flowStepId: string, apiId: string): Types.IResponseItem[] {
+    public getResponses(flowStepId: string): Types.IResponseItem[] {
       var ret: Array<Types.IResponseItem> = [];
 
       const flowData = CWorkflow.getFlowData();
       
-      const responseItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RESPONSES, "2344", flowStepId, apiId ) as Array<Types.IResponseItem>;
+      const responseItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RESPONSES, "2344", flowStepId ) as Array<Types.IResponseItem>;
       if(responseItems) {
+        for(let itm of responseItems) {
+            itm.path = "flowSteps.flowStepId."+flowStepId+".apiDetails.outputData.fieldId";
+            if(itm.id == undefined) itm.id = uuidv4();
+        }
+        ret = responseItems;
+      }
+      return ret;
+    }
 
-          ret = responseItems;
+    public getRuleOutputs(flowStepId: string): Types.IOutputDataItem[] {
+      var ret: Array<Types.IOutputDataItem> = [];
+
+      const flowData = CWorkflow.getFlowData();
+      
+      const ruleDetails = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RULE_DETAIS, "2344", flowStepId ) as Types.IRulesDetails;
+
+      if(ruleDetails) {
+        ret = ruleDetails.outputData;
+        for(let itm of ruleDetails.outputData) {
+            itm.path = "flowSteps.flowStepId."+flowStepId+".rulesDetails.outputData.fieldId";
+            if(itm.id == undefined) itm.id = uuidv4();
+        }
+      }
+      return ret;
+    }
+
+    public getRuleInputs(flowStepId: string): Types.IInputDataItem[] {
+      var ret: Array<Types.IInputDataItem> = [];
+
+      const flowData = CWorkflow.getFlowData();
+      
+      const ruleDetails = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RULE_DETAIS, "2344", flowStepId ) as Types.IRulesDetails;
+
+      if(ruleDetails) {
+        ret = ruleDetails.inputData;
+        for(let itm of ruleDetails.inputData) {
+            itm.path = "flowSteps.flowStepId."+flowStepId+".rulesDetails.inputData.fieldId";
+            if(itm.id == undefined) itm.id = uuidv4();
+        }
+      }
+      return ret;
+    }
+
+    public getRuleDetails(flowStepId: string): Types.IRulesDetails | null {
+      var ret: Types.IRulesDetails | null = null;
+
+      const flowData = CWorkflow.getFlowData();
+      
+      const ruleDetails = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RULE_DETAIS, "2344", flowStepId ) as Types.IRulesDetails;
+
+      if(ruleDetails) {
+        ret = ruleDetails;
       }
       return ret;
     }
 
     public getAttribute(attrPath: string): any {
         var ret = {};
-
+        
         let keys = attrPath.split(WorkflowSettings.FLOW_PATH_DELIMITER);
+        if(keys.length == 0) return ret;
 
         let attr = Util.getAttr(CWorkflow.getFlowData(), keys);
-        if(attr == false) {
-            console.log("[LOG] can't find attrib");
+        if(attr) {
+            ret = attr[keys[keys.length-1]];
         }
         ret = attr;
 

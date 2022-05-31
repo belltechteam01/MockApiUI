@@ -21,7 +21,10 @@ export enum ENM_ParseType {
   API_RESPONSES,
   STATUS_CODES,
   STATUS_SUCCESS_CODES,
-  STATUS_FAILURE_CODES
+  STATUS_FAILURE_CODES,
+  API_RULE_DETAIS,
+  API_RULE_INPUT,
+  API_RULE_OUTPUT,
 }
 
 export const getFlowStep = (flow: Types.IFlow, flowId: string): Types.IFlowStep | null => {
@@ -31,6 +34,22 @@ export const getFlowStep = (flow: Types.IFlow, flowId: string): Types.IFlowStep 
         for(let flowStep of flow.flowSteps) {
             if(flowId == flowStep.flowStepId) {
                 ret = flowStep;
+                break;
+            }
+        }
+    }
+
+    return ret;
+}
+export const getRuleField = (fields: Types.IOutputDataItem[] | Types.IInputDataItem[], fieldId: string)
+: Types.IInputDataItem | Types.IOutputDataItem | null => {
+
+    var ret: Types.IInputDataItem | Types.IOutputDataItem | null = null;
+
+    if(fields && fields.length > 0) {
+        for(let itm of fields) {
+            if(fieldId == itm.fieldId) {
+                ret = itm;
                 break;
             }
         }
@@ -55,7 +74,8 @@ export const parseFlowData = (
     toType: ENM_ParseType, 
     flowId: string, 
     flowStepId: string="", 
-    apiId: string=""
+    apiId: string="",
+    fieldId: string="",
 ): Object => {
     
     var ret: Object = {};
@@ -151,22 +171,89 @@ export const parseFlowData = (
                 } 
             }
         }
-    }
+    } else if(toType == ENM_ParseType.API_RULE_DETAIS) {
+        
+        if(flowData.flowId == flowId) {
+            let flowStep = getFlowStep(flowData, flowStepId);
+            // console.log("[LOG] parseFlowData", flowStepId);
+            if(flowStep && flowStep.rulesDetails){
+                const ruleDetails = flowStep.rulesDetails;
+                
+                if(ruleDetails){
+                    ret = ruleDetails;
+                } 
+            }
+        }
+    } else if(toType == ENM_ParseType.API_RULE_INPUT) {
+        
+        if(flowData.flowId == flowId) {
+            let flowStep = getFlowStep(flowData, flowStepId);
+            // console.log("[LOG] parseFlowData", flowStepId);
+            if(flowStep && flowStep.rulesDetails){
+                const ruleDetails = flowStep.rulesDetails;
+                const ruleInput = getRuleField(flowStep.rulesDetails.inputData, fieldId);
+                if(ruleInput){
+                    ret = ruleInput;
+                } 
+            }
+        }
+    } else if(toType == ENM_ParseType.API_RULE_OUTPUT) {
+        
+        if(flowData.flowId == flowId) {
+            let flowStep = getFlowStep(flowData, flowStepId);
+            // console.log("[LOG] parseFlowData", flowStepId);
+            if(flowStep && flowStep.rulesDetails){
+                const ruleDetails = flowStep.rulesDetails;
+                const ruleInput = getRuleField(flowStep.rulesDetails.outputData, fieldId);
+                if(ruleInput){
+                    ret = ruleInput;
+                } 
+            }
+        }
+    } 
     
     return ret;
 }
 
+const findItem = (items: Array<Object>, key: string, id: string): any => {
+    var ret: any = null;
+    for(let itm of items) {
+        if(itm[key] == id) {
+            ret = itm;
+            break;
+        }
+    }
+
+    return ret;
+}
 export const getAttr = (data: Object, keys: string[]): any => {
     
     if(!data || typeof data != "object") return false;
     if(!data.hasOwnProperty(keys[0])) return false;
-
     if(keys.length < 2) {
         return data;
     } else {
-        const key = keys.shift();
-        if(!key) return false;
+        let key = keys.shift();
+        if(key == undefined) return false;
+        
+        var child = data[key];
+        
+        if( Array.isArray(data[key]) )
+        {
+            const idKey = keys.shift();
+            if(idKey == undefined) return false;
+            
+            const itm = findItem(data[key], idKey, keys[0]);
+            
+            keys.shift();
+            console.log("[LOG] keys", keys.length);
+            if(keys.length == 0)
+            return itm;
+            
+            child = itm;
+        }
 
-        return getAttr(data[key], keys);
+        return getAttr(child, keys);
     }    
 }
+

@@ -7,14 +7,8 @@ import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
 import { IResponseItem } from 'services/workflow/types';
 import { CWorkflow } from 'services/workflow';
-import { ModalType } from '../index';
+import { ModalType, IModalProps } from '../index';
 
-interface IModalProps {
-  id: string;
-  selectedRow: ModalType;
-  data: any;
-  onClose: Function;
-}
 
 const getEditableCheck = (onCheck: Function, t: Function): ReactNode => {
   let ret: ReactNode;
@@ -89,11 +83,11 @@ const getPathEditor = (onChange: Function, t: Function, data: any, isSelectable:
 };
 
 export const Modal = (props: IModalProps) => {
-  const { id, selectedRow, data, onClose } = props;
+  const { id, selectedId, data, onClose } = props;
 
   //props
   const workflow: CWorkflow = data;
-  const isEditMode: boolean = selectedRow >= 0;
+  const isEditMode: boolean = selectedId != "";
   const properties = [];
 
   //states
