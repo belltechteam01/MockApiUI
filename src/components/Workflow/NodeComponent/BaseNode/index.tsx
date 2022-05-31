@@ -171,6 +171,8 @@ const isEdgeValidation = (
     ) : boolean => 
 {
     let bRet = true;
+
+    console.log("[LOG] connection", connection);
     return bRet;
 }
 

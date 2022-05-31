@@ -104,21 +104,20 @@ const Workflow = (props: any) => {
 
   const onConnect = (params: any) => {
     // console.log('params===>', params);
-    params.label = 'test-edge';
+    // params.label = 'test-edge';
     params.className = 'normal-edge';
-    params.style = { stroke: 'blue', strokeWidth: 3 };
+    params.style = { stroke: 'gray', strokeWidth: 3 };
     params.markerEnd = {
       type: ReactflowRenderer.MarkerType.ArrowClosed,
-      color: 'red'
+      color: 'gray'
     };
     params.data = {
-      lineWidth: 2,
+      lineWidth: 1,
       lineColor: '#de6543'
     };
     // params.markerEnd.type = MarkerType.ArrowClosed;
-
+    
     setEdges((eds) => {
-      // console.log('edges===>', eds);
 
       return ReactflowRenderer.addEdge(params, eds);
     });
