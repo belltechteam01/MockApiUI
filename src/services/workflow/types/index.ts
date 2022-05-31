@@ -65,10 +65,11 @@ export interface IRequestItem {
     fieldSourceValue: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
-    id?: string;
-    path?: string;
-    type?: ItemType;
-    parent?: IFlowStep;
+
+    id: string;
+    path: string;
+    type: ItemType;
+    parent: IApiDetail;
 }
 
 export interface IResponseItem {
@@ -79,10 +80,11 @@ export interface IResponseItem {
     fieldSourceValue: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
-    id?: string;
-    path?: string;
-    type?: ItemType;
-    parent?: IFlowStep;
+
+    id: string;
+    path: string;
+    type: ItemType;
+    parent: IApiDetail;
 }
 
 export interface IInputDataItem {
@@ -92,10 +94,11 @@ export interface IInputDataItem {
     fieldSourceName: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
-    id?: string;
-    path?: string;
-    type?: ItemType;
-    parent?: IFlowStep;
+
+    id: string;
+    path: string;
+    type: ItemType;
+    parent: IRulesDetails;
 }
 
 export interface IOutputDataItem {
@@ -103,10 +106,11 @@ export interface IOutputDataItem {
     fieldId: string;
     fieldName: string;
     fieldSourceValuePath: string;
-    id?: string;
-    path?: string;
-    type?: ItemType;
-    parent?: IFlowStep;
+
+    id: string;
+    path: string;
+    type: ItemType;
+    parent: IRulesDetails;
 }
 
 export interface IRulesDetails {
@@ -116,6 +120,16 @@ export interface IRulesDetails {
     outputData: Array<IOutputDataItem>;
     parentFlowId: string;
     childFlowId: string;
+
+    inputMap: Map<string, IInputDataItem>;
+    outputMap: Map<string, IOutputDataItem>;
+    parent: any;
+}
+
+export interface IStatusCode {
+    id: string;
+    code: string;
+    action: string;
 }
 
 export interface IApiDetail {
@@ -123,8 +137,15 @@ export interface IApiDetail {
     apiName: string;
     successHttpCodes: Array<string>;
     faliureHttpCodes: Array<string>;
-    requestData: Array<IRequestItem>
-    outputData: Array<IResponseItem>
+    requestData: Array<IRequestItem>;
+    outputData: Array<IResponseItem>;
+
+    id: string;
+    successCodeMap: Map<string, IStatusCode>;
+    failCodeMap: Map<string, IStatusCode>;
+    requestMap: Map<string, IRequestItem>;
+    responseMap: Map<string, IResponseItem>
+    parent: any;
 }
 
 export interface ILeftSide {
@@ -154,16 +175,22 @@ export interface IConditionPairs {
     comparisonOprType: ComparisonOprType
     rightSide: IRightSide;
     nextJoinType: NextJsonType;
+
+    id: string;
 }
 
 export interface ISuccessActions {
     name: string;
     value: string;
+
+    id: string;
 }
 
 export interface IFailedActions {
     name: string;
     value: string;
+
+    id: string;
 }
 
 export interface ICheckCondition {
@@ -172,6 +199,10 @@ export interface ICheckCondition {
     conditionPairs: Array<IConditionPairs>;
     successActions: Array<ISuccessActions>;
     failedActions: Array<IFailedActions>
+
+    conditionPairMap: Map<string, IConditionPairs>;
+    successActionMap: Map<string, ISuccessActions>;
+    failedActionMap: Map<string, IFailedActions>;
 }
 
 export interface IFlowStep {
@@ -183,13 +214,17 @@ export interface IFlowStep {
     apiDetails: IApiDetail;
     rulesDetails: IRulesDetails;
     checkCondition: ICheckCondition;
-    node?: CWorkNode<CWork> | null;
+
+    id: string;
+    node: CWorkNode<CWork>;
 }
 
 export interface IFlow {
     flowId:     string;
     flowName:   string;
     flowSteps:  Array<IFlowStep>;
+
+    flowStepMap: Map<string, IFlowStep>
 }
 
 export interface IEdge {
@@ -201,3 +236,6 @@ export interface IEdge {
 export interface IRequestPathItem {
     
 }
+
+
+

@@ -5,7 +5,7 @@ import { FormControlContainer, Input, Label, ReactSelect, TextArea } from '../..
 import styles from './styles.module.scss';
 import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
-import { IResponseItem } from 'services/workflow/types';
+import { IRequestItem, IResponseItem } from 'services/workflow/types';
 import { CWorkflow } from 'services/workflow';
 import { ModalType, IModalProps } from '../index';
 
@@ -67,7 +67,7 @@ export const Modal = (props: IModalProps) => {
   let workflow: CWorkflow = data;
   const isEditMode: boolean = selectedId != "";
   const properties = [];
-  let selected = workflow.getRequestMap().get(selectedId);
+  let selected: IRequestItem;//workflow.getRequests().get(selectedId);
 
   
   //states
@@ -75,13 +75,13 @@ export const Modal = (props: IModalProps) => {
   const [showModal, setShowModal] = useState(true);
   const [source, setSource] = React.useState(20);
   const [isEdit, setEdit] = useState(true);
-  const [path, setPath] = useState(selected?.fieldSourceValuePath);
+  // const [path, setPath] = useState(selected?.fieldSourceValuePath);
   //functions
   const onOk = () => {
-    const requests = workflow.getRequestMap();
+    const requests = workflow.getApiList();
     const _selected = requests.get(selectedId);
     if(_selected) {
-      _selected.fieldSourceValuePath = path ?? "";
+      // _selected.fieldSourceValuePath = path ?? "";
     }
 
     setShowModal(false);
@@ -94,7 +94,7 @@ export const Modal = (props: IModalProps) => {
   const onSelect = () => {};
 
   const onChange = (e) => {
-    setPath(e.target.value);
+    // setPath(e.target.value);
   };
 
   //useEffect
@@ -103,8 +103,8 @@ export const Modal = (props: IModalProps) => {
   }, [showModal]);
 
   const editableCheck = getEditableCheck(onCheck, t);
-  const sourceSelector = getSourceSelector(onSelect, t, isEdit, selected);
-  const pathEditor = getPathEditor(onChange, t, selected);
+  // const sourceSelector = getSourceSelector(onSelect, t, isEdit, selected);
+  // const pathEditor = getPathEditor(onChange, t, selected);
 
   return (
     <BasicModal open={showModal} title={'Edit Response Parameters'} onClose={() => setShowModal(false)}>
@@ -114,10 +114,10 @@ export const Modal = (props: IModalProps) => {
         {/* {editableCheck} */}
 
         {/* Response souorce path */}
-        {sourceSelector}
+        {/* {sourceSelector} */}
 
         {/* value path */}
-        {pathEditor}
+        {/* {pathEditor} */}
       </div>
 
       {/* button group */}

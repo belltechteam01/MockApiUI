@@ -51,11 +51,11 @@ const getSourceSelector = (selected: IRequestItem | undefined, onSelect: Functio
 
   const selectableList : Array<IRequestItem|IResponseItem> = data;
   console.log("[LOG] selectable items", data);
-  const selectableItems = selectableList.map((item) => {
-    return {value: item.id, label: getSrcLabel(item.parent?.node?.getInstance().name, item.fieldName, item.type)};
-  });
+  // const selectableItems = selectableList.map((item) => {
+  //   return {value: item.id, label: getSrcLabel(item.parent?.node?.getInstance().name, item.fieldName, item.type)};
+  // });
 
-  const selectedItem = (selected) ? {value: selected.id, label: getSrcLabel(selected.parent?.node?.getInstance().name, selected.fieldName, selected.type)} : {value:"", label: ""};
+  // const selectedItem = (selected) ? {value: selected.id, label: getSrcLabel(selected.parent?.node?.getInstance().name, selected.fieldName, selected.type)} : {value:"", label: ""};
 
   ret = (
     <>
@@ -65,9 +65,9 @@ const getSourceSelector = (selected: IRequestItem | undefined, onSelect: Functio
             id="api-selector"
             aria-describedby="action-helper-text"
             placeholder={t('workflow.setting.modal.request.selectorPlaceholder')}
-            defaultValue={selectedItem}
-            options={selectableItems}
-            onChange={(e:any) => onSelect(selectedItem?.value, e.value)}
+            // defaultValue={selectedItem}
+            // options={selectableItems}
+            // onChange={(e:any) => onSelect(selectedItem?.value, e.value)}
             styles={{
               menuPortal: (provided) => ({
                 ...provided,
@@ -132,9 +132,9 @@ export const Modal = (props: IModalProps) => {
   const properties = [];
 
   console.log("[LOG] flowStepId", flowStepId);
-  let requestAll: Array<IRequestItem | IResponseItem> = workflow?.getSelectableRequests(flowStepId);
-  let requests: Array<IRequestItem> = workflow?.getRequest(selectedId);
-  const selected = (isUpdateMode && requests.length > 0) ? requests[0] : undefined;
+  // let requestAll: Array<IRequestItem | IResponseItem> = workflow?.getSelectableRequests(flowStepId);
+  // let requests: Array<IRequestItem> = workflow?.getRequest(selectedId);
+  // const selected: IRequestItem = 0;
   
   //states
   const { t } = useTranslation();
@@ -153,14 +153,14 @@ export const Modal = (props: IModalProps) => {
 
   const onSelect = (curId: string, selectedId: string) => {
     
-    const requests = workflow.getRequestMap();
+    const requests = workflow.getApiList();
 
     const _cur = requests.get(curId);
     const _selected = requests.get(selectedId);
 
     if(_cur && _selected) {
-      _cur.fieldSourceValuePath = _selected.path ?? "";
-      _cur.fieldSourceType = _selected.fieldSourceType;
+      // _cur.fieldSourceValuePath = _selected.path ?? "";
+      // _cur.fieldSourceType = _selected.fieldSourceType;
     }
   };
 
@@ -172,8 +172,8 @@ export const Modal = (props: IModalProps) => {
   }, [showModal]);
 
   const editableCheck = getEditableCheck(!isUpdateMode ,onCheck, t);
-  const sourceSelector = getSourceSelector(selected, onSelect, t, isEdit, requestAll);
-  const pathEditor = getPathEditor(selected, onChange, t, requestAll);
+  // const sourceSelector = getSourceSelector(selected, onSelect, t, isEdit, {});
+  // const pathEditor = getPathEditor(selected, onChange, t, {});
 
   return (
     <BasicModal open={showModal} onClose={() => setShowModal(false)} title={'Edit Request Parameters'}>
@@ -183,10 +183,10 @@ export const Modal = (props: IModalProps) => {
         {editableCheck}
 
         {/* request souorce path */}
-        {sourceSelector}
+        {/* {sourceSelector} */}
 
         {/* value path */}
-        {pathEditor}
+        {/* {pathEditor} */}
 
         {/* button group */}
       </div>

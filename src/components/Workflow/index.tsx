@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react'
 import ReactFlow from 'react-flow-renderer';
 import * as ReactflowRenderer from 'react-flow-renderer';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
 import ToolBar from '../ToolBar';
 import { CWorkflow } from '../../services/workflow';
 import { WorkflowSettings } from 'services/workflow/settings';
@@ -132,6 +133,11 @@ const Workflow = (props: any) => {
     setShowToolbar(!showToolbar);
   };
 
+  const onFileOpen = () => {
+    console.log("[LOG] onFileOpen");
+    workflow.getFlowData();
+  }
+
   return (
     <div className={styles.root}>
       <ReactflowRenderer.ReactFlowProvider>
@@ -157,6 +163,9 @@ const Workflow = (props: any) => {
             <ReactflowRenderer.Controls>
               <ReactflowRenderer.ControlButton onClick={() => handleToolbar()}>
                 <MenuOpenIcon />
+              </ReactflowRenderer.ControlButton>
+              <ReactflowRenderer.ControlButton onClick={() => onFileOpen()}>
+                <FileOpenIcon />
               </ReactflowRenderer.ControlButton>
             </ReactflowRenderer.Controls>
           </ReactFlow>

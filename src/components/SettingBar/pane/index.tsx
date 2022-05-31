@@ -274,20 +274,22 @@ const SettingPane = (props: ISettingPaneProps) => {
     // let attrib = workflow?.getAttribute(fieldPath);
     // // console.log("[LOG] attrib", attrib);
     // attrib.fieldSourceValuePath = fieldPath;
-    setStateMany(setLocalState, {flowStepId: flowStepId});
-    const requests = workflow?.getRequests(flowStepId);
-    if(requests)  
-      setRequests(requests);
-      
-    const responses = workflow?.getResponses(flowStepId);
-    if(responses)
-      setResponses(responses);
 
-    let flowStep = workflow?.getFlowStep(flowStepId);
-    if(flowStep){
-      workNode?.setFlowStep(flowStep);
-      flowStep.node = workNode;
-    }
+
+    // setStateMany(setLocalState, {flowStepId: flowStepId});
+    // const requests = workflow?.getRequests(flowStepId);
+    // if(requests)  
+    //   setRequests(requests);
+      
+    // const responses = workflow?.getResponses(flowStepId);
+    // if(responses)
+    //   setResponses(responses);
+
+    // let flowStep = workflow?.getFlowStep(flowStepId);
+    // if(flowStep){
+    //   workNode?.setFlowStep(flowStep);
+    //   flowStep.node = workNode;
+    // }
   }
 
   const apiNameEditor = getApiNameEditor(apiName, workData, t);
@@ -297,7 +299,7 @@ const SettingPane = (props: ISettingPaneProps) => {
 
   useEffect(() => {
     if(workflow) {
-      let flowData = CWorkflow.getFlowData();
+      let flowData = workflow.getFlowData();
       if(flowData && flowData.flowSteps) {
           setFlowSteps(flowData.flowSteps);
       };
