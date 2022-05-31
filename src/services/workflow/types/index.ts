@@ -1,4 +1,7 @@
 import { LargeNumberLike } from "crypto";
+import { CWorkMap } from "../workmap";
+import { CWorkNode } from "../workmap/worknode";
+import { CWork } from "../workmodel/models/work";
 
 export interface IEvent {
     event_code: number;
@@ -47,28 +50,39 @@ export enum NextJsonType {
     OR
 }
 
+export enum ItemType {
+    REQUEST,
+    RESPONSE,
+    RULE_INPUT,
+    RULE_OUTPUT
+};
+
 export interface IRequestItem {
     displaySeq: string;
     fieldId: string;
     fieldName: string;
-    fieldSourceType: FieldSourceType;
+    fieldSourceType: string;
     fieldSourceValue: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
     id?: string;
     path?: string;
+    type?: ItemType;
+    parent?: IFlowStep;
 }
 
 export interface IResponseItem {
     displaySeq: number;
     fieldId: string;
     fieldName: string;
-    fieldSourceType: FieldSourceType;
+    fieldSourceType: string;
     fieldSourceValue: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
     id?: string;
     path?: string;
+    type?: ItemType;
+    parent?: IFlowStep;
 }
 
 export interface IInputDataItem {
@@ -79,7 +93,10 @@ export interface IInputDataItem {
     fieldSourceId: string;
     fieldSourceValuePath: string;
     id?: string;
-    path?: string;}
+    path?: string;
+    type?: ItemType;
+    parent?: IFlowStep;
+}
 
 export interface IOutputDataItem {
     displaySeq: number;
@@ -88,6 +105,8 @@ export interface IOutputDataItem {
     fieldSourceValuePath: string;
     id?: string;
     path?: string;
+    type?: ItemType;
+    parent?: IFlowStep;
 }
 
 export interface IRulesDetails {
@@ -111,7 +130,7 @@ export interface IApiDetail {
 export interface ILeftSide {
     fieldId: string;
     fieldName: string;
-    fieldSourceType: FieldSourceType;
+    fieldSourceType: string;
     fieldSourceValue: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
@@ -121,7 +140,7 @@ export interface IRightSide {
     displaySeq: number;
     fieldId: string;
     fieldName: string;
-    fieldSourceType: FieldSourceType;
+    fieldSourceType: string;
     fieldSourceValue: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
@@ -164,6 +183,7 @@ export interface IFlowStep {
     apiDetails: IApiDetail;
     rulesDetails: IRulesDetails;
     checkCondition: ICheckCondition;
+    node?: CWorkNode<CWork> | null;
 }
 
 export interface IFlow {

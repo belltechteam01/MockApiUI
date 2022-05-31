@@ -59,6 +59,8 @@ export class CWorkNode<T extends {id: string}> {
 
     events: Events;
 
+    flowStep: Types.IFlowStep;
+
     constructor(val: T , type?: ENM_FLOWTYPE) {
       
       this.state = 0;
@@ -279,4 +281,9 @@ export class CWorkNode<T extends {id: string}> {
       }
       return ret;
     }
+
+    public setFlowStep(_flowStep: Types.IFlowStep) {
+      this.flowStep = _flowStep;
+    }
+
   }

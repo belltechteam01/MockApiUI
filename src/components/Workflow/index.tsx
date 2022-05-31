@@ -124,8 +124,9 @@ const Workflow = (props: any) => {
     });
   };
 
-  const onSave = (params: any) => {
-    // console.log('[LOG] onsave params', params);
+  const onSave = () => {
+
+    setShowPropertyInspector(false);
   };
 
   const handleToolbar = () => {
@@ -167,7 +168,7 @@ const Workflow = (props: any) => {
           isShow={isEdit && showPropertyInspector}
           nodeId={selectedNode}
           workflow={workflow}
-          onSave={onSave}
+          onSave={() => onSave()}
           onClose={() => {
             setShowPropertyInspector(false);
           }}

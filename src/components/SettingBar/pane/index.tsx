@@ -5,7 +5,6 @@ import { FormControlContainer, Input, Label, ReactSelect, TextArea } from '../..
 import BasicModal from '../../Based/BasicModal';
 import Button from '../../Based/Button';
 import styles from './styles.module.scss';
-import { FROM_API_DATA, FROM_INPUT_DATA } from 'utils/constant';
 import { CWorkflow } from 'services/workflow';
 import { CWork } from 'services/workflow/workmodel/models/work';
 import * as Types from 'services/workflow/types';
@@ -24,7 +23,7 @@ export interface ISettingPaneProps extends ISettingPaneEvent {
 }
 
 export interface ISettingPaneEvent {
-  onSave?: Function;
+  onSave: Function;
   onDrawerClose?: (event: React.KeyboardEvent | React.MouseEvent, isOpen: boolean) => void;
   onSelectAPI?: Function;
 }
@@ -33,6 +32,7 @@ interface ILocalState {
   modalType: ModalType;
   showModal: boolean;
   selectedId: string;
+  flowStepId: string;
 }
 
 export const setStateMany = (fn: Function, d: Object) => {
@@ -103,7 +103,7 @@ const getApiSelector = (flowSteps: Array<Types.IFlowStep> | undefined, t: Functi
 const getReqeuestList = (requests: Array<Types.IRequestItem> | undefined, t: Function, showModal: Function): ReactNode => {
   var ret: ReactNode;
   if(!Array.isArray(requests)) requests = [];
-  // console.log("[LOG] getRequestsList", requests);
+  // console.log("[LOG] getRequestsList", request.fieldSourceType);
   const d = { showModal: true, modalType: ModalType.Request, selectedId: "" };
   ret = (
     <div className={styles.requestWrapper}>
@@ -131,7 +131,19 @@ const getReqeuestList = (requests: Array<Types.IRequestItem> | undefined, t: Fun
                   </TableCell>
                   <TableCell classes={{ root: styles.inputCell }}>
                     <span className={styles.smallText}>
-                      {request.fieldSourceType == Types.FieldSourceType["INPUTDATA"] ? FROM_INPUT_DATA : FROM_API_DATA}
+                      {
+                        (request.fieldSourceType == Types.FieldSourceType[Types.FieldSourceType.API]) && 
+                        t('workflow.setting.form.parameterTypes.API')
+                        
+                      }
+                      {
+                        request.fieldSourceType == Types.FieldSourceType[Types.FieldSourceType.INPUTDATA] && 
+                        t('workflow.setting.form.parameterTypes.INPUTDATA')
+                      }
+                      {
+                        request.fieldSourceType == Types.FieldSourceType[Types.FieldSourceType.RULE] && 
+                        t('workflow.setting.form.parameterTypes.RULE')
+                      }
                     </span>
                     <p>{request.fieldSourceValuePath}</p>
                   </TableCell>
@@ -199,13 +211,13 @@ const getModal = (localState: ILocalState, data: any, onClose: Function): ReactN
   ret = (
     <>
       { localState.showModal && localState.modalType == ModalType.Request && 
-        <RequestModal.Modal id="modal-1" selectedId={localState.selectedId} data={data} onClose={onClose} />
+        <RequestModal.Modal id="modal-1" flowStepId={localState.flowStepId} selectedId={localState.selectedId} data={data} onClose={onClose} />
       }
       { localState.showModal && localState.modalType == ModalType.Response && 
-        <ResponseModal.Modal id="modal-2" selectedId={localState.selectedId} data={data} onClose={onClose} />
+        <ResponseModal.Modal id="modal-2" flowStepId={localState.flowStepId} selectedId={localState.selectedId} data={data} onClose={onClose} />
       }
       { localState.showModal && localState.modalType == ModalType.StatusCode && 
-        <StatusCodeModal.Modal id="modal-3" selectedId={localState.selectedId} data={data} onClose={onClose} />
+        <StatusCodeModal.Modal id="modal-3" flowStepId={localState.flowStepId} selectedId={localState.selectedId} data={data} onClose={onClose} />
       }
     </>
   );
@@ -235,7 +247,8 @@ const SettingPane = (props: ISettingPaneProps) => {
   const [localState, setLocalState] = React.useState<ILocalState>({
     showModal: false,
     modalType: ModalType.Request,
-    selectedId: ""
+    selectedId: "",
+    flowStepId: ""
   });
 
   const onModalClose = () => {
@@ -261,7 +274,7 @@ const SettingPane = (props: ISettingPaneProps) => {
     // let attrib = workflow?.getAttribute(fieldPath);
     // // console.log("[LOG] attrib", attrib);
     // attrib.fieldSourceValuePath = fieldPath;
-
+    setStateMany(setLocalState, {flowStepId: flowStepId});
     const requests = workflow?.getRequests(flowStepId);
     if(requests)  
       setRequests(requests);
@@ -269,6 +282,12 @@ const SettingPane = (props: ISettingPaneProps) => {
     const responses = workflow?.getResponses(flowStepId);
     if(responses)
       setResponses(responses);
+
+    let flowStep = workflow?.getFlowStep(flowStepId);
+    if(flowStep){
+      workNode?.setFlowStep(flowStep);
+      flowStep.node = workNode;
+    }
   }
 
   const apiNameEditor = getApiNameEditor(apiName, workData, t);
@@ -301,7 +320,7 @@ const SettingPane = (props: ISettingPaneProps) => {
 
         {/* button group */}
         <div className={styles.btnWrapper}>
-          <Button variant="contained" text="Save" classes={{ root: styles.btnSave }} disabled={false} onClick={() => onSave} />
+          <Button variant="contained" text="Save" classes={{ root: styles.btnSave }} disabled={false} onClick={() => onSave()} />
           <Button text="Cancel" variant="outlined" classes={{ root: styles.btnCancel }} onClick={onDrawerClose} />
         </div>
       </Container>

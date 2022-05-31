@@ -41,6 +41,11 @@
         "placeholder": {
           "name": "Name",
           "api-selector": "Select the API"
+        },
+        "parameterTypes": {
+          "INPUTDATA": "From Input Request Data",
+          "API": "From API Call Response",
+          "RULE": "From Rule"
         }
       },
       "modal": {

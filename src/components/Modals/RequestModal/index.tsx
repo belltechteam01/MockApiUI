@@ -5,7 +5,7 @@ import { FormControlContainer, Input, Label, ReactSelect, TextArea } from '../..
 import styles from './styles.module.scss';
 import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
-import { IRequestItem } from 'services/workflow/types';
+import { IRequestItem, IResponseItem, ItemType } from 'services/workflow/types';
 import { CWorkflow } from 'services/workflow';
 import { ModalType, IModalProps } from '../index';
 
@@ -20,15 +20,42 @@ const getEditableCheck = (isCheck: boolean, onCheck: Function, t: Function): Rea
 
   return ret;
 };
+
+const getSrcLabel = (apiName: string | undefined, fieldName: string | undefined, fieldType: ItemType|undefined): string => {
+  
+  var ret: string = "";
+
+  switch(fieldType){
+    case ItemType.REQUEST:
+        ret = "From '" + (apiName ?? "untitled") + "'-'" + fieldName + "' REQUEST";
+      break;
+
+    case ItemType.RESPONSE:
+        ret = "From '" + (apiName ?? "untitled") + "'-'" + fieldName + "' RESPONSE";
+      break;
+
+    case ItemType.RULE_INPUT:
+        ret = "From '" + (apiName ?? "untitled") + "'-'" + fieldName + "' RULE REQ";
+      break;
+
+    case ItemType.RULE_OUTPUT:
+        ret = "From '" + (apiName ?? "untitled") + "'-'" + fieldName + "' RULE RESP";
+      break;
+  }
+
+  return ret;
+}
+
 const getSourceSelector = (selected: IRequestItem | undefined, onSelect: Function, t: Function, isSelectable: boolean = true, data: any): ReactNode => {
   let ret: ReactNode;
 
-  const requests: Array<IRequestItem> = data;
-  const requestList = requests.map((request) => {
-    return {value: request.id, label: request.path};
+  const selectableList : Array<IRequestItem|IResponseItem> = data;
+  console.log("[LOG] selectable items", data);
+  const selectableItems = selectableList.map((item) => {
+    return {value: item.id, label: getSrcLabel(item.parent?.node?.getInstance().name, item.fieldName, item.type)};
   });
 
-  const selectedItem = {value: selected?.id, label: selected?.fieldSourceValuePath};
+  const selectedItem = (selected) ? {value: selected.id, label: getSrcLabel(selected.parent?.node?.getInstance().name, selected.fieldName, selected.type)} : {value:"", label: ""};
 
   ret = (
     <>
@@ -39,8 +66,8 @@ const getSourceSelector = (selected: IRequestItem | undefined, onSelect: Functio
             aria-describedby="action-helper-text"
             placeholder={t('workflow.setting.modal.request.selectorPlaceholder')}
             defaultValue={selectedItem}
-            options={requestList}
-            onChange={(e:any) => onSelect(selectedItem.value, e.value)}
+            options={selectableItems}
+            onChange={(e:any) => onSelect(selectedItem?.value, e.value)}
             styles={{
               menuPortal: (provided) => ({
                 ...provided,
@@ -69,8 +96,8 @@ const getPathEditor = (selected: IRequestItem | undefined, onChange: Function, t
   ret = (
     <div className={styles.pathEditor}>
       <MUI.FormControl fullWidth>
-        <div className={styles.borderLabel}>{t('workflow.setting.modal.request.path')}</div>
-        {isSelectable && (
+        {/* {isSelectable && (
+          <div className={styles.borderLabel}>{t('workflow.setting.modal.request.path')}</div>
           <MUI.TextField
             InputProps={{ classes: { input: styles.textWrapper } }}
             id="outlined-size-normal"
@@ -78,14 +105,17 @@ const getPathEditor = (selected: IRequestItem | undefined, onChange: Function, t
             placeholder="Request Path"
             defaultValue=""
           />
-        )}
-        {!isSelectable && (
-          <MUI.TextField
-            InputProps={{ classes: { input: styles.textWrapper } }}
-            // label={t('workflow.setting.modal.request.sourcesLabel')}
-            id="outlined-size-normal"
-            defaultValue=""
-          />
+        )} */}
+        {isSelectable && (
+          <>
+            <div className={styles.borderLabel}>{t('workflow.setting.modal.request.path')}</div>
+            <MUI.TextField
+              InputProps={{ classes: { input: styles.textWrapper } }}
+              // label={t('workflow.setting.modal.request.sourcesLabel')}
+              id="outlined-size-normal"
+              defaultValue=""
+            />
+          </>
         )}
       </MUI.FormControl>
     </div>
@@ -94,14 +124,15 @@ const getPathEditor = (selected: IRequestItem | undefined, onChange: Function, t
 };
 
 export const Modal = (props: IModalProps) => {
-  const { id, selectedId, data, onClose } = props;
+  const { id, flowStepId, selectedId, data, onClose } = props;
 
   //props
   const workflow: CWorkflow = data;
   const isUpdateMode: boolean = selectedId !== "";
   const properties = [];
 
-  let requestAll: Array<IRequestItem> = workflow?.getRequest();
+  console.log("[LOG] flowStepId", flowStepId);
+  let requestAll: Array<IRequestItem | IResponseItem> = workflow?.getSelectableRequests(flowStepId);
   let requests: Array<IRequestItem> = workflow?.getRequest(selectedId);
   const selected = (isUpdateMode && requests.length > 0) ? requests[0] : undefined;
   

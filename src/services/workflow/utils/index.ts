@@ -111,7 +111,7 @@ export const parseFlowData = (
             let flowStep = getFlowStep(flowData, flowStepId);
             // console.log("[LOG] parseFlowData", flowStepId);
             if(flowStep && flowStep.apiDetails){
-                const requestData = flowStep.apiDetails.requestData;
+                let requestData = flowStep.apiDetails.requestData;
                 
                 if(requestData){
                     ret = requestData;
@@ -124,7 +124,7 @@ export const parseFlowData = (
             let flowStep = getFlowStep(flowData, flowStepId);
             // console.log("[LOG] parseFlowData", flowStepId);
             if(flowStep && flowStep.apiDetails){
-                const responseData = flowStep.apiDetails.outputData;
+                let responseData = flowStep.apiDetails.outputData;
                 
                 if(responseData){
                     ret = responseData;

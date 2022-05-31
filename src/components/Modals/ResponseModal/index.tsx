@@ -20,33 +20,21 @@ const getEditableCheck = (onCheck: Function, t: Function): ReactNode => {
 
 const getSourceSelector = (onSelect: Function, t: Function, isSelectable: boolean = true, data: any): ReactNode => {
   let ret: ReactNode;
+  const response: IResponseItem = data;
+
   ret = (
     <div className={styles.sourceWrapper}>
       <div className={styles.borderLabel}>{t('workflow.setting.modal.response.sourcesLabel')}</div>
-      {!isSelectable && (
-        <MUI.Select
-          classes={{ select: styles.selectRoot }}
+      <>
+        <MUI.TextField
+          InputProps={{ classes: { input: styles.textWrapper } }}
           fullWidth
-          value={10}
-          // label=""
-          onChange={() => ({})}
-        >
-          <MUI.MenuItem value={10}>Ten</MUI.MenuItem>
-          <MUI.MenuItem value={20}>Twenty</MUI.MenuItem>
-          <MUI.MenuItem value={30}>Thirty</MUI.MenuItem>
-        </MUI.Select>
-      )}
-      {isSelectable && (
-        <>
-          <MUI.TextField
-            InputProps={{ classes: { input: styles.textWrapper } }}
-            fullWidth
-            // label={t('workflow.setting.modal.response.sourcesLabel')}
-            id="outlined-size-normal"
-            defaultValue=""
-          />
-        </>
-      )}
+          // label={t('workflow.setting.modal.response.sourcesLabel')}
+          id="outlined-size-normal"
+          defaultValue={response.fieldName}
+          disabled={true}
+        />
+      </>
     </div>
   );
 
@@ -58,25 +46,15 @@ const getPathEditor = (onChange: Function, t: Function, data: any, isSelectable:
   ret = (
     <div className={styles.pathWrapper}>
       <div className={styles.borderLabel}>{t('workflow.setting.modal.response.path')}</div>
-      {isSelectable && (
-        <MUI.TextField
-          id="outlined-size-normal"
-          InputProps={{ classes: { input: styles.textWrapper } }}
-          fullWidth
-          // label={t('workflow.setting.modal.response.valueLabel')}
-          placeholder="Response Path"
-          defaultValue=""
-        />
-      )}
-      {!isSelectable && (
-        <MUI.TextField
-          InputProps={{ classes: { input: styles.textWrapper } }}
-          fullWidth
-          // label={t('workflow.setting.modal.response.sourcesLabel')}
-          id="outlined-size-normal"
-          defaultValue=""
-        />
-      )}
+      <MUI.TextField
+        id="outlined-size-normal"
+        InputProps={{ classes: { input: styles.textWrapper } }}
+        fullWidth
+        // label={t('workflow.setting.modal.response.valueLabel')}
+        placeholder="Response Path"
+        defaultValue=""
+        onChange={(e) => onChange(e)}
+      />
     </div>
   );
   return ret;
@@ -86,18 +64,26 @@ export const Modal = (props: IModalProps) => {
   const { id, selectedId, data, onClose } = props;
 
   //props
-  const workflow: CWorkflow = data;
+  let workflow: CWorkflow = data;
   const isEditMode: boolean = selectedId != "";
   const properties = [];
+  let selected = workflow.getRequestMap().get(selectedId);
 
+  
   //states
   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(true);
   const [source, setSource] = React.useState(20);
   const [isEdit, setEdit] = useState(true);
-
+  const [path, setPath] = useState(selected?.fieldSourceValuePath);
   //functions
   const onOk = () => {
+    const requests = workflow.getRequestMap();
+    const _selected = requests.get(selectedId);
+    if(_selected) {
+      _selected.fieldSourceValuePath = path ?? "";
+    }
+
     setShowModal(false);
   };
 
@@ -107,7 +93,9 @@ export const Modal = (props: IModalProps) => {
 
   const onSelect = () => {};
 
-  const onChange = () => {};
+  const onChange = (e) => {
+    setPath(e.target.value);
+  };
 
   //useEffect
   useEffect(() => {
@@ -115,15 +103,15 @@ export const Modal = (props: IModalProps) => {
   }, [showModal]);
 
   const editableCheck = getEditableCheck(onCheck, t);
-  const sourceSelector = getSourceSelector(onSelect, t, isEdit, {});
-  const pathEditor = getPathEditor(onChange, t, {});
+  const sourceSelector = getSourceSelector(onSelect, t, isEdit, selected);
+  const pathEditor = getPathEditor(onChange, t, selected);
 
   return (
     <BasicModal open={showModal} title={'Edit Response Parameters'} onClose={() => setShowModal(false)}>
       {/* body */}
       <div className={styles.successWrapper}>
         {/* checkbox - editable */}
-        {editableCheck}
+        {/* {editableCheck} */}
 
         {/* Response souorce path */}
         {sourceSelector}

@@ -23,8 +23,8 @@ export class CWorkflow {
     private _edgelist: EdgeMap<Types.IEdge>;
 
     static flowData: Types.IFlow;
-    private requests: Map<string, Types.IRequestItem>;
-    private responses: Map<string, Types.IResponseItem>;
+    private requests: Map<string, Types.IRequestItem | Types.IResponseItem>;
+    // private responses: Map<string, Types.IResponseItem>;
 
     constructor(name?:string) {
         this.id = WorkflowSettings.WORKFLOW_ID_DEFAULT;
@@ -36,7 +36,7 @@ export class CWorkflow {
         // console.log("[LOG] new workflow");
         CWorkflow.getFlowData();
         this.requests = new Map();
-        this.responses = new Map();
+        // this.responses = new Map();
     }
 
     add(model: WorkModel.Work, type?: ENM_FLOWTYPE) {
@@ -173,38 +173,28 @@ export class CWorkflow {
       return ret;
     }
 
-    public getRequestMap(): Map<string, Types.IRequestItem> {
+    public getRequestMap(): Map<string, Types.IRequestItem | Types.IResponseItem> {
 
         if(this.requests.size == 0) {
-            const flowData = CWorkflow.getFlowData();
+            let flowData = CWorkflow.getFlowData();
 
             for(let flowStep of flowData.flowSteps) {
-                const requests = this.getRequests(flowStep.flowStepId);
+                let requests = this.getRequests(flowStep.flowStepId);
                 for(let request of requests) {
                     if(request && request.id)
                         this.requests.set(request.id, request);
                 }
+                
+                let responses = this.getResponses(flowStep.flowStepId);
+                for(let response of responses) {
+                    if(response && response.id)
+                        this.requests.set(response.id, response);
+                }
             }
+
         }
 
         return this.requests;
-    }
-
-    public getResponseMap(): Map<string, Types.IResponseItem> {
-
-        if(this.requests.size == 0) {
-            const flowData = CWorkflow.getFlowData();
-
-            for(let flowStep of flowData.flowSteps) {
-                const responses = this.getResponses(flowStep.flowStepId);
-                for(let response of responses) {
-                    if(response && response.id)
-                        this.responses.set(response.id, response);
-                }
-            }
-        }
-
-        return this.responses;
     }
 
     public getRequest(requestId: string = ""): Types.IRequestItem[] {
@@ -231,16 +221,38 @@ export class CWorkflow {
         return ret;
     }
 
+    public getSelectableRequests(flowStepId: string = ""): Array<Types.IRequestItem | Types.IResponseItem> {
+        var ret: Array<Types.IRequestItem | Types.IResponseItem> = [];
+        const flowData = CWorkflow.getFlowData();
+
+        var requests: Array<Types.IRequestItem> = [];
+        var responses: Array<Types.IResponseItem> = [];
+
+        for(let flowStep of flowData.flowSteps) {
+            if(flowStep.flowStepId === flowStepId)
+                requests = requests.concat( this.getRequests(flowStep.flowStepId) );
+            
+            if(flowStep.flowStepId !== flowStepId)
+                responses = responses.concat( this.getResponses(flowStep.flowStepId) );
+        }
+
+        ret = ret.concat(requests, responses);
+
+        return ret;
+    }    
+
     public getRequests(flowStepId: string): Types.IRequestItem[] {
       var ret: Array<Types.IRequestItem> = [];
       
       const flowData = CWorkflow.getFlowData();
-      
+      const flowStep = this.getFlowStep(flowStepId);
       const requestItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_REQUESTS, "2344", flowStepId ) as Array<Types.IRequestItem>;
       if(requestItems) {
         for(let itm of requestItems) {
             itm.path = "flowSteps.flowStepId."+flowStepId+".apiDetails.requestData.fieldId";
+            itm.type = Types.ItemType.REQUEST;
             if(itm.id == undefined) itm.id = uuidv4();
+            itm.parent = flowStep ?? undefined;
         }
         ret = requestItems;
       }
@@ -252,14 +264,39 @@ export class CWorkflow {
       var ret: Array<Types.IResponseItem> = [];
 
       const flowData = CWorkflow.getFlowData();
+      const flowStep = this.getFlowStep(flowStepId);
       
       const responseItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RESPONSES, "2344", flowStepId ) as Array<Types.IResponseItem>;
       if(responseItems) {
         for(let itm of responseItems) {
             itm.path = "flowSteps.flowStepId."+flowStepId+".apiDetails.outputData.fieldId";
+            itm.type = Types.ItemType.RESPONSE;
             if(itm.id == undefined) itm.id = uuidv4();
+            itm.parent = flowStep ?? undefined;
         }
         ret = responseItems;
+      }
+      return ret;
+    }
+
+    public getResponse(flowStepId: string, responseId: string = ""): Types.IResponseItem | null {
+      var ret: Types.IResponseItem | null = null;
+
+      const flowData = CWorkflow.getFlowData();
+      const flowStep = this.getFlowStep(flowStepId);
+      
+      const responseItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RESPONSES, "2344", flowStepId ) as Array<Types.IResponseItem>;
+
+      console.log("[LOG]response items",Array.isArray(responseItems));
+      
+      if(responseItems && Array.isArray(responseItems)) {
+        for(let itm of responseItems) {
+            if(itm.id == responseId) {
+                ret = itm;
+                itm.fieldSourceValuePath = "123";
+                break;
+            }
+        }
       }
       return ret;
     }
@@ -268,6 +305,7 @@ export class CWorkflow {
       var ret: Array<Types.IOutputDataItem> = [];
 
       const flowData = CWorkflow.getFlowData();
+      const flowStep = this.getFlowStep(flowStepId);
       
       const ruleDetails = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RULE_DETAIS, "2344", flowStepId ) as Types.IRulesDetails;
 
@@ -275,7 +313,9 @@ export class CWorkflow {
         ret = ruleDetails.outputData;
         for(let itm of ruleDetails.outputData) {
             itm.path = "flowSteps.flowStepId."+flowStepId+".rulesDetails.outputData.fieldId";
+            itm.type = Types.ItemType.RULE_OUTPUT;
             if(itm.id == undefined) itm.id = uuidv4();
+            itm.parent = flowStep ?? undefined;
         }
       }
       return ret;
@@ -285,6 +325,7 @@ export class CWorkflow {
       var ret: Array<Types.IInputDataItem> = [];
 
       const flowData = CWorkflow.getFlowData();
+      const flowStep = this.getFlowStep(flowStepId);
       
       const ruleDetails = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RULE_DETAIS, "2344", flowStepId ) as Types.IRulesDetails;
 
@@ -292,7 +333,9 @@ export class CWorkflow {
         ret = ruleDetails.inputData;
         for(let itm of ruleDetails.inputData) {
             itm.path = "flowSteps.flowStepId."+flowStepId+".rulesDetails.inputData.fieldId";
+            itm.type = Types.ItemType.RULE_INPUT;
             if(itm.id == undefined) itm.id = uuidv4();
+            itm.parent = flowStep ?? undefined;
         }
       }
       return ret;
