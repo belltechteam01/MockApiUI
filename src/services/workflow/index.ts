@@ -11,8 +11,15 @@ import { CWork } from "./workmodel/models/work";
 import {WorkflowSevice} from "services/api";
 import { v4 as uuidv4 } from 'uuid';
 import { request } from "http";
+import { EventEmitter } from "events";
 
-export class CWorkflow {
+export enum WorkflowState {
+    INIT,
+    EDIT, 
+    RUN
+}
+
+export class CWorkflow extends EventEmitter {
     public id: string = "123";
     public name: string;
     public type: string = "Untitled";
@@ -21,10 +28,15 @@ export class CWorkflow {
     public worklist: WorkMap<WorkModel.Work>;
     private edgeList: EdgeMap<Types.IEdge>;
 
+    private state: WorkflowState;
     private flowData: Types.IFlow;
     private lstApi: Map<string, Types.IApiDetail>;
 
+    private static _instance: CWorkflow | undefined = undefined;
+
     constructor(name?:string) {
+        super();
+
         this.id = WorkflowSettings.WORKFLOW_ID_DEFAULT;
         this.name = name ?? WorkflowSettings.WORKFLOW_NAME_DEFAULT;
         
@@ -32,6 +44,13 @@ export class CWorkflow {
         this.edgeList = new EdgeMap<Types.IEdge>();
 
         this.lstApi = new Map();
+        this.state = WorkflowState.INIT;
+        
+        CWorkflow._instance = this;
+    }
+
+    public static getInstance(): CWorkflow | undefined {
+        return this._instance;
     }
 
     add(model: WorkModel.Work, type?: ENM_FLOWTYPE) {
@@ -53,6 +72,8 @@ export class CWorkflow {
         
         this.worklist.append(model, _type);
     }
+
+    
 
     moveTo(id: string) {
         console.log("workflow moveto");
@@ -131,18 +152,101 @@ export class CWorkflow {
             
             const flowData = r as Types.IFlow;
             this.flowData = flowData;
-            this.parseFlowData();
+            if(this.parseFlowData())
+                this.state = WorkflowState.EDIT;
         });
         
         return this.flowData;
     }
 
     //APIs
-    public getApiList(): Map<string, Types.IApiDetail> {
+    public isState(state: WorkflowState) {
+        return this.state === state;
+    }
+
+    public getApiList(isUpdate:boolean = false): Map<string, Types.IApiDetail> {
+        if(isUpdate) {
+            const flowData = this.getFlowData();
+            if(flowData.flowSteps)
+            {
+                this.lstApi.clear();
+
+                flowData.flowSteps.forEach((value) => {
+                    const flowStep = value;
+                    this.lstApi.set(flowStep.apiDetails.id, flowStep.apiDetails);
+                })            
+            }
+        }
+
         return this.lstApi;
     }
 
-    protected parseFlowData() {
+    private copyApiDetail(src: Types.IApiDetail, dest: Types.IApiDetail) {
+
+        console.log("[LOG] copyApiDetail", dest);
+
+        dest.apiId = src.apiId;
+        dest.apiName = src.apiName;
+
+        dest.requestData = [...src.requestData];
+        dest.outputData = [...src.outputData];
+        dest.successHttpCodes = [...src.successHttpCodes];
+        dest.faliureHttpCodes = [...src.faliureHttpCodes];
+
+        dest.requestMap = new Map();
+        dest.responseMap = new Map();
+        dest.failCodeMap = new Map();
+        dest.successCodeMap = new Map();
+
+        for(const request of dest.requestData) {
+            request.id = uuidv4();
+            request.parent = dest;
+            request.type = Types.ItemType.REQUEST;
+            dest.requestMap.set(request.id, request);
+        }
+
+        for(const response of dest.outputData) {
+            response.id = uuidv4();
+            response.parent = dest;
+            response.type = Types.ItemType.RESPONSE;
+            dest.responseMap.set(response.id, response);
+        }
+
+        for(const successCode of dest.successHttpCodes) {
+
+            const code: Types.IStatusCode = {
+                id: uuidv4(),
+                code: successCode,
+                action: ""
+            };
+            dest.successCodeMap.set(code.id, code);
+        }
+
+        for(const failedCode of dest.faliureHttpCodes) {
+
+            const code: Types.IStatusCode = {
+                id: uuidv4(),
+                code: failedCode,
+                action: ""
+            };
+            dest.failCodeMap.set(code.id, code);
+        }
+    }
+
+    public selectApi(apiId: string, nodeId: string): boolean {
+        let bRet = false;
+        const apiDetail = this.lstApi.get(apiId);
+        const workNode = this.worklist.get(nodeId)?.value;
+        if(apiDetail && workNode && workNode.api) {
+            this.copyApiDetail(apiDetail, workNode.api);
+            bRet = true;
+        }
+        return bRet;
+    }
+
+    protected parseFlowData():boolean {
+        let bRet: boolean = false; 
+
         const flowData = this.getFlowData();
         console.log("[CHECK] parseFlowData", flowData);
         if(flowData) {
@@ -200,6 +304,7 @@ export class CWorkflow {
                         };
                         apiDetail.failCodeMap.set(code.id, code);
                     }
+                    bRet = true;
                 }
                 if(flowStep.rulesDetails) {
 
@@ -224,6 +329,7 @@ export class CWorkflow {
                 }
             }
         }
+        return bRet;
     }
 
     private getFlowStep(flowStepId: string): Types.IFlowStep | null {

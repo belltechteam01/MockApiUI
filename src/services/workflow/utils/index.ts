@@ -1,3 +1,4 @@
+import { cloneElement } from "react";
 import * as Types from "services/workflow/types";
 
 export const parseJson = (json: string): Object | boolean => {
@@ -257,3 +258,10 @@ export const getAttr = (data: Object, keys: string[]): any => {
     }    
 }
 
+export const copyFlowObject = (src: any, dest: any): boolean => {
+    if(( typeof src === "object" || Array.isArray(src) ) && ( typeof dest === "object" || Array.isArray(dest) )) {
+
+    }
+
+    return true;
+}

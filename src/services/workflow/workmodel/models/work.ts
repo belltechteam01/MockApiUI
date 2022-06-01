@@ -2,7 +2,14 @@ import * as Types from "../../types";
 import {WorkflowSettings} from "../../settings";
 import { RefObject } from "react";
 
-export abstract class CWork{
+export interface IWork {
+    id: string;
+    name: string;
+    api: Types.IApiDetail;
+}
+
+export abstract class CWork implements IWork
+{
     public id: string;
     public name: string;
     public color: string;
@@ -13,10 +20,28 @@ export abstract class CWork{
     public abstract readonly outputs: number;
     public labelRef: RefObject<HTMLDivElement>;
 
+    api: Types.IApiDetail;
+
     constructor(name: string) {
         this.id = "undefined";
         this.name = name;
         this.color = WorkflowSettings.NODE_COLOR_DEFAULT;
+        
+        this.api = {
+            id : this.id,
+            apiName: name,
+            apiId: "",
+            requestMap: new Map(),
+            responseMap: new Map(),
+            failCodeMap: new Map(),
+            successCodeMap: new Map(),
+            
+            faliureHttpCodes: [],
+            outputData: [],
+            parent: null,
+            requestData: [], 
+            successHttpCodes: [],
+        };
     }
 
     setPosition(x: number, y: number) {
@@ -35,5 +60,6 @@ export abstract class CWork{
             this.labelRef?.current?.replaceChildren(name);
             this.name = name;
         }
-    }              
+    }
+              
 }

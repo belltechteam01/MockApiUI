@@ -4,7 +4,7 @@ import * as ReactflowRenderer from 'react-flow-renderer';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import ToolBar from '../ToolBar';
-import { CWorkflow } from '../../services/workflow';
+import { CWorkflow, WorkflowState} from '../../services/workflow';
 import { WorkflowSettings } from 'services/workflow/settings';
 import NodeComponent from 'components/Workflow/NodeComponent';
 import SettingBar from '../SettingBar';
@@ -94,9 +94,8 @@ const Workflow = (props: any) => {
 
     if(workflow) {
       const workNode = workflow.worklist.get(node.id);
-      const updatedResult = workNode?.gotoState(ENM_FLOW_STATE.EDIT, ENM_EDIT_SUBSTATE.INIT_PARAM);
 
-      if( workNode &&  updatedResult) {
+      if( workflow.isState(WorkflowState.EDIT) && workNode) {
         setShowPropertyInspector(true);
         setSelectedNode(node.id);
       }

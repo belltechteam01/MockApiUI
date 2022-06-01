@@ -70,7 +70,7 @@ const getApiSelector = (flowSteps: Array<Types.IFlowStep> | undefined, t: Functi
   
   // console.log("[LOG] getApiSelector", flowSteps);
   let apiList = flowSteps.map((flowStep) => {
-    return {value: flowStep.flowStepId, label: flowStep.apiDetails.apiName};
+    return {value: flowStep.apiDetails.id, label: flowStep.apiDetails.apiName};
   })
 
   ret = (
@@ -240,8 +240,11 @@ const SettingPane = (props: ISettingPaneProps) => {
   
   const { t } = useTranslation();
   //props
-  let workNode = workflow?.worklist.get(nodeId);
-  let workData = workNode?.getInstance();
+
+  const workNode = workflow?.worklist.get(nodeId);
+  const workData = workNode?.getInstance();
+  const apiList = workflow?.getApiList(true);
+  console.log("[LOG] apiList", apiList);
 
   //states
   const [localState, setLocalState] = React.useState<ILocalState>({
@@ -267,29 +270,13 @@ const SettingPane = (props: ISettingPaneProps) => {
   const [apiName, setApiName] = React.useState<string>(workData ? workData.name : 'untitled');
 
 
-  const onSelect = (flowStepId: string) => {
+  const onSelect = (apiId: string) => {
 
-    // flowSteps.flowStepId.12342.apiDetails.requestData.fieldSourceType
-    // const fieldPath = "flowSteps.flowStepId.1.apiDetails.requestData.id.11";
-    // let attrib = workflow?.getAttribute(fieldPath);
-    // // console.log("[LOG] attrib", attrib);
-    // attrib.fieldSourceValuePath = fieldPath;
+    console.log("[LOG] before", workflow);
 
+    workflow?.selectApi(apiId, nodeId);
 
-    // setStateMany(setLocalState, {flowStepId: flowStepId});
-    // const requests = workflow?.getRequests(flowStepId);
-    // if(requests)  
-    //   setRequests(requests);
-      
-    // const responses = workflow?.getResponses(flowStepId);
-    // if(responses)
-    //   setResponses(responses);
-
-    // let flowStep = workflow?.getFlowStep(flowStepId);
-    // if(flowStep){
-    //   workNode?.setFlowStep(flowStep);
-    //   flowStep.node = workNode;
-    // }
+    console.log("[LOG] after", workflow);
   }
 
   const apiNameEditor = getApiNameEditor(apiName, workData, t);

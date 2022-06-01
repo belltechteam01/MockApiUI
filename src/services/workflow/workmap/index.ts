@@ -1,7 +1,8 @@
 import {CWorkNode, ENM_FLOWTYPE} from "./worknode"
 import * as Types from "../types";
+import { IWork } from "../workmodel/models/work";
 
-  export class CWorkMap<T extends {id:string}> {
+  export class CWorkMap<T extends IWork> {
   
       private _root: CWorkNode<T> | null;
       private _cur: CWorkNode<T> | null;

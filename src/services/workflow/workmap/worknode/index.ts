@@ -4,6 +4,8 @@ import {Events, EVENT_CODE} from "../../events";
 import { CEdgeMap as EdgeMap} from "../../edgemap"
 import { v4 as uuidv4 } from 'uuid';
 import {WorkflowSevice} from "services/api";
+import { IWork } from "services/workflow/workmodel/models/work";
+import { EventEmitter } from "stream";
 
 export enum ENM_FLOWTYPE {
     I0_O1,
@@ -42,7 +44,7 @@ export enum ENM_EDIT_SUBSTATE {
   VALIDATE_FALIED,
 }
 
-export class CWorkNode<T extends {id: string}> {
+export class CWorkNode<T extends IWork>{
     id: string;
     value: T;
     flowType: ENM_FLOWTYPE;
@@ -54,15 +56,13 @@ export class CWorkNode<T extends {id: string}> {
     sources: EdgeMap<Types.IEdge>;
     targets: EdgeMap<Types.IEdge>;
   
-    state: ENM_FLOW_STATE;
+    private state: ENM_FLOW_STATE;
     subState: number;
 
     events: Events;
 
-    flowStep: Types.IFlowStep;
-
     constructor(val: T , type?: ENM_FLOWTYPE) {
-      
+
       this.state = 0;
       this.subState = 0;
 
@@ -80,6 +80,8 @@ export class CWorkNode<T extends {id: string}> {
       this.events = new Events();
 
       this.gotoState(ENM_FLOW_STATE.INITIALIZING);
+      
+      this.value.api.parent = this;
     }
 
     public getInstance() : T {
@@ -131,13 +133,16 @@ export class CWorkNode<T extends {id: string}> {
         i++;
       }
 
-      bRet = (i !== nRetry);
+      bRet = (i < nRetry) || (this.state == state);
       
-      if(!bRet) {
+      if(i < nRetry) {
         console.log("[ERR] developer check - state flow");
       }
 
       return bRet;
+    }
+    public isState(state: ENM_FLOW_STATE): boolean {
+      return this.state === state;
     }
 
     public updateState(state: ENM_FLOW_STATE, subState: number=0) {
@@ -148,6 +153,7 @@ export class CWorkNode<T extends {id: string}> {
         case ENM_FLOW_STATE.INITIALIZING: {
 
           // console.log("[STATE] INITIALIZING - subState(" + subState + ")");
+
           if(state == ENM_FLOW_STATE.EDIT) {
             this.state = ENM_FLOW_STATE.EDIT;
             this.subState = ENM_EDIT_SUBSTATE.INIT_PARAM;
@@ -281,9 +287,4 @@ export class CWorkNode<T extends {id: string}> {
       }
       return ret;
     }
-
-    public setFlowStep(_flowStep: Types.IFlowStep) {
-      this.flowStep = _flowStep;
-    }
-
   }
