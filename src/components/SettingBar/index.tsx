@@ -56,7 +56,7 @@ const SettingBar: React.FC<ISettingBarProps> = (props: ISettingBarProps) => {
       <React.Fragment>
         <MUI.SwipeableDrawer anchor={'right'} sx={{ width: 450 }} open={show} onClose={toggleDrawer(false)} onOpen={toggleDrawer(true)}>
           <MUI.Box className={styles.subContainer} role="presentation">
-            <SettingPane nodeId={nodeId} workflow={workflow} {...others} />
+            <SettingPane nodeId={nodeId} {...others} />
           </MUI.Box>
         </MUI.SwipeableDrawer>
       </React.Fragment>

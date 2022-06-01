@@ -63,7 +63,7 @@ export class CWorkNode<T extends IWork>{
 
     constructor(val: T , type?: ENM_FLOWTYPE) {
 
-      this.state = 0;
+      this.state = ENM_FLOW_STATE.INITIALIZING;
       this.subState = 0;
 
       this.id = uuidv4();
@@ -135,12 +135,13 @@ export class CWorkNode<T extends IWork>{
 
       bRet = (i < nRetry) || (this.state == state);
       
-      if(i < nRetry) {
-        console.log("[ERR] developer check - state flow");
+      if(i >= nRetry) {
+        console.log("[ERR] developer check - state flow : retry "+i, ENM_FLOW_STATE[this.state]);
       }
 
       return bRet;
     }
+
     public isState(state: ENM_FLOW_STATE): boolean {
       return this.state === state;
     }

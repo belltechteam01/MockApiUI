@@ -4,7 +4,7 @@ import * as ReactflowRenderer from 'react-flow-renderer';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import ToolBar from '../ToolBar';
-import { CWorkflow, WorkflowState} from '../../services/workflow';
+import { CWorkflow, EvtCode, WorkflowState, WxEvent} from '../../services/workflow';
 import { WorkflowSettings } from 'services/workflow/settings';
 import NodeComponent from 'components/Workflow/NodeComponent';
 import SettingBar from '../SettingBar';
@@ -39,7 +39,6 @@ const getReactNodeProps = (id: string, pos: ReactflowRenderer.XYPosition, data: 
 };
 
 var workflow: CWorkflow = new CWorkflow();
-// console.log("[LOG] panel render");
 
 const Workflow = (props: any) => {
 
@@ -98,6 +97,8 @@ const Workflow = (props: any) => {
       if( workflow.isState(WorkflowState.EDIT) && workNode) {
         setShowPropertyInspector(true);
         setSelectedNode(node.id);
+      } else {
+        CWorkflow.getInstance().emit(WxEvent[WxEvent.WARN], EvtCode.EVT_SETTING_FAILED_OPEN);
       }
     }
   }, []);

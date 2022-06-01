@@ -11,12 +11,19 @@ import { CWork } from "./workmodel/models/work";
 import {WorkflowSevice} from "services/api";
 import { v4 as uuidv4 } from 'uuid';
 import { request } from "http";
-import { EventEmitter } from "events";
+import { EventEmitter } from "eventemitter3";
 
 export enum WorkflowState {
     INIT,
     EDIT, 
     RUN
+}
+export enum EvtCode {
+    EVT_SETTING_FAILED_OPEN,
+}
+export enum WxEvent {
+    TEST,
+    WARN,
 }
 
 export class CWorkflow extends EventEmitter {
@@ -31,10 +38,13 @@ export class CWorkflow extends EventEmitter {
     private state: WorkflowState;
     private flowData: Types.IFlow;
     private lstApi: Map<string, Types.IApiDetail>;
+    private lstSharedApi: Map<string, Types.IApiDetail>;
 
-    private static _instance: CWorkflow | undefined = undefined;
+    private static _instance: CWorkflow;
 
     constructor(name?:string) {
+        
+        console.log("[WARN] created new workflow instance");
         super();
 
         this.id = WorkflowSettings.WORKFLOW_ID_DEFAULT;
@@ -44,13 +54,32 @@ export class CWorkflow extends EventEmitter {
         this.edgeList = new EdgeMap<Types.IEdge>();
 
         this.lstApi = new Map();
+        this.lstSharedApi = new Map();
         this.state = WorkflowState.INIT;
         
         CWorkflow._instance = this;
+        this.addListener(WxEvent[WxEvent.TEST], this.onTest);
+        this.addListener(WxEvent[WxEvent.WARN], this.onWarn);
     }
 
-    public static getInstance(): CWorkflow | undefined {
+    public static getInstance(): CWorkflow {
+        if(!this._instance) {
+            console.log("[ERR] created new workflow while getting instance");
+            this._instance = new CWorkflow();
+        }
         return this._instance;
+    }
+
+    private onTest() {
+        console.log("[LOG] onTest call listen", this);
+    }
+
+    private onWarn(code: EvtCode) {
+        switch(code) {
+            case EvtCode.EVT_SETTING_FAILED_OPEN:
+                console.log("[WARN] Couldn't you read workflow data?");
+                break;
+        }
     }
 
     add(model: WorkModel.Work, type?: ENM_FLOWTYPE) {
@@ -72,8 +101,6 @@ export class CWorkflow extends EventEmitter {
         
         this.worklist.append(model, _type);
     }
-
-    
 
     moveTo(id: string) {
         console.log("workflow moveto");
@@ -170,15 +197,21 @@ export class CWorkflow extends EventEmitter {
             if(flowData.flowSteps)
             {
                 this.lstApi.clear();
+                this.lstSharedApi.clear();
 
                 flowData.flowSteps.forEach((value) => {
                     const flowStep = value;
                     this.lstApi.set(flowStep.apiDetails.id, flowStep.apiDetails);
+                    this.lstSharedApi.set(flowStep.apiDetails.apiId, flowStep.apiDetails);
                 })            
             }
         }
 
         return this.lstApi;
+    }
+
+    public getSApiList(): Map<string, Types.IApiDetail> {
+        return this.lstSharedApi;
     }
 
     private copyApiDetail(src: Types.IApiDetail, dest: Types.IApiDetail) {
@@ -270,6 +303,9 @@ export class CWorkflow extends EventEmitter {
                     apiDetail.responseMap = new Map();
                     apiDetail.failCodeMap = new Map();
                     apiDetail.successCodeMap = new Map();
+
+                    this.lstApi.set(apiDetail.id, apiDetail);
+                    this.lstSharedApi.set(apiDetail.apiId, apiDetail);
 
                     for(const request of flowStep.apiDetails.requestData) {
                         request.id = uuidv4();

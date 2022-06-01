@@ -10,7 +10,7 @@ export const testData =
       "successChildFlowItemId": "",
       "failureChildFlowItemId": "",
       "apiDetails": {
-        "apiId": "123",
+        "apiId": "2",
         "apiName": "Get Customer Details",
         "successHttpCodes": [
           "200",
@@ -121,7 +121,7 @@ export const testData =
       "successChildFlowItemId": "",
       "failureChildFlowItemId": "",
       "apiDetails": {
-        "apiId": "123",
+        "apiId": "1",
         "apiName": "Wait 3s",
         "successHttpCodes": [
           "200",
