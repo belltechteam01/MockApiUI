@@ -8,6 +8,21 @@ import { useTranslation } from 'react-i18next';
 import { IRequestItem, IResponseItem, ItemType } from 'services/workflow/types';
 import { CWorkflow } from 'services/workflow';
 import { ModalType, IModalProps } from '../index';
+import {setStateMany} from "utils";
+import { CWork } from 'services/workflow/workmodel/models/work';
+import { CWorkNode } from 'services/workflow/workmap/worknode';
+
+interface ILocalState {
+  modalType: ModalType;
+  showModal: boolean;
+  isEdit: boolean;
+  selectedApiId: string;
+}
+
+interface IParam {
+  value: string;
+  label: string;
+}
 
 const getEditableCheck = (isCheck: boolean, onCheck: Function, t: Function): ReactNode => {
   let ret: ReactNode;
@@ -46,44 +61,33 @@ const getSrcLabel = (apiName: string | undefined, fieldName: string | undefined,
   return ret;
 }
 
-const getSourceSelector = (selected: IRequestItem | undefined, onSelect: Function, t: Function, isSelectable: boolean = true, data: any): ReactNode => {
+const getSourceSelector = (
+  paramsList: any,
+  localState:ILocalState,
+  setLocalState: Function,
+  t: Function
+): ReactNode => 
+{
   let ret: ReactNode;
-
-  const selectableList : Array<IRequestItem|IResponseItem> = data;
-  console.log("[LOG] selectable items", data);
-  // const selectableItems = selectableList.map((item) => {
-  //   return {value: item.id, label: getSrcLabel(item.parent?.node?.getInstance().name, item.fieldName, item.type)};
-  // });
-
-  // const selectedItem = (selected) ? {value: selected.id, label: getSrcLabel(selected.parent?.node?.getInstance().name, selected.fieldName, selected.type)} : {value:"", label: ""};
 
   ret = (
     <>
       <MUI.FormControl fullWidth variant="standard" sx={{mb :3}}>
-        {!isSelectable && (
-          <ReactSelect
-            id="api-selector"
-            aria-describedby="action-helper-text"
-            placeholder={t('workflow.setting.modal.request.selectorPlaceholder')}
-            // defaultValue={selectedItem}
-            // options={selectableItems}
-            // onChange={(e:any) => onSelect(selectedItem?.value, e.value)}
-            styles={{
-              menuPortal: (provided) => ({
-                ...provided,
-                zIndex: 1001
-              }),
-              menu: (provided) => ({ ...provided, zIndex: 1001 })
-            }}
-          />
-	      )}
-        {isSelectable && (
-          <MUI.TextField
-            InputProps={{ classes: { input: styles.textWrapper } }}
-            id="outlined-size-normal"
-            defaultValue=""
-          />
-        )}
+        <ReactSelect
+          id="api-selector"
+          aria-describedby="action-helper-text"
+          placeholder={t('workflow.setting.modal.request.selectorPlaceholder')}
+          // defaultValue={selectedItem}
+          // options={selectableItems}
+          // onChange={(e:any) => onSelect(selectedItem?.value, e.value)}
+          styles={{
+            menuPortal: (provided) => ({
+              ...provided,
+              zIndex: 1001
+            }),
+            menu: (provided) => ({ ...provided, zIndex: 1001 })
+          }}
+        />
       </MUI.FormControl>
     </>
   );
@@ -91,32 +95,24 @@ const getSourceSelector = (selected: IRequestItem | undefined, onSelect: Functio
   return ret;
 };
 
-const getPathEditor = (selected: IRequestItem | undefined, onChange: Function, t: Function, data: any, isSelectable: boolean = false): ReactNode => {
+const getPathEditor = (
+  keysList: any,
+  localState:ILocalState,
+  setLocalState: Function,
+  t: Function
+): ReactNode => 
+{
   let ret: ReactNode;
   ret = (
     <div className={styles.pathEditor}>
       <MUI.FormControl fullWidth>
-        {/* {isSelectable && (
           <div className={styles.borderLabel}>{t('workflow.setting.modal.request.path')}</div>
           <MUI.TextField
             InputProps={{ classes: { input: styles.textWrapper } }}
+            // label={t('workflow.setting.modal.request.sourcesLabel')}
             id="outlined-size-normal"
-            // label={t('workflow.setting.modal.request.valueLabel')}
-            placeholder="Request Path"
             defaultValue=""
           />
-        )} */}
-        {isSelectable && (
-          <>
-            <div className={styles.borderLabel}>{t('workflow.setting.modal.request.path')}</div>
-            <MUI.TextField
-              InputProps={{ classes: { input: styles.textWrapper } }}
-              // label={t('workflow.setting.modal.request.sourcesLabel')}
-              id="outlined-size-normal"
-              defaultValue=""
-            />
-          </>
-        )}
       </MUI.FormControl>
     </div>
   );
@@ -124,43 +120,47 @@ const getPathEditor = (selected: IRequestItem | undefined, onChange: Function, t
 };
 
 export const Modal = (props: IModalProps) => {
-  const { id, flowStepId, selectedId, data, onClose } = props;
+  const { 
+    id, 
+    type,
+    attribId, 
+    data, 
+    onClose 
+  } = props;
 
   //props
-  const workflow: CWorkflow = data;
-  const isUpdateMode: boolean = selectedId !== "";
-  const properties = [];
+  const nodeList = CWorkflow.getInstance().worklist.getMap();
 
-  console.log("[LOG] flowStepId", flowStepId);
-  // let requestAll: Array<IRequestItem | IResponseItem> = workflow?.getSelectableRequests(flowStepId);
-  // let requests: Array<IRequestItem> = workflow?.getRequest(selectedId);
-  // const selected: IRequestItem = 0;
-  
   //states
   const { t } = useTranslation();
-  const [showModal, setShowModal] = useState(true);
-  const [source, setSource] = React.useState(0);
-  const [isEdit, setEdit] = useState(!isUpdateMode);
+  const [localState, setLocalState] = React.useState<ILocalState>({
+    isEdit : (attribId !== ""),
+    modalType: type,
+    selectedApiId: "",
+    showModal: true,
+  });
 
+  const [paramsList, setParamsList] = React.useState<IParam[]>([]);
+  const [keysList, setKeysList] = React.useState<string[]>([]);
+  
   //functions
   const onOk = () => {
-    setShowModal(false);
+    setStateMany( setLocalState, {showModal: false});
   };
 
   const onCheck = (bChecked: boolean) => {
-    setEdit(bChecked);
+
   };
 
   const onSelect = (curId: string, selectedId: string) => {
     
-    const requests = workflow.getApiList();
+    const requests = CWorkflow.getInstance().getApiList();
 
     const _cur = requests.get(curId);
     const _selected = requests.get(selectedId);
 
     if(_cur && _selected) {
-      // _cur.fieldSourceValuePath = _selected.path ?? "";
-      // _cur.fieldSourceType = _selected.fieldSourceType;
+
     }
   };
 
@@ -168,25 +168,46 @@ export const Modal = (props: IModalProps) => {
 
   //useEffect
   useEffect(() => {
-    if (!showModal) onClose();
-  }, [showModal]);
 
-  const editableCheck = getEditableCheck(!isUpdateMode ,onCheck, t);
-  // const sourceSelector = getSourceSelector(selected, onSelect, t, isEdit, {});
-  // const pathEditor = getPathEditor(selected, onChange, t, {});
+    if (!localState.showModal) 
+      onClose();
+
+  }, [localState]);
+
+  useEffect(() => {
+    let params: any = [];
+    nodeList.forEach((value, key) => {
+      const workNode: CWorkNode<CWork> = value;
+
+      params = params.concat({
+        value: key,
+        label: workNode.getInstance().name
+      })
+    })
+
+    setParamsList(params);
+
+  }, []);
+
+  useEffect(() => {
+
+  }, [keysList]);
+
+  const sourceSelector = getSourceSelector(paramsList, localState, setLocalState, t);
+  const pathEditor = getPathEditor(keysList, localState, setLocalState, t);
 
   return (
-    <BasicModal open={showModal} onClose={() => setShowModal(false)} title={'Edit Request Parameters'}>
+    <BasicModal open={localState.showModal} onClose={() => setStateMany(setLocalState, {showModal: false})} title={'Edit Request Parameters'}>
       {/* body */}
       <div className={styles.modalBody}>
         {/* checkbox - editable */}
-        {editableCheck}
+        {/* {editableCheck} */}
 
         {/* request souorce path */}
-        {/* {sourceSelector} */}
+        {sourceSelector}
 
         {/* value path */}
-        {/* {pathEditor} */}
+        {pathEditor}
 
         {/* button group */}
       </div>
@@ -195,7 +216,7 @@ export const Modal = (props: IModalProps) => {
           <Button variant="contained" classes={{ root: styles.btnOk }} onClick={onOk} text="OK" />
         </div>
         <div className={styles.cancelOkWrapper}>
-          <Button variant="outlined" classes={{ root: styles.btnCancel }} onClick={(e: any) => setShowModal(false)} text="Cancel" />
+          <Button variant="outlined" classes={{ root: styles.btnCancel }} onClick={(e: any) => setStateMany(setLocalState, {showModal: false})} text="Cancel" />
         </div>
       </div>
     </BasicModal>

@@ -82,7 +82,7 @@ const getApiSelector = (
   })
 
   console.log("[LOG] selected apiId", localState.selectedApiId);
-  
+
   const apiDetail = CWorkflow.getInstance().getSApiList().get(localState.selectedApiId);
   const initialValue = {
     value: apiDetail? apiDetail.id: "",
@@ -248,14 +248,20 @@ const getModal = (localState: ILocalState, data: any, onClose: Function): ReactN
   let ret: ReactNode;
   ret = (
     <>
-      {/* { localState.showModal && localState.modalType == ModalType.Request && 
-        <RequestModal.Modal id="modal-1" selectedId={localState.selectedApiId} data={data} onClose={onClose} />
+      { localState.showModal && localState.modalType == ModalType.Request && 
+        <RequestModal.Modal 
+          id="modal-1" 
+          type={localState.modalType}
+          attribId={localState.selectedApiId} 
+          data={data} 
+          onClose={onClose} 
+        />
       }
-      { localState.showModal && localState.modalType == ModalType.Response && 
-        <ResponseModal.Modal id="modal-2" selectedId={localState.selectedApiId} data={data} onClose={onClose} />
+      {/* { localState.showModal && localState.modalType == ModalType.Response && 
+        <ResponseModal.Modal id="modal-2" attribId={localState.selectedApiId} data={data} onClose={onClose} />
       }
       { localState.showModal && localState.modalType == ModalType.StatusCode && 
-        <StatusCodeModal.Modal id="modal-3" selectedId={localState.selectedApiId} data={data} onClose={onClose} />
+        <StatusCodeModal.Modal id="modal-3" attribId={localState.selectedApiId} data={data} onClose={onClose} />
       } */}
     </>
   );
@@ -289,12 +295,6 @@ const SettingPane = (props: ISettingPaneProps) => {
   const onModalClose = () => {
     setStateMany(setLocalState, { showModal: false, selectedApiId: "" });
   };
-
-  // useEffect(() => {
-  //   if(localState.selectedApiId != "") {
-  //     setWorkData(workNode?.getInstance());
-  //   }
-  // }, [localState]);
 
   useEffect(() => {
     if(localState.selectedApiId != "") {

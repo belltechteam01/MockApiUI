@@ -1,5 +1,5 @@
 import { CWorkMap as WorkMap} from "./workmap";
-import { CWorkNode as WorkNode, ENM_FLOW_STATE} from "./workmap/worknode";
+import { CWorkNode, CWorkNode as WorkNode, ENM_FLOW_STATE} from "./workmap/worknode";
 import { CEdgeMap as EdgeMap } from "./edgemap";
 import { ENM_FLOWTYPE } from "./workmap/worknode"
 
@@ -12,6 +12,7 @@ import {WorkflowSevice} from "services/api";
 import { v4 as uuidv4 } from 'uuid';
 import { request } from "http";
 import { EventEmitter } from "eventemitter3";
+import { ModalType } from "components/Modals";
 
 export enum WorkflowState {
     INIT,
@@ -368,6 +369,7 @@ export class CWorkflow extends EventEmitter {
         return bRet;
     }
 
+    //@deprecated
     private getFlowStep(flowStepId: string): Types.IFlowStep | null {
       var ret: Types.IFlowStep | null = null;
 

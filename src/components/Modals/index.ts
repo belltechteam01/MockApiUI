@@ -6,8 +6,8 @@ export enum ModalType {
 
 export interface IModalProps {
   id: string;
-  flowStepId: string;
-  selectedId: string;
+  type: ModalType;
+  attribId: string;
   data: any;
   onClose: Function;
 }

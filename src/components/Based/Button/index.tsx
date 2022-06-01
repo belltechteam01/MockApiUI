@@ -6,7 +6,7 @@ import { IButtonProps } from './Button.types';
 // styles
 import styles from './Button.module.scss';
 
-const Button = React.forwardRef((props: IButtonProps) => {
+const Button = (props: IButtonProps) => {
   //   (props: IButtonProps, ref?: React.MutableRefObject<HTMLButtonElement>) => {
   const {
     text,
@@ -89,6 +89,6 @@ const Button = React.forwardRef((props: IButtonProps) => {
       )}
     </LoadingButton>
   );
-});
+};
 
 export default Button;

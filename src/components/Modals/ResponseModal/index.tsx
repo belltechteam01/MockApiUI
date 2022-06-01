@@ -61,11 +61,10 @@ const getPathEditor = (onChange: Function, t: Function, data: any, isSelectable:
 };
 
 export const Modal = (props: IModalProps) => {
-  const { id, selectedId, data, onClose } = props;
+  const { id, data, onClose } = props;
 
   //props
   let workflow: CWorkflow = data;
-  const isEditMode: boolean = selectedId != "";
   const properties = [];
   let selected: IRequestItem;//workflow.getRequests().get(selectedId);
 
@@ -79,7 +78,7 @@ export const Modal = (props: IModalProps) => {
   //functions
   const onOk = () => {
     const requests = workflow.getApiList();
-    const _selected = requests.get(selectedId);
+    const _selected = requests.get("1");
     if(_selected) {
       // _selected.fieldSourceValuePath = path ?? "";
     }

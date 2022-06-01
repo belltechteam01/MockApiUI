@@ -12,7 +12,7 @@ interface ICode {
 }
 
 export const Modal = (props: IModalProps) => {
-  const { id, selectedId, data, onClose } = props;
+  const { id, data, onClose } = props;
 
   const {} = data;
 
