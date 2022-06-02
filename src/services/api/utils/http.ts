@@ -2,36 +2,25 @@ import axios from "axios";
 // import https from "https";
 // import store from "../store";
 import Api from "../config/api";
+import storageHelper from "./storageHelper";
 
 const service = axios.create({
   baseURL: Api.baseURL,
   headers: {
     "Content-Type": "application/json",
-    // "x-api-key": process.env.REACT_APP_X_API_KEY as string,
-    // "X-Requested-With": "XMLHttpRequest"
+    "x-api-key": "AggWBoyh9g1wQe4YHDyYy3umN9n71wXm8WC8JqTM",
   },
-  // withCredentials: true,
-  // httpsAgent: new https.Agent({
-  //   rejectUnauthorized: false
-  // })
 });
 
 service.interceptors.request.use(
-  config => {
-    // if (config.url !== "/api/login" && config.url !== "/api/reset-password") {
-    //   let token = JSON.parse( localStorage.getItem("token") ?? "{}");
-    //   if (token) {
-    //     config.headers[
-    //       "Authorization"
-    //     ] = `${token.token_type} ${token.access_token}`;
-    //   }
-    // }
-    // if (
-    //   config.url === "/api/csv_down"
-    // ) {
-    //   config.responseType = "blob";
-    //   console.log("config==>", config);
-    // }
+  (config: any) => {
+    let token = storageHelper.getToken();
+    if (token) {
+      config.headers[
+        "Authorization"
+      ] = `Bearer ${token}`;
+    }
+    console.log("[REQ] config", config);
     return config;
   },
   error => {
@@ -42,12 +31,10 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
   response => {
+    console.log("[LOG] response", response);
     const statusCode = response.status;
     const { url } = response.config;
     if (url === "/api/login" && statusCode === 200) {
-      localStorage.setItem("token", JSON.stringify(response.data.data));
-      // store.commit("auth/SET_AUTHENTICATED", true);
-      // store.commit("auth/SET_USER", response.data.data.user_info);
     }
     return response;
   },
@@ -73,9 +60,6 @@ service.interceptors.response.use(
 
     return Promise.reject(error);
   },
-  // Error => {
-  //   console.log("pre_Error===>", Error);
-  // }
 );
 
 export default service;

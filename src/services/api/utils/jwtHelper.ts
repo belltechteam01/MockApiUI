@@ -24,6 +24,7 @@ export const verifyToken = (token: any) => {
   if (!token) return false;
   try {
     const { exp } = decode(token);
+    // console.log("[LOG] token exp " + exp, Date.now());
     if (Date.now() >= exp * 1000) {
       return false;
     }

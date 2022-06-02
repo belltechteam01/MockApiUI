@@ -176,12 +176,26 @@ export class CWorkflow extends EventEmitter {
         if(this.flowData) return this.flowData;
 
         console.log("[CHECK] read flowData from server");
-        WorkflowSevice.getCustomerDetails().then((r: any) => {
+        WorkflowSevice.getApiList("1").then((r: any) => {
+            const flowData = r as Types.IApiList;
             
-            const flowData = r as Types.IFlow;
-            this.flowData = flowData;
-            if(this.parseFlowData())
-                this.state = WorkflowState.EDIT;
+            //convert elements array to Map
+            for(let item of flowData.Items) {
+                let elements = new Map();
+
+                item.dataElements.forEach((value, key) => {
+                    Object.entries(value).map(([key, value]) => {
+                        elements.set(key, value);
+                    })
+                })
+                
+                item.dataElements = new Map<string, Types.IDataElement>();
+                item.dataElementList = [];
+                elements.forEach((value, key) => {
+                    item.dataElements.set(key, value);
+                    item.dataElementList.push(value);
+                })
+            }
         });
         
         return this.flowData;

@@ -1,11 +1,11 @@
 import { apiCall } from "../..";
 import {testData} from "../testdata";
 
-const getCustomerDetails = async () => {
-    let apiURL = '/test/api-folder/v101/1';
+const getApiList = async (companyId: string) => {
+    let apiURL = '/apiengine/api-engine/active/'+companyId;
     let httpMethod = 'get';
-    return testData;
-    // return await apiCall(apiURL, httpMethod, {});
+    // return testData;
+    return await apiCall(apiURL, httpMethod, {});
 };
 
 const getAll = async () => {
@@ -49,7 +49,7 @@ const del = async (itemId: string | number) => {
 }
 
 export default {
-    getCustomerDetails,
+    getApiList,
     getAll,
     get,
     add,

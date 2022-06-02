@@ -1,10 +1,13 @@
 import { Method } from 'axios';
 import request from './utils/http';
+import Api from "./config/api";
 import { verifyToken } from './utils/jwtHelper';
 import storageHelper from "./utils/storageHelper";
 
 import WorkflowSevice from "./services/WorkflowService";
 import CallService from "./services/CallService";
+import { access } from 'fs';
+import axios from "axios";
 
 export const getAccessToken = (isForceToRefreshToken = false): Promise<string> => {
   return new Promise(resolve => {
@@ -12,35 +15,26 @@ export const getAccessToken = (isForceToRefreshToken = false): Promise<string> =
     if (localToken && verifyToken(localToken) && !isForceToRefreshToken) {
       resolve(localToken);
     } else {
-      const refreshToken = storageHelper.getRefreshToken();
-      if (verifyToken(refreshToken)) {
-        const params = {
-          param_cmd: 'refreshToken',
-          refresh_token: refreshToken, //current refresh token
-        };
-        request({
-          url: '/refreshToken', //the url of API for getting new access token
-          method: 'post',
-          data: params,
-          timeout: 15000, // Wait for 5 seconds
-        })
-          .then(response => {
-            if (response && response.status == 200) {
-              storageHelper.setToken(response.data);
-            //   resolve(response.token);
-            } else {
-              storageHelper.clearStorage();
-            //   resolve();
-            }
-          })
-          .catch(() => {
-            storageHelper.clearStorage();
-            // resolve();
-          });
-      } else {
+      axios.post(Api.tokenURL, null, {
+        params: {
+          grant_type:'client_credentials',
+          client_id:'530bdecu0p42d035svchbns59m',
+          client_secret:'1r0fsgeklfop7lp7o1iejs5p07v5br44fqbtb302rcsc7m5fdodn'
+        }
+      })
+      .then((response: any) => {
+        if (response && response.status == 200) {
+          storageHelper.setToken(response.data.access_token);
+          resolve(response.data.access_token);
+        } else {
+          storageHelper.clearStorage();
+          resolve("");
+        }
+      })
+      .catch(() => {
         storageHelper.clearStorage();
-        // resolve();
-      }
+        resolve("");
+      });
     }
   });
 };
@@ -58,42 +52,27 @@ export const getAccessToken = (isForceToRefreshToken = false): Promise<string> =
 */
 export const apiCall = (apiURL: any, httpMethod: any, params: any) => {
   return new Promise((resolve, reject) => {
-    // getAccessToken().then(accessToken => {
-    //   if (accessToken && !params.token) {
-    //     params.token = accessToken;
-    //   }
-    request({
-      url: apiURL,
-      method: httpMethod,
-      params: params,
-      timeout: 15000, // Wait for 5 seconds
-    })
+    getAccessToken()
+    .then(
+      () => {
+      request({
+        url: apiURL,
+        method: httpMethod,
+        params: params,
+        timeout: 15000, // Wait for 5 seconds
+      })
       .then(response => {
+        console.log("[RES] resolve response", response);
         if (response && response.status == 200) {
-          if (response.data && response.data.result == true) {
-            resolve(response.data.data);
-          } else {
-            if (response.data && response.data.message) {
-              reject({ message: response.data.message });
-            } else {
-              reject({ message: 'Unknown error. Please contact the administrator' });
-            }
-          }
-        } else if (response && response.status == 201) {  //Created
-          if (response.data && response.data.result == true) {
-            resolve(response.data.data);
-          } else {
-            if (response.data && response.data.message) {
-              reject({ message: response.data.message });
-            } else {
-              reject({ message: 'Unknown error. Please contact the administrator' });
-            }
-          }
+          resolve(response.data);
         } else if (response && response.status == 204) {  //Empty Content
-          // resolve();
+          console.log("[ERR] 204 response - empty content");
+          resolve("");
         } else if (response && response.status == 404) {
+          console.log("[ERR] 404 response");
           resolve(response.data);
         } else {
+          console.log("[ERR] unknown response");
           reject(response.data);
         }
       })
@@ -106,7 +85,7 @@ export const apiCall = (apiURL: any, httpMethod: any, params: any) => {
           reject({ message: 'Unknown error. Please contact the administrator' });
         }
       });
-    // });
+    });
   });
 };
 

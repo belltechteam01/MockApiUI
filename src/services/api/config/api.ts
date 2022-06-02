@@ -14,7 +14,8 @@ configUrl = {
   //baseURL: "http://123.123.123.123/"
 
   /*  Local Server  */
-  baseURL: "https://duxyugjj4k.execute-api.us-east-1.amazonaws.com"
+  baseURL: "https://smsjourney.justotp.com",
+  tokenURL: "https://auth.justotp.com/oauth2/token"
 
 };
 // console.log("baseURL==>", configUrl.baseURL);

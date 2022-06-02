@@ -233,9 +233,62 @@ export interface IEdge {
     target: string;
 }
 
-export interface IRequestPathItem {
-    
+// Definition API List Types
+export interface IApiList {
+    Items: Array<IApiItem>;
+    Count: number;
+    ScannedCount: number;
 }
 
+export interface IApiItem {
+    httpMethod: string;
+    companyId: string;
+    storeageInfo: IStoreageInfo;
+    folderId: string;
+    authenticationInfo: IAuthenticationInfo;
+    apiHeaders: IApiHeaders;
+    creationDate: string;
+    apiName: string;
+    needsAuthentication: boolean,
+    apiUrl: string;
+    apiId: string;
+    httpGetPattern: string;
+    dataElements: Map<string, IDataElement>;
+    dataElementList: Array<IDataElement>;
+}
 
+interface IStoreageInfo {
+    storeageDuration: string;
+}
 
+interface IAuthenticationInfo {
+    callMethod: string;
+    accessTokenName: string;
+    clientId: IClientId;
+    clientSecret: IClientSecret;
+    authApiUrl: string,
+    grantType: string,
+    referenceKey: string;
+}
+
+interface IClientId {
+    fieldValue: string;
+    fieldName: string;
+}
+
+interface IClientSecret
+{
+    fieldValue: string;
+    fieldName: string;
+}
+
+interface IApiHeaders {
+    AUTHENTICATION: string;
+    codeName: string;
+    "Access-Control-Allow-Origin": string;
+}
+
+export interface IDataElement {
+    attributeName: string;
+    displaySequence: string;
+}
