@@ -55,31 +55,11 @@ export const apiCall = (apiURL: any, httpMethod: any, params: any) => {
     getAccessToken()
     .then(
       () => {
-      axios.post(Api.tokenURL, null, {
-        params: {
-          grant_type:'client_credentials',
-          client_id:'530bdecu0p42d035svchbns59m',
-          client_secret:'1r0fsgeklfop7lp7o1iejs5p07v5br44fqbtb302rcsc7m5fdodn'
-        }
-      })
-      .then((response: any) => {
-        if (response && response.status == 200) {
-          storageHelper.setToken(response.data.access_token);
-          resolve(response.data.access_token);
-        } else {
-          storageHelper.clearStorage();
-          resolve("");
-        }
-      })
-      .catch(() => {
-        storageHelper.clearStorage();
-        resolve("");
-      });
       request({
         url: apiURL,
         method: httpMethod,
         params: params,
-        timeout: 15000, // Wait for 5 seconds
+        // timeout: 15000, // Wait for 5 seconds
       })
       .then(response => {
         console.log("[RES] resolve response", response);

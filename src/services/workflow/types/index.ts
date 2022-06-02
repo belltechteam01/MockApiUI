@@ -238,6 +238,7 @@ export interface IApiList {
     Items: Array<IApiItem>;
     Count: number;
     ScannedCount: number;
+    itemsMap: Map<string, IApiItem>;
 }
 
 export interface IApiItem {

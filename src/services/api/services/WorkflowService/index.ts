@@ -1,6 +1,13 @@
 import { apiCall } from "../..";
 import {testData} from "../testdata";
 
+const getFlowData = async () => {
+    let apiURL = '/test/api-folder/v101/1';
+    let httpMethod = 'get';
+    return testData;
+    // return await apiCall(apiURL, httpMethod, {});
+};
+
 const getAll = async (companyId: string) => {
     
     let apiURL = '/apiengine/api-engine/active/'+companyId;
@@ -45,6 +52,7 @@ const del = async (itemId: string | number) => {
 }
 
 export default {
+    getFlowData,
     getAll,
     get,
     add,

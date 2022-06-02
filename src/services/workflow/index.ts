@@ -177,6 +177,16 @@ export class CWorkflow extends EventEmitter {
     public getFlowData(): Types.IFlow {
         
         if(this.flowData) return this.flowData;
+
+        console.log("[CHECK] read flowData from server");
+        WorkflowSevice.getFlowData().then((r: any) => {
+            
+            const flowData = r as Types.IFlow;
+            this.flowData = flowData;
+            if(this.parseFlowData())
+                this.state = WorkflowState.EDIT;
+        });
+        
         return this.flowData;
     }
 
@@ -184,10 +194,15 @@ export class CWorkflow extends EventEmitter {
 
         if(isUpdate) {
             WorkflowSevice.getAll(companyId).then((r: any) => {
-                const apiList = r as Types.IApiList;
-                if(apiList.Items) {
+                
+                this.apiListData = r as Types.IApiList;
+
+                if(this.apiListData.Items) {
+
+                    this.apiListData.itemsMap = new Map();
+
                     //convert elements array to Map
-                    for(let item of apiList.Items) {
+                    for(let item of this.apiListData.Items) {
                         let elements = new Map();
 
                         item.dataElements.forEach((value, key) => {
@@ -202,12 +217,13 @@ export class CWorkflow extends EventEmitter {
                             item.dataElements.set(key, value);
                             item.dataElementList.push(value);
                         })
+
+                        this.apiListData.itemsMap.set(item.apiId, item);
                     }
-                    this.apiListData = apiList;
                 }
             });
         }
-        
+        console.log("[LOG] get apiListData", this.apiListData);
         return this.apiListData;
     }
 
@@ -242,23 +258,9 @@ export class CWorkflow extends EventEmitter {
         return this.state === state;
     }
 
-    public getApiList(isUpdate:boolean = false): Map<string, Types.IApiDetail> {
-        if(isUpdate) {
-            const flowData = this.getFlowData();
-            if(flowData.flowSteps)
-            {
-                this.lstApi.clear();
-                this.lstSharedApi.clear();
-
-                flowData.flowSteps.forEach((value) => {
-                    const flowStep = value;
-                    this.lstApi.set(flowStep.apiDetails.id, flowStep.apiDetails);
-                    this.lstSharedApi.set(flowStep.apiDetails.apiId, flowStep.apiDetails);
-                })            
-            }
-        }
-
-        return this.lstApi;
+    public getApiList(): Map<string, Types.IApiItem> {
+        console.log("[LOG] apiListData", this.apiListData);
+        return this.apiListData.itemsMap;
     }
 
     public getSApiList(): Map<string, Types.IApiDetail> {

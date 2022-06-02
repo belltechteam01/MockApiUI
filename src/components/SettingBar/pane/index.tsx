@@ -73,7 +73,7 @@ const getApiSelector = (
 
   let apiList: any = [];
   lstApi.forEach((value, id) => {
-    const apiDetail = value as Types.IApiDetail;
+    const apiDetail = value as Types.IApiItem;
 
     apiList.push({
       value: id,
@@ -280,7 +280,8 @@ const SettingPane = (props: ISettingPaneProps) => {
   //props
   const workflow = CWorkflow.getInstance();
   const workNode = workflow.worklist.get(nodeId);
-  const apiList = workflow.getApiList(true);
+  const apiList = workflow.getApiList();
+
   const apiId = workNode?.getInstance().api.apiId;
 
   //states
@@ -289,6 +290,7 @@ const SettingPane = (props: ISettingPaneProps) => {
     modalType: ModalType.Request,
     selectedApiId: apiId ?? "",
   });
+
   const [apiDetail, setApiDetail] = React.useState<Types.IApiDetail>();
   const [workData, setWorkData] = React.useState<CWork | undefined>(undefined);
   
@@ -316,6 +318,7 @@ const SettingPane = (props: ISettingPaneProps) => {
 
   const apiNameEditor = getApiNameEditor(apiName, workData, t);
   const apiSelector = getApiSelector(apiList, localState, onSelect, t);
+
   const reqeustList = getReqeuestList(apiDetail, localState, setLocalState, t);
   const responseList = getResponseList(apiDetail, localState, setLocalState, t);
 
