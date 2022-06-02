@@ -1,25 +1,26 @@
-import axios from "axios";
-// import https from "https";
-// import store from "../store";
+import axios, { AxiosInstance } from "axios";
 import Api from "../config/api";
 import storageHelper from "./storageHelper";
 
-const service = axios.create({
+const defaultOptions = {
   baseURL: Api.baseURL,
   headers: {
     "Content-Type": "application/json",
     "x-api-key": "AggWBoyh9g1wQe4YHDyYy3umN9n71wXm8WC8JqTM",
   },
-});
+};
+
+const service: AxiosInstance = axios.create(defaultOptions);
 
 service.interceptors.request.use(
   (config: any) => {
-    let token = storageHelper.getToken();
-    if (token) {
-      config.headers[
-        "Authorization"
-      ] = `Bearer ${token}`;
-    }
+
+    const token = storageHelper.getToken();
+
+    config.headers[
+      "Authorization"
+    ] = token ? `Bearer ${token}`: "";
+
     console.log("[REQ] config", config);
     return config;
   },

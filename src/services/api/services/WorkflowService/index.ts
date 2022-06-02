@@ -1,24 +1,20 @@
 import { apiCall } from "../..";
 import {testData} from "../testdata";
 
-const getApiList = async (companyId: string) => {
+const getAll = async (companyId: string) => {
+    
     let apiURL = '/apiengine/api-engine/active/'+companyId;
-    let httpMethod = 'get';
-    // return testData;
+    let httpMethod = 'GET';
     return await apiCall(apiURL, httpMethod, {});
 };
 
-const getAll = async () => {
-    let apiURL = '/v100/workflow/body';
-    let httpMethod = 'get';
-    return await apiCall(apiURL, httpMethod, {});
-}
+const get = async (companyId: string, apiId: string) => {
 
-const get = async (itemId: string | number) => {
-    let apiURL = '/v100/workflow/body/' + itemId;
-    let httpMethod = 'get';
+    // let apiURL = '/apiengine/api-engine-details/'+companyId;
+    const apiURL = '/apiengine/api-engine-details/' + companyId + "/" + apiId;
+    const httpMethod = 'GET';
     return await apiCall(apiURL, httpMethod, {});
-}
+};
 
 const add = async (params: any = {}) => {
     let apiURL = '/v100/workflow/body';
@@ -49,7 +45,6 @@ const del = async (itemId: string | number) => {
 }
 
 export default {
-    getApiList,
     getAll,
     get,
     add,

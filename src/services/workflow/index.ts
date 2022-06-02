@@ -41,6 +41,9 @@ export class CWorkflow extends EventEmitter {
     private lstApi: Map<string, Types.IApiDetail>;
     private lstSharedApi: Map<string, Types.IApiDetail>;
 
+    private apiListData: Types.IApiList;
+    private apiDetailData: Types.IApiItem;
+
     private static _instance: CWorkflow;
 
     constructor(name?:string) {
@@ -174,31 +177,64 @@ export class CWorkflow extends EventEmitter {
     public getFlowData(): Types.IFlow {
         
         if(this.flowData) return this.flowData;
+        return this.flowData;
+    }
 
-        console.log("[CHECK] read flowData from server");
-        WorkflowSevice.getApiList("1").then((r: any) => {
-            const flowData = r as Types.IApiList;
-            
-            //convert elements array to Map
-            for(let item of flowData.Items) {
+    public getApiListData(companyId: string, isUpdate: boolean = false): Types.IApiList {
+
+        if(isUpdate) {
+            WorkflowSevice.getAll(companyId).then((r: any) => {
+                const apiList = r as Types.IApiList;
+                if(apiList.Items) {
+                    //convert elements array to Map
+                    for(let item of apiList.Items) {
+                        let elements = new Map();
+
+                        item.dataElements.forEach((value, key) => {
+                            Object.entries(value).map(([key, value]) => {
+                                elements.set(key, value);
+                            })
+                        })
+                        
+                        item.dataElements = new Map<string, Types.IDataElement>();
+                        item.dataElementList = [];
+                        elements.forEach((value, key) => {
+                            item.dataElements.set(key, value);
+                            item.dataElementList.push(value);
+                        })
+                    }
+                    this.apiListData = apiList;
+                }
+            });
+        }
+        
+        return this.apiListData;
+    }
+
+    public getApiDetailData(companyId: string, apiId: string, isUpdate: boolean = false): Types.IApiItem {
+        if(isUpdate) {
+            WorkflowSevice.get(companyId, apiId).then((r: any) => {
+                const apiDetail = r as Types.IApiItem;
+                
                 let elements = new Map();
 
-                item.dataElements.forEach((value, key) => {
+                apiDetail.dataElements.forEach((value, key) => {
                     Object.entries(value).map(([key, value]) => {
                         elements.set(key, value);
                     })
                 })
                 
-                item.dataElements = new Map<string, Types.IDataElement>();
-                item.dataElementList = [];
+                apiDetail.dataElements = new Map<string, Types.IDataElement>();
+                apiDetail.dataElementList = [];
                 elements.forEach((value, key) => {
-                    item.dataElements.set(key, value);
-                    item.dataElementList.push(value);
+                    apiDetail.dataElements.set(key, value);
+                    apiDetail.dataElementList.push(value);
                 })
-            }
-        });
+                this.apiDetailData = apiDetail;
+            });
+        }
         
-        return this.flowData;
+        return this.apiDetailData;
     }
 
     //APIs

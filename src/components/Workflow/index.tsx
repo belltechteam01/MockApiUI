@@ -134,8 +134,11 @@ const Workflow = (props: any) => {
   };
 
   const onFileOpen = () => {
-    console.log("[LOG] onFileOpen");
-    workflow.getFlowData();
+    // workflow.getFlowData();
+    let ret = workflow.getApiListData("1", true);
+    console.log("[LOG] api call response", ret);
+    // let ret1 = workflow.getApiDetailData("1","c57a4706-bf0d-4a64-84ca-6374e6439416", true);
+    // console.log("[LOG] api call detail", ret1);
   }
 
   return (
