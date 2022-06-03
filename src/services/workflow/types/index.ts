@@ -57,6 +57,17 @@ export enum ItemType {
     RULE_OUTPUT
 };
 
+export interface IParam {
+    id: string;
+    fieldId: string;
+    displaySeq: string;
+    fieldName: string;
+    fieldSourceType: string;
+    fieldSourceValue: string;
+    fieldSourceId: string;
+    fieldSourceValuePath: string;
+}
+
 export interface IRequestItem {
     displaySeq: string;
     fieldId: string;
@@ -133,6 +144,7 @@ export interface IStatusCode {
 }
 
 export interface IApiDetail {
+    
     apiId: string;
     apiName: string;
     successHttpCodes: Array<string>;

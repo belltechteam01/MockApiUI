@@ -4,7 +4,7 @@ import * as ReactflowRenderer from 'react-flow-renderer';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import ToolBar from '../ToolBar';
-import { CWorkflow, EvtCode, WorkflowState, WxEvent} from '../../services/workflow';
+import { CWorkflow, EvtCode, STATE_WORKFLOW, WxEvent} from '../../services/workflow';
 import { WorkflowSettings } from 'services/workflow/settings';
 import NodeComponent from 'components/Workflow/NodeComponent';
 import SettingBar from '../SettingBar';
@@ -94,7 +94,7 @@ const Workflow = (props: any) => {
     if(workflow) {
       const workNode = workflow.worklist.get(node.id);
 
-      if( workflow.isState(WorkflowState.EDIT) && workNode) {
+      if( workflow.isState(STATE_WORKFLOW.EDIT) && workNode) {
         setShowPropertyInspector(true);
         setSelectedNode(node.id);
       } else {
@@ -136,6 +136,7 @@ const Workflow = (props: any) => {
   const onFileOpen = () => {
     workflow.getFlowData();
     workflow.getApiListData("1", true);
+    
     // workflow.getApiDetailData("1","c57a4706-bf0d-4a64-84ca-6374e6439416", true);
   }
 

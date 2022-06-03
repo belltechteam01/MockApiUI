@@ -1,11 +1,20 @@
 import * as Types from "../../types";
 import {WorkflowSettings} from "../../settings";
 import { RefObject } from "react";
+import { CParam, CRequest, CResponse } from "../params";
+import {v4 as uuidv4} from "uuid"
+
+export interface IApi {
+    apiId: string;
+    apiName: string;
+    requestMap: Map<string, CRequest>;
+    responseMap: Map<string, CResponse>
+}
 
 export interface IWork {
     id: string;
     name: string;
-    api: Types.IApiDetail;
+    api: IApi;
 }
 
 export abstract class CWork implements IWork
@@ -20,17 +29,21 @@ export abstract class CWork implements IWork
     public abstract readonly outputs: number;
     public labelRef: RefObject<HTMLDivElement>;
 
-    api: Types.IApiDetail;
+    private apiDetail: Types.IApiDetail;
+    public api: IApi;
+
+    private isSelectedApi: boolean;
 
     constructor(name: string) {
         this.id = "undefined";
         this.name = name;
         this.color = WorkflowSettings.NODE_COLOR_DEFAULT;
         
-        this.api = {
+        this.apiDetail = {
             id : this.id,
             apiName: name,
             apiId: "",
+            
             requestMap: new Map(),
             responseMap: new Map(),
             failCodeMap: new Map(),
@@ -42,6 +55,15 @@ export abstract class CWork implements IWork
             requestData: [], 
             successHttpCodes: [],
         };
+
+        this.api = {
+            apiId:"",
+            apiName: "",
+            requestMap: new Map(),
+            responseMap: new Map(),
+        }
+
+        this.isSelectedApi = false;
     }
 
     setPosition(x: number, y: number) {
@@ -60,6 +82,31 @@ export abstract class CWork implements IWork
             this.labelRef?.current?.replaceChildren(name);
             this.name = name;
         }
+    }
+
+    getRequests()
+    {
+        return this.api.requestMap;
+    }
+
+    getResponses()
+    {
+        return this.api.responseMap;
+    }
+
+    getApiId()
+    {
+        return this.api.apiId;
+    }
+
+    isApiSelected()
+    {
+        return this.isSelectedApi;
+    }
+
+    getApiName()
+    {
+        return this.api.apiName;
     }
               
 }

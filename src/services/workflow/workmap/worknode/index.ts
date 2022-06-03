@@ -80,8 +80,6 @@ export class CWorkNode<T extends IWork>{
       this.events = new Events();
 
       this.gotoState(ENM_FLOW_STATE.INITIALIZING);
-      
-      this.value.api.parent = this;
     }
 
     public getInstance() : T {

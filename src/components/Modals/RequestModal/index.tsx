@@ -154,14 +154,14 @@ export const Modal = (props: IModalProps) => {
 
   const onSelect = (curId: string, selectedId: string) => {
     
-    const requests = CWorkflow.getInstance().getApiList();
+    // const requests = CWorkflow.getInstance().getApiList();
 
-    const _cur = requests.get(curId);
-    const _selected = requests.get(selectedId);
+    // const _cur = requests.get(curId);
+    // const _selected = requests.get(selectedId);
 
-    if(_cur && _selected) {
+    // if(_cur && _selected) {
 
-    }
+    // }
   };
 
   const onChange = () => {};

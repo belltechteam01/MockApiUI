@@ -13,22 +13,37 @@ import { v4 as uuidv4 } from 'uuid';
 import { request } from "http";
 import { EventEmitter } from "eventemitter3";
 import { ModalType } from "components/Modals";
+import { CParam, ParamSrcType } from "./workmodel/params/param";
+import { CParams } from "./workmodel/params";
+import { CRequest } from "./workmodel/params/request";
 
-export enum WorkflowState {
+export enum STATE_WORKFLOW {
     INIT,
     EDIT, 
     RUN
 }
+
+enum SUBSTATE_INIT {
+    INITIAL = 0,
+    READY_FLOWDATA = 1,
+    READY_APILIST = 2
+}
+
 export enum EvtCode {
     EVT_SETTING_FAILED_OPEN,
+    EVT_RECEIVE_RESPONSE_FLOWDATA,
+    EVT_RECEIVE_RESPONSE_APILIST,
 }
+
 export enum WxEvent {
     TEST,
     WARN,
+    APICALL,
 }
 
 export class CWorkflow extends EventEmitter {
     public id: string = "123";
+    private companyId: string = "1";
     public name: string;
     public type: string = "Untitled";
     public changed: boolean = false;
@@ -36,13 +51,18 @@ export class CWorkflow extends EventEmitter {
     public worklist: WorkMap<WorkModel.Work>;
     private edgeList: EdgeMap<Types.IEdge>;
 
-    private state: WorkflowState;
-    private flowData: Types.IFlow;
-    private lstApi: Map<string, Types.IApiDetail>;
-    private lstSharedApi: Map<string, Types.IApiDetail>;
+    //workflow state
+    private state: STATE_WORKFLOW;
+    private subState: number;
 
+    //cached workflowData
+    private flowData: Types.IFlow;
+    //cached apiList
     private apiListData: Types.IApiList;
+    //cached apiDetail
     private apiDetailData: Types.IApiItem;
+
+    private lstParam: CParams;
 
     private static _instance: CWorkflow;
 
@@ -57,13 +77,15 @@ export class CWorkflow extends EventEmitter {
         this.worklist = new WorkMap<WorkModel.Work>();
         this.edgeList = new EdgeMap<Types.IEdge>();
 
-        this.lstApi = new Map();
-        this.lstSharedApi = new Map();
-        this.state = WorkflowState.INIT;
+        this.state = STATE_WORKFLOW.INIT;
+        this.subState = SUBSTATE_INIT.INITIAL;
         
+        this.lstParam = new CParams();
+
         CWorkflow._instance = this;
         this.addListener(WxEvent[WxEvent.TEST], this.onTest);
         this.addListener(WxEvent[WxEvent.WARN], this.onWarn);
+        this.addListener(WxEvent[WxEvent.APICALL], this.onApiCallProc);
     }
 
     public static getInstance(): CWorkflow {
@@ -84,6 +106,25 @@ export class CWorkflow extends EventEmitter {
                 console.log("[WARN] Couldn't you read workflow data?");
                 break;
         }
+    }
+
+    private onApiCallProc(code: EvtCode) {
+
+        switch(code) {
+            case EvtCode.EVT_RECEIVE_RESPONSE_APILIST:
+                if(this.state == STATE_WORKFLOW.INIT) {
+                    this.subState = this.subState | SUBSTATE_INIT.READY_APILIST;
+                    this.gotoState(STATE_WORKFLOW.EDIT);
+                }
+            break;
+            case EvtCode.EVT_RECEIVE_RESPONSE_FLOWDATA:
+                if(this.state == STATE_WORKFLOW.INIT) {
+                    this.subState = this.subState | SUBSTATE_INIT.READY_FLOWDATA;
+                    this.gotoState(STATE_WORKFLOW.EDIT);
+                }
+            break;
+        }
+        console.log("[LOG] onApiCallProc", this.subState);
     }
 
     add(model: WorkModel.Work, type?: ENM_FLOWTYPE) {
@@ -181,10 +222,12 @@ export class CWorkflow extends EventEmitter {
         console.log("[CHECK] read flowData from server");
         WorkflowSevice.getFlowData().then((r: any) => {
             
+            console.log("[LOG] workflow response", r);
             const flowData = r as Types.IFlow;
             this.flowData = flowData;
-            if(this.parseFlowData())
-                this.state = WorkflowState.EDIT;
+            this.parseFlowData();
+
+            this.emit(WxEvent[WxEvent.APICALL], EvtCode.EVT_RECEIVE_RESPONSE_FLOWDATA);
         });
         
         return this.flowData;
@@ -194,7 +237,8 @@ export class CWorkflow extends EventEmitter {
 
         if(isUpdate) {
             WorkflowSevice.getAll(companyId).then((r: any) => {
-                
+                console.log("[LOG] apilist response", r);
+               
                 this.apiListData = r as Types.IApiList;
 
                 if(this.apiListData.Items) {
@@ -220,6 +264,7 @@ export class CWorkflow extends EventEmitter {
 
                         this.apiListData.itemsMap.set(item.apiId, item);
                     }
+                    this.emit(WxEvent[WxEvent.APICALL], EvtCode.EVT_RECEIVE_RESPONSE_APILIST);
                 }
             });
         }
@@ -254,17 +299,73 @@ export class CWorkflow extends EventEmitter {
     }
 
     //APIs
-    public isState(state: WorkflowState) {
+    public isState(state: STATE_WORKFLOW) {
         return this.state === state;
     }
 
-    public getApiList(): Map<string, Types.IApiItem> {
-        console.log("[LOG] apiListData", this.apiListData);
-        return this.apiListData.itemsMap;
+    public gotoState(state: STATE_WORKFLOW) {
+        switch(this.state) {
+            case STATE_WORKFLOW.INIT:
+                
+                if(state == STATE_WORKFLOW.EDIT) {
+                    if(this.subState & SUBSTATE_INIT.READY_APILIST && 
+                        this.subState & SUBSTATE_INIT.READY_FLOWDATA)
+                        this.state = STATE_WORKFLOW.EDIT;
+                }
+
+            break;
+            case STATE_WORKFLOW.RUN:
+            break;
+            case STATE_WORKFLOW.EDIT:
+            break;
+        }
     }
 
-    public getSApiList(): Map<string, Types.IApiDetail> {
-        return this.lstSharedApi;
+    //get elementsMap of apiList (request fields)
+    public getApiList(): Map<string, Types.IApiItem> {
+        
+        const apiListData = this.getApiListData(this.companyId);
+        return apiListData.itemsMap;
+    }
+
+    public selectApi(apiId: string, nodeId: string): boolean {
+        
+        let bRet = false;
+        
+        const apiDetail = this.apiListData.itemsMap.get(apiId);
+        const workNode = this.worklist.get(nodeId)?.value;
+
+        if(apiDetail && workNode && workNode.api) {
+            
+            const dataElements = apiDetail.dataElementList;
+            for(let dataElement of dataElements) {
+                
+                const fieldId = uuidv4();
+                
+                const param = new CRequest(dataElement.attributeName, dataElement.displaySequence, fieldId, ParamSrcType[ParamSrcType.INPUTDATA]);
+
+                this.lstParam.setParamByFieldName( apiId, dataElement.attributeName, param);
+            }
+
+            bRet = true;
+        }
+        return bRet;
+    }
+
+    //@deprecated
+    private copyApiItem(src:Types.IApiItem, dest: Types.IApiDetail) {
+        dest.apiId = src.apiId;
+        dest.apiName = src.apiName;
+
+        if(dest.requestMap)
+            dest.requestMap.clear();
+        else
+            dest.requestMap = new Map();
+        
+        for(let element of dest.requestMap.entries()) {
+            
+        }
+
     }
 
     private copyApiDetail(src: Types.IApiDetail, dest: Types.IApiDetail) {
@@ -319,18 +420,7 @@ export class CWorkflow extends EventEmitter {
         }
     }
 
-    public selectApi(apiId: string, nodeId: string): boolean {
-        let bRet = false;
-        const apiDetail = this.lstApi.get(apiId);
-        const workNode = this.worklist.get(nodeId)?.value;
-        if(apiDetail && workNode && workNode.api) {
-            this.copyApiDetail(apiDetail, workNode.api);
-            bRet = true;
-        }
-        return bRet;
-    }
-
-    protected parseFlowData():boolean {
+    private parseFlowData():boolean {
         let bRet: boolean = false; 
 
         const flowData = this.getFlowData();
@@ -356,9 +446,6 @@ export class CWorkflow extends EventEmitter {
                     apiDetail.responseMap = new Map();
                     apiDetail.failCodeMap = new Map();
                     apiDetail.successCodeMap = new Map();
-
-                    this.lstApi.set(apiDetail.id, apiDetail);
-                    this.lstSharedApi.set(apiDetail.apiId, apiDetail);
 
                     for(const request of flowStep.apiDetails.requestData) {
                         request.id = uuidv4();
@@ -421,7 +508,6 @@ export class CWorkflow extends EventEmitter {
         return bRet;
     }
 
-    //@deprecated
     private getFlowStep(flowStepId: string): Types.IFlowStep | null {
       var ret: Types.IFlowStep | null = null;
 
