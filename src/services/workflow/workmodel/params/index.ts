@@ -1,3 +1,4 @@
+import { IParam } from "services/workflow/types";
 import { CParam, ParamSrcType, ParamType } from "./param";
 import {CRequest} from "./request";
 import {CResponse} from "./response";
@@ -10,34 +11,38 @@ export class CParams
         this._params = new Map();
     }
 
-    public getList(nodeId: string | undefined, paramType: ParamType | undefined, paramSrcType: ParamSrcType | undefined)
-    {
-        let ret: Array<CParam> = [];
+    public getList(
+        nodeId: string | undefined, 
+        paramType: ParamType | undefined = undefined, 
+        paramSrcType: ParamSrcType | undefined = undefined
+    ) {
+        let ret: Array<IParam> = [];
         
         let lstParams: Array<CParam> = [];
         
         for(let param of this._params.values()) {
             lstParams.push(param);
         }
-
+        
         let filtered = lstParams;
         if(nodeId) {
             filtered = filtered.filter((value) => value.nodeId == nodeId);
         }
-
+        
         if(paramType) {
             filtered = filtered.filter((value: any) => value.type ? (value.type == paramType) : false);
         }
-
+        
         if(paramSrcType) {
-            console.log("[LOG] param src type", ParamSrcType[paramSrcType]);
+            // console.log("[LOG] param src type", ParamSrcType[paramSrcType]);
             filtered = filtered.filter((value) => value.fieldSourceType == ParamSrcType[paramSrcType]);
         }
-
-        ret = filtered.sort((a, b) => {
+        
+        let sorted = filtered.sort((a, b) => {
             return (parseInt(a.displaySeq) - parseInt(b.displaySeq));
         })
         
+        ret = sorted.map((value) => value.getParamData());
         return ret;
     }
 
@@ -81,10 +86,6 @@ export class CParams
         this._params.set(id, param);
 
         return this._params.size > pre_size;
-    }
-
-    public setParamByFieldName(apiId: string, fieldName: string, param: CParam): boolean {
-        return this.setParam( apiId + "." + fieldName, param );
     }
 
     public getFieldValueType

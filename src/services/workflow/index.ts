@@ -90,14 +90,14 @@ export class CWorkflow extends EventEmitter {
 
     public static getInstance(): CWorkflow {
         if(!this._instance) {
-            console.log("[ERR] created new workflow while getting instance");
+            // console.log("[ERR] created new workflow while getting instance");
             this._instance = new CWorkflow();
         }
         return this._instance;
     }
 
     private onTest() {
-        console.log("[LOG] onTest call listen", this);
+        // console.log("[LOG] onTest call listen", this);
     }
 
     private onWarn(code: EvtCode) {
@@ -124,7 +124,7 @@ export class CWorkflow extends EventEmitter {
                 }
             break;
         }
-        console.log("[LOG] onApiCallProc", this.subState);
+        // console.log("[LOG] onApiCallProc", this.subState);
     }
 
     add(model: WorkModel.Work, type?: ENM_FLOWTYPE) {
@@ -148,9 +148,9 @@ export class CWorkflow extends EventEmitter {
     }
 
     moveTo(id: string) {
-        console.log("workflow moveto");
+        // console.log("workflow moveto");
         // const bMoved = this.worklist.moveToRoot();
-        console.log(JSON.stringify(this.worklist.toArray))
+        // console.log(JSON.stringify(this.worklist.toArray))
     }
     
     excute() {
@@ -219,10 +219,10 @@ export class CWorkflow extends EventEmitter {
         
         if(this.flowData) return this.flowData;
 
-        console.log("[CHECK] read flowData from server");
+//        console.log("[CHECK] read flowData from server");
         WorkflowSevice.getFlowData().then((r: any) => {
             
-            console.log("[LOG] workflow response", r);
+            // console.log("[LOG] workflow response", r);
             const flowData = r as Types.IFlow;
             this.flowData = flowData;
             this.parseFlowData();
@@ -237,7 +237,7 @@ export class CWorkflow extends EventEmitter {
 
         if(isUpdate) {
             WorkflowSevice.getAll(companyId).then((r: any) => {
-                console.log("[LOG] apilist response", r);
+                // console.log("[LOG] apilist response", r);
                
                 this.apiListData = r as Types.IApiList;
 
@@ -268,7 +268,6 @@ export class CWorkflow extends EventEmitter {
                 }
             });
         }
-        console.log("[LOG] get apiListData", this.apiListData);
         return this.apiListData;
     }
 
@@ -328,28 +327,45 @@ export class CWorkflow extends EventEmitter {
         return apiListData.itemsMap;
     }
 
+    public getApi(apiId: string): Types.IApiItem | undefined {
+        return this.getApiList().get(apiId);
+    }
+
     public selectApi(apiId: string, nodeId: string): boolean {
         
         let bRet = false;
         
-        const apiDetail = this.apiListData.itemsMap.get(apiId);
+        const apiDetail = this.getApi(apiId);
         const workNode = this.worklist.get(nodeId)?.value;
 
         if(apiDetail && workNode && workNode.api) {
             
+            workNode.api.apiId = apiId;
+            workNode.api.apiName = apiDetail.apiName;
+
             const dataElements = apiDetail.dataElementList;
+            // console.log("[LOG] select api", dataElements);
             for(let dataElement of dataElements) {
                 
-                const fieldId = uuidv4();
-                
-                const param = new CRequest(dataElement.attributeName, dataElement.displaySequence, fieldId, ParamSrcType[ParamSrcType.INPUTDATA]);
+                const param = new CRequest(dataElement.attributeName, dataElement.displaySequence, "", ParamSrcType[ParamSrcType.INPUTDATA]);
+                param.setNodeId(nodeId);
 
-                this.lstParam.setParamByFieldName( apiId, dataElement.attributeName, param);
+                this.lstParam.setParam( param.id, param);
+                workNode.setRequest(dataElement.attributeName, param);
             }
 
             bRet = true;
         }
         return bRet;
+    }
+
+    public getParams(): CParams {
+        return this.lstParam;
+    }
+
+    public getParam(id: string | undefined): CParam | undefined {
+        if(!id) return undefined;
+        return this.lstParam.getParam(id);
     }
 
     //@deprecated
@@ -370,7 +386,7 @@ export class CWorkflow extends EventEmitter {
 
     private copyApiDetail(src: Types.IApiDetail, dest: Types.IApiDetail) {
 
-        console.log("[LOG] copyApiDetail", dest);
+        // console.log("[LOG] copyApiDetail", dest);
 
         dest.apiId = src.apiId;
         dest.apiName = src.apiName;
@@ -424,7 +440,7 @@ export class CWorkflow extends EventEmitter {
         let bRet: boolean = false; 
 
         const flowData = this.getFlowData();
-        console.log("[CHECK] parseFlowData", flowData);
+        // console.log("[CHECK] parseFlowData", flowData);
         if(flowData) {
             //
             this.id = flowData.flowId;
@@ -621,7 +637,7 @@ export class CWorkflow extends EventEmitter {
       
       const responseItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RESPONSES, "2344", flowStepId ) as Array<Types.IResponseItem>;
 
-      console.log("[LOG]response items",Array.isArray(responseItems));
+    //   console.log("[LOG]response items",Array.isArray(responseItems));
       
       if(responseItems && Array.isArray(responseItems)) {
         for(let itm of responseItems) {

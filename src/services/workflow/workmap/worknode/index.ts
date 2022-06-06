@@ -86,6 +86,14 @@ export class CWorkNode<T extends IWork>{
       return this.value;
     }
 
+    public getApiId(): string {
+      return this.getInstance()?.api.apiId ?? "";
+    }
+
+    public getName(): string {
+      return this.getInstance()?.name ?? "untitled";
+    }
+
     public getEdges(isSrc = false) : EdgeMap<Types.IEdge> {
       if(isSrc)
         return this.sources;

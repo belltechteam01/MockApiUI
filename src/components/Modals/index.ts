@@ -7,7 +7,7 @@ export enum ModalType {
 export interface IModalProps {
   id: string;
   type: ModalType;
-  attribId: string;
   data: any;
   onClose: Function;
+  valuePath?: string;
 }

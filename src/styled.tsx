@@ -46,7 +46,7 @@ export const StyledSelect = styled(Select)(() => ({
 export const ReactSelect = styled(RSelect)(() => ({
   background: "inherit",
   width: "100%",
-  height: 40,
+  height: 30,
 }));
 
 export const CreatableReactSelect = styled(CRSelect)(() => ({

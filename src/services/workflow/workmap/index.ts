@@ -95,18 +95,24 @@ import { IWork } from "../workmodel/models/work";
           return this._cur ? this._hashmap.delete(this._cur.id) : false;
       }
     
-      toArray(): T[] {
-        return [...this];
+      toArray(): CWorkNode<T>[] {
+        
+        let ret: any = [];
+        for(let item of this._hashmap.values()) {
+          ret.push(item);
+        }
+
+        return ret;
       }
     
       first(id: string): T | null {
         return this._root ? this._root.value : null;
       }
 
-      private isDuplicate(val: T): boolean {
-        let set = new Set(this.toArray());
-        return set.has(val);
-      }
+      // private isDuplicate(val: T): boolean {
+      //   let set = new Set(this.toArray());
+      //   return set.has(val);
+      // }
   }
   
   

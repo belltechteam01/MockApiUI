@@ -62,7 +62,7 @@ export const apiCall = (apiURL: any, httpMethod: any, params: any) => {
         // timeout: 15000, // Wait for 5 seconds
       })
       .then(response => {
-        console.log("[RES] resolve response", response);
+        // console.log("[RES] resolve response", response);
         if (response && response.status == 200) {
           resolve(response.data);
         } else if (response && response.status == 204) {  //Empty Content

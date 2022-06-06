@@ -21,7 +21,7 @@ service.interceptors.request.use(
       "Authorization"
     ] = token ? `Bearer ${token}`: "";
 
-    console.log("[REQ] config", config);
+    // console.log("[REQ] config", config);
     return config;
   },
   error => {
@@ -32,7 +32,7 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
   response => {
-    console.log("[LOG] response", response);
+    // console.log("[LOG] response", response);
     const statusCode = response.status;
     const { url } = response.config;
     if (url === "/api/login" && statusCode === 200) {

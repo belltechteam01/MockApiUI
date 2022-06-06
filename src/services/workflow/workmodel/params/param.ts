@@ -46,6 +46,20 @@ export class CParam implements Types.IParam
         this.fieldSourceValuePath = fieldSrcValuePath;
     }
 
+    getParamData() : Types.IParam
+    {
+        return {
+            id: this.id,
+            fieldId: this.fieldId,
+            displaySeq: this.displaySeq,
+            fieldName: this.fieldName,
+            fieldSourceId: this.fieldSourceId,
+            fieldSourceType: this.fieldSourceType,
+            fieldSourceValue: this.fieldSourceValue,
+            fieldSourceValuePath: this.fieldSourceValuePath,
+        }
+    }
+
     setNodeId(nodeId: string) {
         this.nodeId = nodeId;
     }
@@ -74,11 +88,15 @@ export class CParam implements Types.IParam
         return ret;
     }
 
-    getSrcValuePathStyled()
+    getFieldSourceValuePath()
     {
         return this.fieldSourceValuePath;
     }
     
+    getFieldSourceId()
+    {
+        return this.fieldSourceId;
+    }
     private verifyPath(path: string[]) {
         let bRet = false;
         if(path.length > 0) {
@@ -101,7 +119,18 @@ export class CParam implements Types.IParam
         return this.getSrcValuePath();
     }
 
+    setFieldSourceId(srcId: string): boolean
+    {
+        let bRet = false;
+
+        if(srcId && srcId != "")
+            this.fieldSourceId = srcId;
+            
+        return bRet;
+    }
+
     public getValueType(): ParamSrcType {
         return ParamSrcType[this.fieldSourceType];
+        // return ParamSrcType.INPUTDATA;
     }
 }
