@@ -15,7 +15,7 @@ export class CResponse extends CParam {
     ) {
         super(fieldName, displaySeq, fieldId);
 
-        this.type = ParamType.REQUEST;
+        this.type = ParamType.RESPONSE;
 
     }
 }

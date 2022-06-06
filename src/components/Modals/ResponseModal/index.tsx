@@ -1,131 +1,112 @@
-import React, { useEffect, useState, ReactNode } from 'react';
+import React, { useEffect, useState, ReactNode, useCallback } from 'react';
 import * as MUI from '@mui/material';
 import BasicModal from 'components/Based/BasicModal';
-import { FormControlContainer, Input, Label, ReactSelect, TextArea } from '../../../styled';
+import { FormControlContainer, ReactSelect } from '../../../styled';
 import styles from './styles.module.scss';
 import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
-import { IRequestItem, IResponseItem } from 'services/workflow/types';
-import { CWorkflow } from 'services/workflow';
-import { ModalType, IModalProps } from '../index';
+import { CWorkflow, Workflow } from 'services/workflow';
+import { IModalProps } from '../index';
+import {setStateMany} from "utils";
+import * as SettingBar from "../../SettingBar/pane";
+import { height } from '@mui/system';
 
-
-const getEditableCheck = (onCheck: Function, t: Function): ReactNode => {
-  let ret: ReactNode;
-
-  ret = <MUI.FormControlLabel control={<MUI.Checkbox defaultChecked onChange={(e) => onCheck(e.target.checked)} />} label={t('workflow.setting.modal.response.newable')} />;
-
-  return ret;
-};
-
-const getSourceSelector = (onSelect: Function, t: Function, isSelectable: boolean = true, data: any): ReactNode => {
-  let ret: ReactNode;
-  const response: IResponseItem = data;
-
-  ret = (
-    <div className={styles.sourceWrapper}>
-      <div className={styles.borderLabel}>{t('workflow.setting.modal.response.sourcesLabel')}</div>
-      <>
-        <MUI.TextField
-          InputProps={{ classes: { input: styles.textWrapper } }}
-          fullWidth
-          // label={t('workflow.setting.modal.response.sourcesLabel')}
-          id="outlined-size-normal"
-          defaultValue={response.fieldName}
-          disabled={true}
-        />
-      </>
-    </div>
-  );
-
-  return ret;
-};
-
-const getPathEditor = (onChange: Function, t: Function, data: any, isSelectable: boolean = false): ReactNode => {
-  let ret: ReactNode;
-  ret = (
-    <div className={styles.pathWrapper}>
-      <div className={styles.borderLabel}>{t('workflow.setting.modal.response.path')}</div>
-      <MUI.TextField
-        id="outlined-size-normal"
-        InputProps={{ classes: { input: styles.textWrapper } }}
-        fullWidth
-        // label={t('workflow.setting.modal.response.valueLabel')}
-        placeholder="Response Path"
-        defaultValue=""
-        onChange={(e) => onChange(e)}
-      />
-    </div>
-  );
-  return ret;
-};
+interface ILocalState extends SettingBar.ILocalState{
+  valuePath: string;
+}
 
 export const Modal = (props: IModalProps) => {
-  const { id, data, onClose } = props;
+  const { 
+    id, 
+    type,
+    data,
+    onClose 
+  } = props;
 
   //props
-  let workflow: CWorkflow = data;
-  const properties = [];
-  let selected: IRequestItem;//workflow.getRequests().get(selectedId);
+  const workflow = CWorkflow.getInstance();
+  const [localState, setLocalState] = React.useState<ILocalState>({
+    valuePath: workflow.getParam(data.selectedResponseId)?.getFieldSourceValuePath(),
+    ...data
+  });
 
+  const [nodeList, setNodeList] = React.useState(workflow.worklist);
+  console.log("[LOG] response edit modal", workflow);
+  console.log("[LOG] response edit modal", localState);
+  console.log("[LOG] response edit modal", nodeList);
   
   //states
   const { t } = useTranslation();
-  const [showModal, setShowModal] = useState(true);
-  const [source, setSource] = React.useState(20);
-  const [isEdit, setEdit] = useState(true);
-  // const [path, setPath] = useState(selected?.fieldSourceValuePath);
+
+  //useEffect
+  useEffect(() => {
+
+    if (!localState.showModal) 
+      onClose();
+
+  }, [localState.showModal]);
+
+  useEffect(() => {
+
+    if(localState.selectedApiId) {
+      setStateMany(setLocalState, {
+        selectedSrcId: workflow.getParam(localState.selectedResponseId)?.fieldSourceId,
+        valuePath: workflow.getParam(localState.selectedResponseId)?.getFieldSourceValuePath()
+      })
+    }
+  },[localState.selectedResponseId])
+
   //functions
   const onOk = () => {
-    const requests = workflow.getApiList();
-    const _selected = requests.get("1");
-    if(_selected) {
-      // _selected.fieldSourceValuePath = path ?? "";
-    }
-
-    setShowModal(false);
+    
+    workflow.getParam(localState.selectedResponseId)?.setSrcValuePath(localState.valuePath);
+    
+    setStateMany( setLocalState, {showModal: false});
   };
 
-  const onCheck = (bChecked: boolean) => {
-    setEdit(bChecked);
-  };
-
-  const onSelect = () => {};
-
-  const onChange = (e) => {
-    // setPath(e.target.value);
+  const onValuePathChange = (value: string) => {
+    setStateMany(setLocalState, {
+      valuePath: value
+    })
   };
 
   //useEffect
   useEffect(() => {
-    if (!showModal) onClose();
-  }, [showModal]);
 
-  const editableCheck = getEditableCheck(onCheck, t);
-  // const sourceSelector = getSourceSelector(onSelect, t, isEdit, selected);
-  // const pathEditor = getPathEditor(onChange, t, selected);
+    if (!localState.showModal) 
+      onClose();
+
+  }, [localState]);
 
   return (
-    <BasicModal open={showModal} title={'Edit Response Parameters'} onClose={() => setShowModal(false)}>
+    <BasicModal 
+      open={localState.showModal} 
+      onClose={() => setStateMany(setLocalState, {showModal: false})} 
+      title={ localState.isModalEdit ? 'Edit Response Parameters' : 'Add Response Parameters'}
+    >
       {/* body */}
-      <div className={styles.successWrapper}>
-        {/* checkbox - editable */}
-        {/* {editableCheck} */}
-
-        {/* Response souorce path */}
-        {/* {sourceSelector} */}
-
-        {/* value path */}
-        {/* {pathEditor} */}
+      <div className={styles.modalBody}>
+        <FormControlContainer>
+          <MUI.FormControl fullWidth>
+              <div className={styles.borderLabel}>{t('workflow.setting.modal.response.path')}</div>
+              <MUI.TextField
+                size={"medium"}
+                InputProps={{ classes: { input: styles.textWrapper } }}
+                // label={t('workflow.setting.modal.response.sourcesLabel')}
+                id="outlined-size-normal"
+                defaultValue={localState.valuePath}
+                onChange={e => onValuePathChange(e.target.value) }
+              />
+          </MUI.FormControl>
+        </FormControlContainer>
       </div>
-
       {/* button group */}
       <div className={styles.btnWrapper}>
         <div className={styles.btnOkWrapper}>
-          <Button variant="outlined" classes={{ root: styles.btnOk }} onClick={onOk} text="OK" />
+          <Button variant="contained" classes={{ root: styles.btnOk }} onClick={onOk} text="OK" />
         </div>
-        <div className={styles.btnCancelWrapper}>
-          <Button variant="outlined" classes={{ root: styles.btnCancel }} onClick={(e: any) => setShowModal(false)} text="Cancel" />
+        <div className={styles.cancelOkWrapper}>
+          <Button variant="outlined" classes={{ root: styles.btnCancel }} onClick={(e: any) => setStateMany(setLocalState, {showModal: false})} text="Cancel" />
         </div>
       </div>
     </BasicModal>

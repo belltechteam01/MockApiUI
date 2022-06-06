@@ -36,7 +36,7 @@ export const Modal = (props: IModalProps) => {
   const workflow = CWorkflow.getInstance();
   const [localState, setLocalState] = React.useState<ILocalState>({
     selectedSrcId: workflow.getParam(data.selectedRequestId)?.fieldSourceId,
-    valuePath: workflow.getParam(data.selectedRequestId)?.getSrcValuePath(),
+    valuePath: workflow.getParam(data.selectedRequestId)?.getFieldSourceValuePath(),
     ...data
   });
 
@@ -110,7 +110,7 @@ export const Modal = (props: IModalProps) => {
       <div className={styles.modalBody}>
         <FormControlContainer>
           <MUI.FormControl fullWidth variant="standard">
-            <div className={styles.borderLabel}>{t('workflow.setting.modal.request. ')}</div>
+            <div className={styles.borderLabel}>{t('workflow.setting.modal.request.path')}</div>
             <ReactSelect
               id="api-selector"
               aria-describedby="action-helper-text"

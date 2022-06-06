@@ -229,7 +229,7 @@ const getResponseList = (
     responses_ui = [];
 
   const d = { showModal: true, modalType: ModalType.Response, isModalEdit: false};
-
+  // setStateMany(setLocalState, d);
   ret = (
     <div className={styles.responseWrapper}>
       <FormControlContainer>
@@ -237,7 +237,7 @@ const getResponseList = (
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableHead>
-              <TableRow onClick={() => setStateMany(setLocalState, d)}>
+              <TableRow onDoubleClick={() => setStateMany(setLocalState, d)}>
                 <TableCell>Field Name</TableCell>
                 <TableCell>Json Path/Constant</TableCell>
               </TableRow>
@@ -245,8 +245,8 @@ const getResponseList = (
             <TableBody>
               {responses_ui.map((item) => (
                 <TableRow
-                  key={item.id}
-                  onClick={() => setStateMany(setLocalState, {...d, selectedResponseId: item.id, isModalEdit: false })}
+                  key={item.key}
+                  onDoubleClick={() => setStateMany(setLocalState, {...d, selectedResponseId: item.key, isModalEdit: false })}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
@@ -255,7 +255,7 @@ const getResponseList = (
                     {item.fieldName}
                   </TableCell>
                   <TableCell classes={{ root: styles.inputCell }}>
-                    <p>{item.fieldSourceValuePath}</p>
+                    <p>{item.srcPath}</p>
                   </TableCell>
                 </TableRow>
               ))}
@@ -353,6 +353,11 @@ const SettingPane = (props: ISettingPaneProps) => {
     setStateMany(setLocalState, {selectedApiId: apiId});
   }
 
+  const onTestData = () => {
+    const d = { showModal: true, modalType: ModalType.Response, isModalEdit: false};
+    // setStateMany(setLocalState, d);
+  }
+
   const apiNameEditor = getApiNameEditor(stepName, workData, t);
   const apiSelector = getApiSelector(apiList, localState, onSelect, t);
 
@@ -376,6 +381,7 @@ const SettingPane = (props: ISettingPaneProps) => {
         {/* button group */}
         <div className={styles.btnWrapper}>
           <Button variant="contained" text="Save" classes={{ root: styles.btnSave }} disabled={false} onClick={() => onSave()} />
+          <Button variant="contained" text="Test" classes={{ root: styles.btnSave }} disabled={false} onClick={() => onTestData()} />
           <Button text="Cancel" variant="outlined" classes={{ root: styles.btnCancel }} onClick={onDrawerClose} />
         </div>
       </Container>

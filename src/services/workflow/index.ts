@@ -14,7 +14,7 @@ import { request } from "http";
 import { EventEmitter } from "eventemitter3";
 import { ModalType } from "components/Modals";
 import { CParam, ParamSrcType } from "./workmodel/params/param";
-import { CParams } from "./workmodel/params";
+import { CParams, CResponse } from "./workmodel/params";
 import { CRequest } from "./workmodel/params/request";
 
 export enum STATE_WORKFLOW {
@@ -352,6 +352,17 @@ export class CWorkflow extends EventEmitter {
 
                 this.lstParam.setParam( param.id, param);
                 workNode.setRequest(dataElement.attributeName, param);
+            }
+
+            const responseElements = apiDetail.dataElementList;
+            // console.log("[LOG] select api", dataElements);
+            for(let dataElement of responseElements) {
+                
+                const param = new CResponse(dataElement.attributeName, dataElement.displaySequence, "");
+                param.setNodeId(nodeId);
+
+                this.lstParam.setParam( param.id, param);
+                workNode.setResponse(dataElement.attributeName, param);
             }
 
             bRet = true;

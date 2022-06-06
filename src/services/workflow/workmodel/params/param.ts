@@ -109,8 +109,10 @@ export class CParam implements Types.IParam
 
     setSrcValuePath(valuePath: string): string[] {
 
-        if(valuePath.length > 0) {
-            let aryValuePath = valuePath.split(".");
+        const path = valuePath;
+
+        if(path && path.length > 0) {
+            let aryValuePath = path.split(".");
             if(this.verifyPath(aryValuePath)) {
                 this.fieldSourceValuePath = aryValuePath.join(".");
             }
@@ -125,7 +127,7 @@ export class CParam implements Types.IParam
 
         if(srcId && srcId != "")
             this.fieldSourceId = srcId;
-            
+
         return bRet;
     }
 

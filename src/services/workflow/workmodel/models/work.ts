@@ -118,4 +118,14 @@ export abstract class CWork implements IWork
 
         return this.api.requestMap.size > pre_size;
     }
+
+    public setResponse(id: string, param: CResponse): boolean {
+        let isNew: boolean = false;
+
+        const pre_size = this.api.responseMap.size;
+
+        this.api.responseMap.set(id, param);
+
+        return this.api.responseMap.size > pre_size;
+    }
 }
