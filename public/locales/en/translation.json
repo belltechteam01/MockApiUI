@@ -66,6 +66,9 @@
           "path": "Response path",
           "newable": "create new field",
           "valueLabel": "value"
+        },
+        "jsondata": {
+          "label": "Input JSON : "
         }
       }
     }

@@ -379,6 +379,10 @@ export class CWorkflow extends EventEmitter {
         return this.lstParam.getParam(id);
     }
 
+    public getNode(nodeId: string) {
+        return this.worklist.get(nodeId);
+    }
+
     //@deprecated
     private copyApiItem(src:Types.IApiItem, dest: Types.IApiDetail) {
         dest.apiId = src.apiId;

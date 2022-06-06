@@ -94,6 +94,17 @@ export class CWorkNode<T extends IWork>{
       return this.getInstance()?.name ?? "untitled";
     }
 
+    public getJsonData(): string {
+      return this.getInstance()?.api.jsonData ?? "";
+    }
+
+    public setJsonData(jsonData: string) {
+      if(this.getInstance()) {
+        console.log("[LOG] json data", jsonData);
+        this.getInstance().api.jsonData = jsonData;
+      }
+    }
+
     public getEdges(isSrc = false) : EdgeMap<Types.IEdge> {
       if(isSrc)
         return this.sources;

@@ -8,7 +8,8 @@ export interface IApi {
     apiId: string;
     apiName: string;
     requestMap: Map<string, CRequest>;
-    responseMap: Map<string, CResponse>
+    responseMap: Map<string, CResponse>;
+    jsonData: string;
 }
 
 export interface IWork {
@@ -61,6 +62,7 @@ export abstract class CWork implements IWork
             apiName: "",
             requestMap: new Map(),
             responseMap: new Map(),
+            jsonData: ""
         }
 
         this.isSelectedApi = false;

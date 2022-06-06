@@ -14,6 +14,7 @@ import { ModalType } from '../../Modals';
 import * as RequestModal from 'components/Modals/RequestModal';
 import * as ResponseModal from 'components/Modals/ResponseModal';
 import * as StatusCodeModal from 'components/Modals/StatusCodeModal';
+import * as TestDataModal from 'components/Modals/TestDataModal';
 import { CParam } from 'services/workflow/workmodel/params';
 import { ParamSrcType } from 'services/workflow/workmodel/params/param';
 
@@ -294,9 +295,18 @@ const getModal = (localState: ILocalState, data: any, onClose: Function): ReactN
           onClose={onClose} 
         />
       }
+      { localState.showModal && localState.modalType == ModalType.TestData && 
+        <TestDataModal.Modal
+          id="modal-4" 
+          type={localState.modalType}
+          data={localState} 
+          onClose={onClose} 
+        />
+      }
       {/* { localState.showModal && localState.modalType == ModalType.StatusCode && 
         <StatusCodeModal.Modal id="modal-3" attribId={localState.selectedApiId} data={data} onClose={onClose} />
       } */}
+
     </>
   );
   return ret;
@@ -354,8 +364,8 @@ const SettingPane = (props: ISettingPaneProps) => {
   }
 
   const onTestData = () => {
-    const d = { showModal: true, modalType: ModalType.Response, isModalEdit: false};
-    // setStateMany(setLocalState, d);
+    const d = { showModal: true, modalType: ModalType.TestData, isModalEdit: false};
+    setStateMany(setLocalState, d);
   }
 
   const apiNameEditor = getApiNameEditor(stepName, workData, t);
