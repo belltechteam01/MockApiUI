@@ -10,6 +10,7 @@ import { IModalProps } from '../index';
 import {setStateMany} from "utils";
 import * as SettingBar from "../../SettingBar/pane";
 import { height } from '@mui/system';
+import { ParamSrcType } from 'services/workflow/workmodel/params/param';
 
 interface ILocalState extends SettingBar.ILocalState{
   valuePath: string;
@@ -49,6 +50,10 @@ export const Modal = (props: IModalProps) => {
   let selectedSrc = {value:"", label:""};
 
   if(nodeList) {
+      
+    console.log("[LOG] nodeId", localState.nodeId);
+    console.log("[LOG] srcId", localState.selectedSrcId);
+
     nodeList_ui = nodeList.toArray().map(value => {      
       if(value.id == localState.selectedSrcId)
         selectedSrc = getSrcLabel(value.id == localState.nodeId, value.id, value.getName());
@@ -79,10 +84,19 @@ export const Modal = (props: IModalProps) => {
 
   //functions
   const onOk = () => {
-    
-    workflow.getParam(localState.selectedRequestId)?.setSrcValuePath(localState.valuePath);
-    workflow.getParam(localState.selectedRequestId)?.setFieldSourceId(selectedOption?.value);
-    
+    const param = workflow.getParam(localState.selectedRequestId);
+
+    if(param) {
+      param.setSrcValuePath(localState.valuePath);
+      param.setFieldSourceId(selectedOption?.value);
+
+      param.setFieldSrcType(
+        (localState.nodeId == selectedOption?.value) ? 
+        ParamSrcType.INPUTDATA:
+        ParamSrcType.API
+      );
+      setStateMany(setStateMany, {selectedSrcId: selectedOption?.value ?? ""})
+    }
     setStateMany( setLocalState, {showModal: false});
   };
 

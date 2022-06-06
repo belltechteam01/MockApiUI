@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { IJsonEditorProps } from "./JsonEditor.types";
 import { editor } from "monaco-editor";

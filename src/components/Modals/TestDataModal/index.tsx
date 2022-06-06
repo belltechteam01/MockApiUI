@@ -77,8 +77,7 @@ export const Modal = (props: IModalProps) => {
       {/* body */}
       <div className={styles.modalBody}>
         <FormControlContainer>
-          <MUI.FormControl fullWidth>
-              <div className={styles.borderLabel}>{t('workflow.setting.modal.jsondata.label')}</div>
+              {/* <div className={styles.borderLabel}>{t('workflow.setting.modal.jsondata.label')}</div> */}
               {/* <MUI.TextField
                 size={"medium"}
                 InputProps={{ classes: { input: styles.textWrapper } }}
@@ -88,14 +87,12 @@ export const Modal = (props: IModalProps) => {
                 onChange={e => onDataChange(e.target.value) }
               /> */}
 
-              <MUI.FormControl fullWidth variant="standard">
-                <JsonEditor
-                  height={30}
-                  defaultValue={localState.jsonData}
-                  onChange={(value, event) => onDataChange("data", value)}
-                />
-              </MUI.FormControl>
-          </MUI.FormControl>
+              <JsonEditor
+                height={50}
+                width="100%"
+                defaultValue={localState.jsonData}
+                onChange={(value, event) => onDataChange(value ?? "")}
+              />
         </FormControlContainer>
       </div>
       {/* button group */}

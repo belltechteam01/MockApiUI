@@ -131,6 +131,10 @@ export class CParam implements Types.IParam
         return bRet;
     }
 
+    setFieldSrcType(srcType: ParamSrcType) {
+        this.fieldSourceType = ParamSrcType[srcType];
+    }
+
     public getValueType(): ParamSrcType {
         return ParamSrcType[this.fieldSourceType];
         // return ParamSrcType.INPUTDATA;
