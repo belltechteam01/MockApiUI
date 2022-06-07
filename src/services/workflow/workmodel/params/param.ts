@@ -77,7 +77,7 @@ export class CParam implements Types.IParam
         return ret;
     }
 
-    getSrcValuePath(): string[] {
+    private getSrcValuePath(): string[] {
         let ret: Array<string>;
         
         if(this.fieldSourceValuePath.length > 0) {

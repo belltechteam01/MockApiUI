@@ -5,11 +5,10 @@ import { FormControlContainer, ReactSelect } from '../../../styled';
 import styles from './styles.module.scss';
 import Button from 'components/Based/Button';
 import { useTranslation } from 'react-i18next';
-import { CWorkflow, Workflow } from 'services/workflow';
+import { CWorkflow } from 'services/workflow';
 import { IModalProps } from '../index';
 import {setStateMany} from "utils";
 import * as SettingBar from "../../SettingBar/pane";
-import { height } from '@mui/system';
 import { ParamSrcType } from 'services/workflow/workmodel/params/param';
 
 interface ILocalState extends SettingBar.ILocalState{
@@ -77,7 +76,7 @@ export const Modal = (props: IModalProps) => {
     if(localState.selectedApiId) {
       setStateMany(setLocalState, {
         selectedSrcId: workflow.getParam(localState.selectedRequestId)?.fieldSourceId,
-        valuePath: workflow.getParam(localState.selectedRequestId)?.getSrcValuePath()
+        valuePath: workflow.getParam(localState.selectedRequestId)?.getFieldSourceValuePath()
       })
     }
   },[localState.selectedRequestId])

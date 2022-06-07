@@ -16,6 +16,7 @@ import { ModalType } from "components/Modals";
 import { CParam, ParamSrcType } from "./workmodel/params/param";
 import { CParams, CResponse } from "./workmodel/params";
 import { CRequest } from "./workmodel/params/request";
+import { CConnection } from "./edgemap/connection";
 
 export enum STATE_WORKFLOW {
     INIT,
@@ -49,7 +50,7 @@ export class CWorkflow extends EventEmitter {
     public changed: boolean = false;
 
     public worklist: WorkMap<WorkModel.Work>;
-    private edgeList: EdgeMap<Types.IEdge>;
+    private edgeList: EdgeMap<CConnection>;
 
     //workflow state
     private state: STATE_WORKFLOW;
@@ -75,7 +76,7 @@ export class CWorkflow extends EventEmitter {
         this.name = name ?? WorkflowSettings.WORKFLOW_NAME_DEFAULT;
         
         this.worklist = new WorkMap<WorkModel.Work>();
-        this.edgeList = new EdgeMap<Types.IEdge>();
+        this.edgeList = new EdgeMap<CConnection>();
 
         this.state = STATE_WORKFLOW.INIT;
         this.subState = SUBSTATE_INIT.INITIAL;
@@ -127,6 +128,21 @@ export class CWorkflow extends EventEmitter {
         // console.log("[LOG] onApiCallProc", this.subState);
     }
 
+    onConnect(source_id: string, dest_id: string) 
+    {
+        if(!source_id || source_id == "") return;
+        if(!dest_id || dest_id == "") return;
+
+        const src = this.getNode(source_id);
+        const dest = this.getNode(dest_id);
+
+        if(src && dest) {
+
+            let connection = new CConnection(src, dest);
+            this.edgeList.add(connection);
+        }
+    }
+
     add(model: WorkModel.Work, type?: ENM_FLOWTYPE) {
         let _type = type;
         if(!_type) {
@@ -155,19 +171,6 @@ export class CWorkflow extends EventEmitter {
     
     excute() {
         console.log("workflow excute");
-    }
-
-    //get edges
-    getEdges(): EdgeMap<Types.IEdge>  {
-        this.edgeList.removeAll();
-        for(var value of this.worklist.getMap().values()) {
-
-            const work: WorkNode<CWork> = value;
-            const edges = work.getEdgeAll();
-            this.edgeList.appendMany( edges );
-
-        }
-        return this.edgeList;
     }
 
     //logic controller functions

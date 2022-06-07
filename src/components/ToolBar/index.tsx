@@ -5,13 +5,22 @@ import Button from '../Based/Button';
 import styles from './styles.module.scss';
 import * as Types from '../../services/workflow/types';
 
-const ToolBar = () => {
+interface IToolbarProps {
+  onRun?: Function,
+  onValidate?: Function
+}
+
+const ToolBar = (props: any) => {
+
+  const {
+    onRun,
+    onValidate
+  } = props;
+
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>, data: string) => {
     event.dataTransfer.setData('reactflow/type', data);
     event.dataTransfer.effectAllowed = 'move';
   };
-
-  const handleRun = () => {};
 
   return (
     <aside>
@@ -81,7 +90,10 @@ const ToolBar = () => {
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => handleDragStart(event, type)}
         />
       </div>
-      <div className={styles.controlPanel}>{/* <Button text="Run" onClick={handleRun} /> */}</div>
+      <div className={styles.controlPanel}>
+        <Button text="Run" onClick={onRun} />
+        <Button text="Validate" onClick={onValidate} />
+      </div>
     </aside>
   );
 };

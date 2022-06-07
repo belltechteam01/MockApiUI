@@ -24,6 +24,10 @@ export class CEdgeMap<T extends {id:string}> {
     return this._hashmap.size;
   }
 
+  add(val: T): T {
+    return this.append(val);
+  }
+
   appendMany(values: T[]) {
     values.forEach((value) => {
       this.append(value);

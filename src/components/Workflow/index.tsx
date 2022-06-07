@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
-import ReactFlow from 'react-flow-renderer';
+import ReactFlow, { Edge } from 'react-flow-renderer';
 import * as ReactflowRenderer from 'react-flow-renderer';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
@@ -38,10 +38,11 @@ const getReactNodeProps = (id: string, pos: ReactflowRenderer.XYPosition, data: 
   };
 };
 
-var workflow: CWorkflow = new CWorkflow();
+new CWorkflow();
 
 const Workflow = (props: any) => {
 
+  const workflow = CWorkflow.getInstance();
   //react flow usage  
 
   //reactflow state wrapper
@@ -119,13 +120,29 @@ const Workflow = (props: any) => {
     // params.markerEnd.type = MarkerType.ArrowClosed;
     
     setEdges((eds) => {
-
-      return ReactflowRenderer.addEdge(params, eds);
+      const edge = ReactflowRenderer.addEdge(params, eds);
+      if(edge.length > 0) {
+        // workflow.onConnect(edge.id, edge.source, params.target);
+        console.log("[LOG] onConnect - edge", eds);
+        console.log("[LOG] onConnect - edge", edge[edge.length-1].id);
+      }
+      return edge;
     });
   };
 
-  const onSave = () => {
+  const onEdgeClick = (event: React.MouseEvent, edge: Edge) => 
+  {
+    console.log("[LOG] clicked edge - event", event);
+    console.log("[LOG] clicked edge - edge", edge);
 
+  }
+
+  const onEdgeDelete = (edges: Edge[]) => 
+  {
+    console.log("[LOG] onEdgeDelete", edges);
+  }
+
+  const onSave = () => {
     setShowPropertyInspector(false);
   };
 
@@ -137,27 +154,41 @@ const Workflow = (props: any) => {
     workflow.getFlowData();
     workflow.getApiListData("1", true);
     
-    // workflow.getApiDetailData("1","c57a4706-bf0d-4a64-84ca-6374e6439416", true);
+    
   }
+
+  const onRun = () => {
+    console.log("[LOG] workflow run", workflow);
+  };
+
+  const onValidate = () => {
+    console.log("[LOG] workflow run", workflow);
+  };
 
   return (
     <div className={styles.root}>
       <ReactflowRenderer.ReactFlowProvider>
-        {showToolbar && <ToolBar />}
+        {showToolbar && <ToolBar onRun={onRun} onValidate={onValidate} />}
         <div className={styles.reactflowWrapper} ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
             nodeTypes={nodeTypes}
             className={styles.workflow}
+
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
-            onNodesChange={onNodesChange}
+
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onEdgeClick={onEdgeClick}
+            onEdgesDelete={onEdgeDelete}
+            
             onNodeClick={onNodeClick}
             selectNodesOnDrag={false}
+            onNodesChange={onNodesChange}
+            
             defaultZoom={1}
             attributionPosition="bottom-left"
           >
