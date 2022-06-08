@@ -14,9 +14,9 @@ export class WorkflowSettings
     static readonly NODE_OUTPUT_MAX = 2;
     static readonly NODE_OUTPUT_MIN = 0;
 
-    static readonly NODE_COLOR_DEFAULT = 'rgba(1, 1, 1)';
+    static readonly NODE_COLOR_DEFAULT = 'rgba(1, 1, 1, 1)';
     static readonly NODE_BACKGROUND_COLOR_DEFAULT = 'rgba(255, 255, 255, 1)';
-    static readonly NODE_OUTLINE_COLOR_DEFAULT = 'rgba(50, 50, 50)';
+    static readonly NODE_OUTLINE_COLOR_DEFAULT = '#606060';
     static readonly NODE_OUTLINE_WIDTH_DEFAULT = '3';
 
     static readonly NODE_WIDTH_DEFAULT = 150;
@@ -38,4 +38,7 @@ export class WorkflowSettings
 
     static readonly PANEL_SCALE = 1.0;
     static readonly FLOW_PATH_DELIMITER = '.';
+
+    static readonly EDGE_STROKE_COLOR = '#606060';
+    static readonly EDGE_STROKE_WIDTH = 2;
 };

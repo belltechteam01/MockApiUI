@@ -12,8 +12,9 @@ export class CConnection implements Types.IEdge{
   private srcNode: CWorkNode<CWork>;
   private destNode: CWorkNode<CWork>;
 
-  constructor(src: CWorkNode<CWork>, dest: CWorkNode<CWork>) {
-    this.id = uuidv4();
+  constructor(src: CWorkNode<CWork>, dest: CWorkNode<CWork>, id: string="") {
+    this.id = (id=="") ? uuidv4() : id;
+
     this.srcNode = src;
     this.destNode = dest;
   }

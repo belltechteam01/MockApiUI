@@ -108,23 +108,19 @@ const Workflow = (props: any) => {
     // console.log('params===>', params);
     // params.label = 'test-edge';
     params.className = 'normal-edge';
-    params.style = { stroke: 'gray', strokeWidth: 3 };
+    params.style = { stroke: WorkflowSettings.EDGE_STROKE_COLOR, strokeWidth: WorkflowSettings.EDGE_STROKE_WIDTH };
     params.markerEnd = {
       type: ReactflowRenderer.MarkerType.ArrowClosed,
-      color: 'gray'
+      color: WorkflowSettings.EDGE_STROKE_COLOR,
     };
-    params.data = {
-      lineWidth: 1,
-      lineColor: '#de6543'
-    };
-    // params.markerEnd.type = MarkerType.ArrowClosed;
     
     setEdges((eds) => {
       const edge = ReactflowRenderer.addEdge(params, eds);
       if(edge.length > 0) {
-        // workflow.onConnect(edge.id, edge.source, params.target);
-        console.log("[LOG] onConnect - edge", eds);
-        console.log("[LOG] onConnect - edge", edge[edge.length-1].id);
+        const new_edge = edge[edge.length-1];
+        console.log("[LOG] onConnect - edge", edge);
+        console.log("[LOG] onConnect - edge", new_edge);
+        workflow.onConnect(new_edge.id, new_edge.source, new_edge.target);
       }
       return edge;
     });
@@ -137,9 +133,10 @@ const Workflow = (props: any) => {
 
   }
 
-  const onEdgeDelete = (edges: Edge[]) => 
+  const onEdgeDelete = (_edges: Edge[]) => 
   {
-    console.log("[LOG] onEdgeDelete", edges);
+    console.log("[LOG] onEdge delete", _edges);
+    // setEdges(_edges);
   }
 
   const onSave = () => {
@@ -153,17 +150,20 @@ const Workflow = (props: any) => {
   const onFileOpen = () => {
     workflow.getFlowData();
     workflow.getApiListData("1", true);
-    
-    
   }
 
   const onRun = () => {
     console.log("[LOG] workflow run", workflow);
+    console.log("[LOG] workflow edges", edges);
   };
 
   const onValidate = () => {
     console.log("[LOG] workflow run", workflow);
   };
+
+  useCallback(() => {
+    console.log("[LOG] use callback ", edges);
+  },[edges])
 
   return (
     <div className={styles.root}>

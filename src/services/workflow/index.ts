@@ -128,7 +128,7 @@ export class CWorkflow extends EventEmitter {
         // console.log("[LOG] onApiCallProc", this.subState);
     }
 
-    onConnect(source_id: string, dest_id: string) 
+    onConnect(id:string, source_id: string, dest_id: string) 
     {
         if(!source_id || source_id == "") return;
         if(!dest_id || dest_id == "") return;
@@ -138,7 +138,7 @@ export class CWorkflow extends EventEmitter {
 
         if(src && dest) {
 
-            let connection = new CConnection(src, dest);
+            let connection = new CConnection(src, dest, id);
             this.edgeList.add(connection);
         }
     }
