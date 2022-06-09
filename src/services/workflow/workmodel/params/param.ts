@@ -25,6 +25,7 @@ export class CParam implements Types.IParam
     fieldSourceId: string;
     fieldSourceValuePath: string;
     nodeId: string;
+    private static paramsMap: Map<string, CParam>;
 
     constructor(
         fieldName: string, 
@@ -44,6 +45,25 @@ export class CParam implements Types.IParam
         this.fieldSourceType = fieldSrcType;
         this.fieldSourceValue = fieldSrcValue;
         this.fieldSourceValuePath = fieldSrcValuePath;
+
+        if(!CParam.paramsMap)
+            CParam.paramsMap = new Map();
+    }
+
+    static getAll(): Map<string, CParam>
+    {
+        return CParam.paramsMap;
+    }
+
+    static getParam(id: string): CParam | undefined
+    {
+        return CParam.paramsMap.get(id);
+    }
+
+    static setParam(id: string, param: CParam): CParam | undefined
+    {
+        CParam.paramsMap.set(id, param);
+        return CParam.getParam(id);
     }
 
     getParamData() : Types.IParam

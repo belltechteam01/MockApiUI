@@ -1,6 +1,7 @@
 import React, { MouseEventHandler, ReactNode, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Container, Drawer, FormControl, FormHelperText, Grid, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Typography } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { FormControlContainer, Input, Label, ReactSelect, TextArea } from '../../../styled';
 import BasicModal from '../../Based/BasicModal';
 import Button from '../../Based/Button';
@@ -17,6 +18,7 @@ import * as StatusCodeModal from 'components/Modals/StatusCodeModal';
 import * as TestDataModal from 'components/Modals/TestDataModal';
 import { CParam } from 'services/workflow/workmodel/params';
 import { ParamSrcType } from 'services/workflow/workmodel/params/param';
+import { MenuItemUnstyled } from '@mui/base';
 
 export interface ISettingPaneProps extends ISettingPaneEvent {
   nodeId: string;
@@ -204,6 +206,11 @@ const getReqeuestList = (
   return ret;
 };
 
+const onResponseDelete = (id: string) => {
+  console.log("[LOG] item click", id);
+
+}
+
 const getResponseList = (
   work: CWork | undefined,
   localState:ILocalState,
@@ -247,7 +254,7 @@ const getResponseList = (
               {responses_ui.map((item) => (
                 <TableRow
                   key={item.key}
-                  onDoubleClick={() => setStateMany(setLocalState, {...d, selectedResponseId: item.key, isModalEdit: false })}
+                  onDoubleClick={() => setStateMany(setLocalState, {...d, selectedResponseId: item.key, isModalEdit: true })}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
@@ -255,8 +262,16 @@ const getResponseList = (
                   <TableCell component="th" scope="row">
                     {item.fieldName}
                   </TableCell>
-                  <TableCell classes={{ root: styles.inputCell }}>
-                    <p>{item.srcPath}</p>
+                  <TableCell 
+                    classes={{ root: styles.inputCell }}
+                  >
+                    {
+                      // item.srcPath && item.srcPath != "" &&
+                      <div className={styles.responseRowContent}>
+                        <div>{item.srcPath}</div>
+                        <div className={styles.actionBtn} onClick={(e) => onResponseDelete(item.key)}><span>X</span></div>
+                      </div>
+                    }
                   </TableCell>
                 </TableRow>
               ))}

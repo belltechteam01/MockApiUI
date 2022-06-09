@@ -63,8 +63,8 @@
           "title": "Select Request Source",
           "sourcesLabel": "Responses",
           "newfieldPlaceholder": "New source",
-          "path": "Response path",
-          "newable": "create new field",
+          "path": "Response path : ",
+          "newable": "create new field : ",
           "valueLabel": "value"
         },
         "jsondata": {

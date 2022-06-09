@@ -86,6 +86,21 @@ export const Modal = (props: IModalProps) => {
     >
       {/* body */}
       <div className={styles.modalBody}>
+        {
+          !localState.isModalEdit && 
+          <FormControlContainer>
+            <MUI.FormControl fullWidth>
+                <div className={styles.borderLabel}>{t('workflow.setting.modal.response.newable')}</div>
+                <MUI.TextField
+                  size={"medium"}
+                  InputProps={{ classes: { input: styles.textWrapper } }}
+                  id="outlined-size-normal"
+                  defaultValue={""}
+                  onChange={e => onValuePathChange(e.target.value) }
+                />
+            </MUI.FormControl>
+          </FormControlContainer>
+        }
         <FormControlContainer>
           <MUI.FormControl fullWidth>
               <div className={styles.borderLabel}>{t('workflow.setting.modal.response.path')}</div>
@@ -94,7 +109,7 @@ export const Modal = (props: IModalProps) => {
                 InputProps={{ classes: { input: styles.textWrapper } }}
                 // label={t('workflow.setting.modal.response.sourcesLabel')}
                 id="outlined-size-normal"
-                defaultValue={localState.valuePath}
+                defaultValue={(localState.isModalEdit) ? localState.valuePath: ""}
                 onChange={e => onValuePathChange(e.target.value) }
               />
           </MUI.FormControl>

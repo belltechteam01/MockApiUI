@@ -23,10 +23,10 @@
   display: flex;
   flex-direction: column;
   padding: 3px;
-  & .smallText {
-    @include caption2;
-    align-self: flex-end;
-  }
+    & .smallText {
+      @include caption2;
+      align-self: flex-end;
+    }
 }
 
 .responseWrapper {
@@ -41,6 +41,26 @@
 
   & .resInputWrapper {
     margin-top: 50px;
+  }
+}
+
+.actionBtn {
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+}
+
+.responseRowContent {
+  // position: relative;
+  display: flex;
+  width: 100%;
+  height: 20px;
+  align-items: center;
+  justify-content: space-between;
+  &:hover {
+    & .actionBtn {
+      opacity: 1;
+    }
   }
 }
 
