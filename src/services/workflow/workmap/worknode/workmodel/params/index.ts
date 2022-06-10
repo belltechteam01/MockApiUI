@@ -94,5 +94,6 @@ export class CParams
 export {
     CParam,
     CRequest,
-    CResponse
-};
+    CResponse,
+    ParamSrcType
+}

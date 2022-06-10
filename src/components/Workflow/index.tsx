@@ -76,7 +76,7 @@ const Workflow = (props: any) => {
       // console.log("[LOG] workflow state", workflow);
       //[LOGIC] place node
       if(workflow) {
-        const worknode = workflow.placeNode(droppedNode.type);
+        const worknode = workflow.createNode(droppedNode.type);
         worknode.setPosition(posDropped.x, posDropped.y);
 
         setNodes((nodes) => nodes.concat(getReactNodeProps(worknode.id, posInstance, workflow)));
@@ -93,7 +93,7 @@ const Workflow = (props: any) => {
   const onNodeClick = useCallback((event: React.MouseEvent, node: ReactflowRenderer.Node) => {
 
     if(workflow) {
-      const workNode = workflow.worklist.get(node.id);
+      const workNode = workflow.workmap.get(node.id);
 
       if( workflow.isState(STATE_WORKFLOW.EDIT) && workNode) {
         setShowPropertyInspector(true);
@@ -148,8 +148,8 @@ const Workflow = (props: any) => {
   };
 
   const onFileOpen = () => {
-    workflow.getFlowData();
-    workflow.getApiListData("1", true);
+    // workflow.getFlowData();
+    // workflow.getApiListData("1", true);
   }
 
   const onRun = () => {

@@ -1,21 +1,17 @@
-import { CWorkMap as WorkMap} from "./workmap";
-import { CWorkNode, CWorkNode as WorkNode, ENM_FLOW_STATE} from "./workmap/worknode";
-import { CEdgeMap as EdgeMap } from "./edgemap";
-import { ENM_FLOWTYPE } from "./workmap/worknode"
-
-import {WorkflowSettings} from "./settings";
-import * as WorkModel from "./workmodel";
-import * as Util from "./utils";
-import * as Types from "./types";
-import { CWork } from "./workmodel/models/work";
-import {WorkflowSevice} from "services/api";
 import { v4 as uuidv4 } from 'uuid';
-import { request } from "http";
+
+import {WorkflowSevice} from "services/api";
+import {WorkflowSettings as Setting} from "./settings";
+import * as Util from "./utils";
+import * as Type from "./types";
+
+import { CWorkMap, CWorkNode, ENM_FLOWTYPE, ENM_FLOW_STATE } from "./workmap";
+import { CEdgeMap } from "./edgemap";
+import * as WorkModel from "./workmap/worknode/workmodel";
+import {ParamSrcType} from "./workmap/worknode/workmodel";
+
 import { EventEmitter } from "eventemitter3";
 import { ModalType } from "components/Modals";
-import { CParam, ParamSrcType } from "./workmodel/params/param";
-import { CParams, CResponse } from "./workmodel/params";
-import { CRequest } from "./workmodel/params/request";
 import { CConnection } from "./edgemap/connection";
 
 export enum STATE_WORKFLOW {
@@ -49,21 +45,21 @@ export class CWorkflow extends EventEmitter {
     public type: string = "Untitled";
     public changed: boolean = false;
 
-    public worklist: WorkMap<WorkModel.Work>;
-    private edgeList: EdgeMap<CConnection>;
+    public workmap: CWorkMap<WorkModel.CWork>;
 
     //workflow state
     private state: STATE_WORKFLOW;
     private subState: number;
 
     //cached workflowData
-    private flowData: Types.IFlow;
-    //cached apiList
-    private apiListData: Types.IApiList;
-    //cached apiDetail
-    private apiDetailData: Types.IApiItem;
+    // private flowData: Type.IFlow;
 
-    private lstParam: CParams;
+    //cached apiList
+    private apiListData: Type.IApiList;
+
+    //cached apiDetail
+    // private apiDetailData: Type.IApiItem;
+    // private lstParam: WorkModel.CParam;
 
     private static _instance: CWorkflow;
 
@@ -72,18 +68,16 @@ export class CWorkflow extends EventEmitter {
         console.log("[WARN] created new workflow instance");
         super();
 
-        this.id = WorkflowSettings.WORKFLOW_ID_DEFAULT;
-        this.name = name ?? WorkflowSettings.WORKFLOW_NAME_DEFAULT;
+        this.id = Setting.WORKFLOW_ID_DEFAULT;
+        this.name = name ?? Setting.WORKFLOW_NAME_DEFAULT;
         
-        this.worklist = new WorkMap<WorkModel.Work>();
-        this.edgeList = new EdgeMap<CConnection>();
+        this.workmap = new CWorkMap<WorkModel.CWork>();
 
         this.state = STATE_WORKFLOW.INIT;
         this.subState = SUBSTATE_INIT.INITIAL;
         
-        this.lstParam = new CParams();
-
         CWorkflow._instance = this;
+
         this.addListener(WxEvent[WxEvent.TEST], this.onTest);
         this.addListener(WxEvent[WxEvent.WARN], this.onWarn);
         this.addListener(WxEvent[WxEvent.APICALL], this.onApiCallProc);
@@ -91,16 +85,17 @@ export class CWorkflow extends EventEmitter {
 
     public static getInstance(): CWorkflow {
         if(!this._instance) {
-            // console.log("[ERR] created new workflow while getting instance");
             this._instance = new CWorkflow();
         }
         return this._instance;
     }
 
+    //@ event listener
     private onTest() {
         // console.log("[LOG] onTest call listen", this);
     }
 
+    //@ event listener
     private onWarn(code: EvtCode) {
         switch(code) {
             case EvtCode.EVT_SETTING_FAILED_OPEN:
@@ -109,6 +104,7 @@ export class CWorkflow extends EventEmitter {
         }
     }
 
+    //@ event listener
     private onApiCallProc(code: EvtCode) {
 
         switch(code) {
@@ -127,7 +123,8 @@ export class CWorkflow extends EventEmitter {
         }
         // console.log("[LOG] onApiCallProc", this.subState);
     }
-
+    
+    //@ event listener
     onConnect(id:string, source_id: string, dest_id: string) 
     {
         if(!source_id || source_id == "") return;
@@ -137,16 +134,15 @@ export class CWorkflow extends EventEmitter {
         const dest = this.getNode(dest_id);
 
         if(src && dest) {
-
             let connection = new CConnection(src, dest, id);
-            this.edgeList.add(connection);
         }
     }
 
-    add(model: WorkModel.Work, type?: ENM_FLOWTYPE) {
+    //@ function - add workModel
+    private addModel(model: WorkModel.CWork, type?: ENM_FLOWTYPE) {
         let _type = type;
         if(!_type) {
-            WorkflowSettings.NODE_TYPE_DEFAULT;
+            Setting.NODE_TYPE_DEFAULT;
             switch(model.constructor.name) {
                 case "CWorkAction": { _type = ENM_FLOWTYPE.I1_O0; break; }
                 case "CWorkCallApi": { _type = ENM_FLOWTYPE.I0_O2; break; }
@@ -160,89 +156,79 @@ export class CWorkflow extends EventEmitter {
             }
         }
         
-        this.worklist.append(model, _type);
-    }
-
-    moveTo(id: string) {
-        // console.log("workflow moveto");
-        // const bMoved = this.worklist.moveToRoot();
-        // console.log(JSON.stringify(this.worklist.toArray))
-    }
-    
-    excute() {
-        console.log("workflow excute");
+        this.workmap.append(model, _type);
     }
 
     //logic controller functions
-    placeNode(type: Types.FlowCatagory): WorkModel.Work {
+    createNode(type: Type.FlowCatagory): WorkModel.CWork {
 
-        let newWork: WorkModel.Work | null = null;
+        let newWork: WorkModel.CWork | null = null;
         switch(type) {
 
-            case Types.FlowCatagory.API:
-                newWork = new WorkModel.CallApi("untitled");
+            case Type.FlowCatagory.API:
+                newWork = new WorkModel.CWorkCallApi("untitled");
             break;
-            case Types.FlowCatagory.ACTION:
-                newWork = new WorkModel.Action("untitled");
+            case Type.FlowCatagory.ACTION:
+                newWork = new WorkModel.CWorkAction("untitled");
             break;
-            case Types.FlowCatagory.RULE:
-                newWork = new WorkModel.CallRule("untitled");
+            case Type.FlowCatagory.RULE:
+                newWork = new WorkModel.CWorkCallRule("untitled");
             break;
-            case Types.FlowCatagory.DELAY:
-                newWork = new WorkModel.Wait("untitled");
+            case Type.FlowCatagory.DELAY:
+                newWork = new WorkModel.CWorkWait("untitled");
             break;
-            case Types.FlowCatagory.CHECK:
-                newWork = new WorkModel.Check("untitled");
+            case Type.FlowCatagory.CHECK:
+                newWork = new WorkModel.CWorkCheck("untitled");
             break;
-            case Types.FlowCatagory.MERGE:
-                newWork = new WorkModel.Merge("untitled");
+            case Type.FlowCatagory.MERGE:
+                newWork = new WorkModel.CWorkMerge("untitled");
             break;
-            case Types.FlowCatagory.SPLIT:
-                newWork = new WorkModel.Split("untitled");
+            case Type.FlowCatagory.SPLIT:
+                newWork = new WorkModel.CWorkSplit("untitled");
             break;
-            case Types.FlowCatagory.STOP:
-                newWork = new WorkModel.Stop("untitled");
+            case Type.FlowCatagory.STOP:
+                newWork = new WorkModel.CWorkStop("untitled");
             break;
             
         }
         
         if(!newWork) {
-            newWork = new WorkModel.Start("untitled");
+            newWork = new WorkModel.CWorkStart("untitled");
         }
 
-        this.add(newWork);
+        this.addModel(newWork);
 
-        const workNode = this.worklist.get(newWork.id);
+        const workNode = this.workmap.get(newWork.id);
         workNode?.gotoState(ENM_FLOW_STATE.INITIALIZING);
 
         return newWork;
     }
 
-    public getFlowData(): Types.IFlow {
+//     public getFlowData(): Type.IFlow {
         
-        if(this.flowData) return this.flowData;
+// //         if(this.flowData) return this.flowData;
 
-//        console.log("[CHECK] read flowData from server");
-        WorkflowSevice.getFlowData().then((r: any) => {
+// // //        console.log("[CHECK] read flowData from server");
+// //         WorkflowSevice.getFlowData().then((r: any) => {
             
-            // console.log("[LOG] workflow response", r);
-            const flowData = r as Types.IFlow;
-            this.flowData = flowData;
-            this.parseFlowData();
+// //             // console.log("[LOG] workflow response", r);
+// //             const flowData = r as Type.IFlow;
+// //             this.flowData = flowData;
+// //             this.parseFlowData();
 
-            this.emit(WxEvent[WxEvent.APICALL], EvtCode.EVT_RECEIVE_RESPONSE_FLOWDATA);
-        });
+// //             this.emit(WxEvent[WxEvent.APICALL], EvtCode.EVT_RECEIVE_RESPONSE_FLOWDATA);
+// //         });
         
-        return this.flowData;
-    }
+// //         return this.flowData;
+//     }
 
-    public getApiListData(companyId: string, isUpdate: boolean = false): Types.IApiList {
+    private getApiListData(companyId: string, isUpdate: boolean = false): Type.IApiList {
 
         if(isUpdate) {
             WorkflowSevice.getAll(companyId).then((r: any) => {
                 // console.log("[LOG] apilist response", r);
                
-                this.apiListData = r as Types.IApiList;
+                this.apiListData = r as Type.IApiList;
 
                 if(this.apiListData.Items) {
 
@@ -258,7 +244,7 @@ export class CWorkflow extends EventEmitter {
                             })
                         })
                         
-                        item.dataElements = new Map<string, Types.IDataElement>();
+                        item.dataElements = new Map<string, Type.IDataElement>();
                         item.dataElementList = [];
                         elements.forEach((value, key) => {
                             item.dataElements.set(key, value);
@@ -274,33 +260,6 @@ export class CWorkflow extends EventEmitter {
         return this.apiListData;
     }
 
-    public getApiDetailData(companyId: string, apiId: string, isUpdate: boolean = false): Types.IApiItem {
-        if(isUpdate) {
-            WorkflowSevice.get(companyId, apiId).then((r: any) => {
-                const apiDetail = r as Types.IApiItem;
-                
-                let elements = new Map();
-
-                apiDetail.dataElements.forEach((value, key) => {
-                    Object.entries(value).map(([key, value]) => {
-                        elements.set(key, value);
-                    })
-                })
-                
-                apiDetail.dataElements = new Map<string, Types.IDataElement>();
-                apiDetail.dataElementList = [];
-                elements.forEach((value, key) => {
-                    apiDetail.dataElements.set(key, value);
-                    apiDetail.dataElementList.push(value);
-                })
-                this.apiDetailData = apiDetail;
-            });
-        }
-        
-        return this.apiDetailData;
-    }
-
-    //APIs
     public isState(state: STATE_WORKFLOW) {
         return this.state === state;
     }
@@ -324,13 +283,13 @@ export class CWorkflow extends EventEmitter {
     }
 
     //get elementsMap of apiList (request fields)
-    public getApiList(): Map<string, Types.IApiItem> {
+    public getApiList(): Map<string, Type.IApiItem> {
         
         const apiListData = this.getApiListData(this.companyId);
         return apiListData.itemsMap;
     }
 
-    public getApi(apiId: string): Types.IApiItem | undefined {
+    public getApi(apiId: string): Type.IApiItem | undefined {
         return this.getApiList().get(apiId);
     }
 
@@ -339,7 +298,7 @@ export class CWorkflow extends EventEmitter {
         let bRet = false;
         
         const apiDetail = this.getApi(apiId);
-        const workNode = this.worklist.get(nodeId)?.value;
+        const workNode = this.workmap.get(nodeId)?.value;
 
         if(apiDetail && workNode && workNode.api) {
             
@@ -350,10 +309,10 @@ export class CWorkflow extends EventEmitter {
             // console.log("[LOG] select api", dataElements);
             for(let dataElement of dataElements) {
                 
-                const param = new CRequest(dataElement.attributeName, dataElement.displaySequence, "", ParamSrcType[ParamSrcType.INPUTDATA]);
+                const param = new WorkModel.CRequest(dataElement.attributeName, dataElement.displaySequence, "", ParamSrcType[ParamSrcType.INPUTDATA]);
                 param.setNodeId(nodeId);
 
-                this.lstParam.setParam( param.id, param);
+                WorkModel.CParam.setParam( param.id, param);
                 workNode.setRequest(dataElement.attributeName, param);
             }
 
@@ -361,10 +320,10 @@ export class CWorkflow extends EventEmitter {
             // console.log("[LOG] select api", dataElements);
             for(let dataElement of responseElements) {
                 
-                const param = new CResponse(dataElement.attributeName, dataElement.displaySequence, "");
+                const param = new WorkModel.CResponse(dataElement.attributeName, dataElement.displaySequence, "");
                 param.setNodeId(nodeId);
 
-                this.lstParam.setParam( param.id, param);
+                WorkModel.CParam.setParam( param.id, param);
                 workNode.setResponse(dataElement.attributeName, param);
             }
 
@@ -373,366 +332,17 @@ export class CWorkflow extends EventEmitter {
         return bRet;
     }
 
-    public getParams(): CParams {
-        return this.lstParam;
+    public getParams(): Map<string, WorkModel.CParam> {
+        return WorkModel.CParam.getMap();
     }
 
-    public getParam(id: string | undefined): CParam | undefined {
+    public getParam(id: string | undefined): WorkModel.CParam | undefined {
         if(!id) return undefined;
-        return this.lstParam.getParam(id);
+        return WorkModel.CParam.getParam(id);
     }
 
     public getNode(nodeId: string) {
-        return this.worklist.get(nodeId);
-    }
-
-    //@deprecated
-    private copyApiItem(src:Types.IApiItem, dest: Types.IApiDetail) {
-        dest.apiId = src.apiId;
-        dest.apiName = src.apiName;
-
-        if(dest.requestMap)
-            dest.requestMap.clear();
-        else
-            dest.requestMap = new Map();
-        
-        for(let element of dest.requestMap.entries()) {
-            
-        }
-
-    }
-
-    private copyApiDetail(src: Types.IApiDetail, dest: Types.IApiDetail) {
-
-        // console.log("[LOG] copyApiDetail", dest);
-
-        dest.apiId = src.apiId;
-        dest.apiName = src.apiName;
-
-        dest.requestData = [...src.requestData];
-        dest.outputData = [...src.outputData];
-        dest.successHttpCodes = [...src.successHttpCodes];
-        dest.faliureHttpCodes = [...src.faliureHttpCodes];
-
-        dest.requestMap = new Map();
-        dest.responseMap = new Map();
-        dest.failCodeMap = new Map();
-        dest.successCodeMap = new Map();
-
-        for(const request of dest.requestData) {
-            request.id = uuidv4();
-            request.parent = dest;
-            request.type = Types.ItemType.REQUEST;
-            dest.requestMap.set(request.id, request);
-        }
-
-        for(const response of dest.outputData) {
-            response.id = uuidv4();
-            response.parent = dest;
-            response.type = Types.ItemType.RESPONSE;
-            dest.responseMap.set(response.id, response);
-        }
-
-        for(const successCode of dest.successHttpCodes) {
-
-            const code: Types.IStatusCode = {
-                id: uuidv4(),
-                code: successCode,
-                action: ""
-            };
-            dest.successCodeMap.set(code.id, code);
-        }
-
-        for(const failedCode of dest.faliureHttpCodes) {
-
-            const code: Types.IStatusCode = {
-                id: uuidv4(),
-                code: failedCode,
-                action: ""
-            };
-            dest.failCodeMap.set(code.id, code);
-        }
-    }
-
-    private parseFlowData():boolean {
-        let bRet: boolean = false; 
-
-        const flowData = this.getFlowData();
-        // console.log("[CHECK] parseFlowData", flowData);
-        if(flowData) {
-            //
-            this.id = flowData.flowId;
-            this.name = flowData.flowName;
-            flowData.flowStepMap = new Map();
-
-            for(const flowStep of flowData.flowSteps) {
-                
-                //create flowstep
-                flowStep.id = uuidv4();
-                flowData.flowStepMap.set(flowStep.id, flowStep);
-
-                if(flowStep.apiDetails) {
-
-                    const apiDetail = flowStep.apiDetails;
-                    apiDetail.id = uuidv4();
-                    apiDetail.parent = flowStep;
-                    apiDetail.requestMap = new Map();
-                    apiDetail.responseMap = new Map();
-                    apiDetail.failCodeMap = new Map();
-                    apiDetail.successCodeMap = new Map();
-
-                    for(const request of flowStep.apiDetails.requestData) {
-                        request.id = uuidv4();
-                        request.parent = apiDetail;
-                        request.type = Types.ItemType.REQUEST;
-                        apiDetail.requestMap.set(request.id, request);
-                    }
-
-                    for(const response of flowStep.apiDetails.outputData) {
-                        response.id = uuidv4();
-                        response.parent = apiDetail;
-                        response.type = Types.ItemType.RESPONSE;
-                        apiDetail.responseMap.set(response.id, response);
-                    }
-
-                    for(const successCode of flowStep.apiDetails.successHttpCodes) {
-
-                        const code: Types.IStatusCode = {
-                            id: uuidv4(),
-                            code: successCode,
-                            action: ""
-                        };
-                        apiDetail.successCodeMap.set(code.id, code);
-                    }
-
-                    for(const failedCode of flowStep.apiDetails.faliureHttpCodes) {
-
-                        const code: Types.IStatusCode = {
-                            id: uuidv4(),
-                            code: failedCode,
-                            action: ""
-                        };
-                        apiDetail.failCodeMap.set(code.id, code);
-                    }
-                    bRet = true;
-                }
-                if(flowStep.rulesDetails) {
-
-                    flowStep.rulesDetails.parent = flowStep;
-                    flowStep.rulesDetails.inputMap = new Map();
-                    flowStep.rulesDetails.outputMap = new Map();
-
-                    for(const rule_input of flowStep.rulesDetails.inputData) {
-                        rule_input.id = uuidv4();
-                        rule_input.parent = flowStep.rulesDetails;
-                        rule_input.type = Types.ItemType.RULE_INPUT;
-                        flowStep.rulesDetails.inputMap.set(rule_input.id, rule_input);
-                    }
-
-                    for(const rule_output of flowStep.rulesDetails.outputData) {
-                        rule_output.id = uuidv4();
-                        rule_output.parent = flowStep.rulesDetails;
-                        rule_output.type = Types.ItemType.RULE_OUTPUT;
-                        flowStep.rulesDetails.outputMap.set(rule_output.id, rule_output);
-                    }
-
-                }
-            }
-        }
-        return bRet;
-    }
-
-    private getFlowStep(flowStepId: string): Types.IFlowStep | null {
-      var ret: Types.IFlowStep | null = null;
-
-      const flowData = this.getFlowData();
-
-      const flowStep = Util.parseFlowData(flowData, Util.ENM_ParseType.FLOW_STEP, "2344", flowStepId ) as Types.IFlowStep;
-      if(flowStep) ret = flowStep;
-
-      return ret;
-    }
-
-    private getApiDetail(flowStepId: string, apiId: string): Types.IApiDetail | null {
-      var ret: Types.IApiDetail | null = null;
-      
-      const flowData = this.getFlowData();
-      
-      const apiDetail = Util.parseFlowData(flowData, Util.ENM_ParseType.API_DETAIL, "2344", flowStepId, apiId ) as Types.IApiDetail;
-      if(apiDetail) {
-
-          ret = apiDetail;
-      }
-
-      return ret;
-    }
-
-    private getRequest(requestId: string = ""): Types.IRequestItem[] {
-        var ret: Array<Types.IRequestItem> = [];
-        const flowData = this.getFlowData();
-
-        for(let flowStep of flowData.flowSteps) {
-            const requests = this.getRequests(flowStep.flowStepId);
-            ret = ret.concat(requests);
-        }
-
-        if(requestId != "") {
-            var bExist = false;
-            for(let request of ret) {
-                if(request.id == requestId) {
-                    ret = [request];
-                    bExist = true;
-                    break;
-                }
-            }
-            if(!bExist) ret = [];
-        }
-
-        return ret;
-    }
-
-    private getSelectableRequests(flowStepId: string = ""): Array<Types.IRequestItem | Types.IResponseItem> {
-        var ret: Array<Types.IRequestItem | Types.IResponseItem> = [];
-        const flowData = this.getFlowData();
-
-        var requests: Array<Types.IRequestItem> = [];
-        var responses: Array<Types.IResponseItem> = [];
-
-        for(let flowStep of flowData.flowSteps) {
-            if(flowStep.flowStepId === flowStepId)
-                requests = requests.concat( this.getRequests(flowStep.flowStepId) );
-            
-            if(flowStep.flowStepId !== flowStepId)
-                responses = responses.concat( this.getResponses(flowStep.flowStepId) );
-        }
-
-        ret = ret.concat(requests, responses);
-
-        return ret;
-    }    
-
-    private getRequests(flowStepId: string): Types.IRequestItem[] {
-      var ret: Array<Types.IRequestItem> = [];
-      
-      const flowData = this.getFlowData();
-      const flowStep = this.getFlowStep(flowStepId);
-      const requestItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_REQUESTS, "2344", flowStepId ) as Array<Types.IRequestItem>;
-      if(requestItems) {
-        for(let itm of requestItems) {
-            itm.path = "flowSteps.flowStepId."+flowStepId+".apiDetails.requestData.fieldId";
-            itm.type = Types.ItemType.REQUEST;
-            if(itm.id == undefined) itm.id = uuidv4();
-        }
-        ret = requestItems;
-      }
-
-      return ret;
-    }
-
-    private getResponses(flowStepId: string): Types.IResponseItem[] {
-      var ret: Array<Types.IResponseItem> = [];
-
-      const flowData = this.getFlowData();
-      const flowStep = this.getFlowStep(flowStepId);
-      
-      const responseItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RESPONSES, "2344", flowStepId ) as Array<Types.IResponseItem>;
-      if(responseItems) {
-        for(let itm of responseItems) {
-            itm.path = "flowSteps.flowStepId."+flowStepId+".apiDetails.outputData.fieldId";
-            itm.type = Types.ItemType.RESPONSE;
-            if(itm.id == undefined) itm.id = uuidv4();
-        }
-        ret = responseItems;
-      }
-      return ret;
-    }
-
-    private getResponse(flowStepId: string, responseId: string = ""): Types.IResponseItem | null {
-      var ret: Types.IResponseItem | null = null;
-
-      const flowData = this.getFlowData();
-      const flowStep = this.getFlowStep(flowStepId);
-      
-      const responseItems = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RESPONSES, "2344", flowStepId ) as Array<Types.IResponseItem>;
-
-    //   console.log("[LOG]response items",Array.isArray(responseItems));
-      
-      if(responseItems && Array.isArray(responseItems)) {
-        for(let itm of responseItems) {
-            if(itm.id == responseId) {
-                ret = itm;
-                itm.fieldSourceValuePath = "123";
-                break;
-            }
-        }
-      }
-      return ret;
-    }
-
-    private getRuleOutputs(flowStepId: string): Types.IOutputDataItem[] {
-      var ret: Array<Types.IOutputDataItem> = [];
-
-      const flowData = this.getFlowData();
-      const flowStep = this.getFlowStep(flowStepId);
-      
-      const ruleDetails = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RULE_DETAIS, "2344", flowStepId ) as Types.IRulesDetails;
-
-      if(ruleDetails) {
-        ret = ruleDetails.outputData;
-        for(let itm of ruleDetails.outputData) {
-            itm.path = "flowSteps.flowStepId."+flowStepId+".rulesDetails.outputData.fieldId";
-            itm.type = Types.ItemType.RULE_OUTPUT;
-            if(itm.id == undefined) itm.id = uuidv4();
-        }
-      }
-      return ret;
-    }
-
-    private getRuleInputs(flowStepId: string): Types.IInputDataItem[] {
-      var ret: Array<Types.IInputDataItem> = [];
-
-      const flowData = this.getFlowData();
-      const flowStep = this.getFlowStep(flowStepId);
-      
-      const ruleDetails = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RULE_DETAIS, "2344", flowStepId ) as Types.IRulesDetails;
-
-      if(ruleDetails) {
-        ret = ruleDetails.inputData;
-        for(let itm of ruleDetails.inputData) {
-            itm.path = "flowSteps.flowStepId."+flowStepId+".rulesDetails.inputData.fieldId";
-            itm.type = Types.ItemType.RULE_INPUT;
-            if(itm.id == undefined) itm.id = uuidv4();
-        }
-      }
-      return ret;
-    }
-
-    private getRuleDetails(flowStepId: string): Types.IRulesDetails | null {
-      var ret: Types.IRulesDetails | null = null;
-
-      const flowData = this.getFlowData();
-      
-      const ruleDetails = Util.parseFlowData(flowData, Util.ENM_ParseType.API_RULE_DETAIS, "2344", flowStepId ) as Types.IRulesDetails;
-
-      if(ruleDetails) {
-        ret = ruleDetails;
-      }
-      return ret;
-    }
-
-    private getAttribute(attrPath: string): any {
-        var ret = {};
-        
-        let keys = attrPath.split(WorkflowSettings.FLOW_PATH_DELIMITER);
-        if(keys.length == 0) return ret;
-
-        let attr = Util.getAttr(this.getFlowData(), keys);
-        if(attr) {
-            ret = attr[keys[keys.length-1]];
-        }
-        ret = attr;
-
-        return ret;
+        return this.workmap.get(nodeId);
     }
 }
 

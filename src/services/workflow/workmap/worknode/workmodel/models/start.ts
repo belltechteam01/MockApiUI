@@ -1,7 +1,7 @@
 import {CWork} from "./work"
-import * as Types from "../../types";
+import * as Types from "services/workflow/types";
 
-export class CWorkMerge extends CWork {
+export class CWorkStart extends CWork {
     inputs: number;
     outputs: number;
     type: Types.FlowCatagory;
@@ -9,14 +9,11 @@ export class CWorkMerge extends CWork {
     constructor(name: string)
     {
       super(name);
-      this.inputs = 2;
+      this.inputs = 0;
       this.outputs = 1;
-      this.type = Types.FlowCatagory.MERGE;
+      this.type = Types.FlowCatagory.START;
     }
-
     run() {
-    console.log("Merge running")
+      console.log("starting")
     }
 }
-
-  

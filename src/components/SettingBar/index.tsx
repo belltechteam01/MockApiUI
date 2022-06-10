@@ -1,16 +1,12 @@
 import * as MUI from '@mui/material';
 import React, { useEffect, useRef, useState, useCallback, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as Styled from '../../styled';
 
+import * as Styled from '../../styled';
 import * as ReactflowRenderer from 'react-flow-renderer';
 
 import styles from './styles.module.scss';
-
-import * as Types from '../../services/workflow/types';
 import { CWorkflow, Workflow } from 'services/workflow';
-import { CWorkNode as WorkNode } from 'services/workflow/workmap/worknode';
-import { CWork } from 'services/workflow/workmodel/models/work';
 import SettingPane from './pane';
 
 // import ApiSetting, { IApiSettingProps } from './ApiSetting';

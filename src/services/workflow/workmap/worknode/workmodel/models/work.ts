@@ -1,22 +1,10 @@
-import * as Types from "../../types";
-import {WorkflowSettings} from "../../settings";
 import { RefObject } from "react";
-import { CParam, CRequest, CResponse } from "../params";
 import {v4 as uuidv4} from "uuid"
 
-export interface IApi {
-    apiId: string;
-    apiName: string;
-    requestMap: Map<string, CRequest>;
-    responseMap: Map<string, CResponse>;
-    jsonData: string;
-}
-
-export interface IWork {
-    id: string;
-    name: string;
-    api: IApi;
-}
+import * as Param from "../params";
+import * as Type from "services/workflow/types";
+import { WorkflowSettings as Setting } from "services/workflow/settings";
+import {IApi, IWork} from "../index"
 
 export abstract class CWork implements IWork
 {
@@ -25,20 +13,21 @@ export abstract class CWork implements IWork
     public color: string;
     public xPos: number;
     public yPos: number;
-    public abstract type: Types.FlowCatagory;
+    public abstract type: Type.FlowCatagory;
     public abstract readonly inputs: number;
     public abstract readonly outputs: number;
     public labelRef: RefObject<HTMLDivElement>;
 
-    private apiDetail: Types.IApiDetail;
+    private apiDetail: Type.IApiDetail;
     public api: IApi;
 
     private isSelectedApi: boolean;
+    private _instance: CWork;
 
     constructor(name: string) {
         this.id = "undefined";
         this.name = name;
-        this.color = WorkflowSettings.NODE_COLOR_DEFAULT;
+        this.color = Setting.NODE_COLOR_DEFAULT;
         
         this.apiDetail = {
             id : this.id,
@@ -66,6 +55,7 @@ export abstract class CWork implements IWork
         }
 
         this.isSelectedApi = false;
+        this._instance = this;
     }
 
     setPosition(x: number, y: number) {
@@ -111,7 +101,7 @@ export abstract class CWork implements IWork
         return this.api.apiName;
     }
     
-    public setRequest(id: string, param: CRequest): boolean {
+    public setRequest(id: string, param: Param.CRequest): boolean {
         let isNew: boolean = false;
 
         const pre_size = this.api.requestMap.size;
@@ -121,7 +111,7 @@ export abstract class CWork implements IWork
         return this.api.requestMap.size > pre_size;
     }
 
-    public setResponse(id: string, param: CResponse): boolean {
+    public setResponse(id: string, param: Param.CResponse): boolean {
         let isNew: boolean = false;
 
         const pre_size = this.api.responseMap.size;

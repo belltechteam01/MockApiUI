@@ -7,18 +7,15 @@ import BasicModal from '../../Based/BasicModal';
 import Button from '../../Based/Button';
 import styles from './styles.module.scss';
 import { CWorkflow } from 'services/workflow';
-import { CWork, IApi } from 'services/workflow/workmodel/models/work';
+import * as WorkModel from 'services/workflow/workmap/worknode/workmodel';
 import * as Types from 'services/workflow/types';
 import { EVENT_CODE } from 'services/workflow/events';
 
 import { ModalType } from '../../Modals';
 import * as RequestModal from 'components/Modals/RequestModal';
 import * as ResponseModal from 'components/Modals/ResponseModal';
-import * as StatusCodeModal from 'components/Modals/StatusCodeModal';
 import * as TestDataModal from 'components/Modals/TestDataModal';
-import { CParam } from 'services/workflow/workmodel/params';
-import { ParamSrcType } from 'services/workflow/workmodel/params/param';
-import { MenuItemUnstyled } from '@mui/base';
+
 
 export interface ISettingPaneProps extends ISettingPaneEvent {
   nodeId: string;
@@ -50,7 +47,7 @@ export const setStateMany = (fn: Function, d: Object) => {
 };
 
 //functions
-const getApiNameEditor = (apiName: string, workData: CWork | undefined, t: Function): ReactNode => {
+const getApiNameEditor = (apiName: string, workData: WorkModel.CWork | undefined, t: Function): ReactNode => {
   const node = useRef<HTMLInputElement>(null);
   let ret: ReactNode = (
     <div className={styles.inputTextWrapper}>
@@ -127,7 +124,7 @@ const getApiSelector = (
 };
 
 const getReqeuestList = (
-  work: CWork | undefined,
+  work: WorkModel.CWork | undefined,
   localState:ILocalState,
   setLocalState: Function,
   t: Function
@@ -180,16 +177,16 @@ const getReqeuestList = (
                   <TableCell classes={{ root: styles.inputCell }}>
                     <span className={styles.smallText}>
                       {
-                        (item.srcType == ParamSrcType.API) && 
+                        (item.srcType == WorkModel.ParamSrcType.API) && 
                         t('workflow.setting.form.parameterTypes.API')
                         
                       }
                       {
-                        (item.srcType == ParamSrcType.INPUTDATA) && 
+                        (item.srcType == WorkModel.ParamSrcType.INPUTDATA) && 
                         t('workflow.setting.form.parameterTypes.INPUTDATA')
                       }
                       {
-                        (item.srcType == ParamSrcType.RULE) && 
+                        (item.srcType == WorkModel.ParamSrcType.RULE) && 
                         t('workflow.setting.form.parameterTypes.RULE')
                       }
                     </span>
@@ -212,7 +209,7 @@ const onResponseDelete = (id: string) => {
 }
 
 const getResponseList = (
-  work: CWork | undefined,
+  work: WorkModel.CWork | undefined,
   localState:ILocalState,
   setLocalState: Function,
   t: Function
@@ -339,13 +336,13 @@ const SettingPane = (props: ISettingPaneProps) => {
   
   //props
   const workflow = CWorkflow.getInstance();
-  const workNode = workflow.worklist.get(nodeId);
+  const workNode = workflow.workmap.get(nodeId);
   const apiList = workflow.getApiList();
 
   //states
 
-  const [api, setApi] = React.useState<IApi>();
-  const [workData, setWorkData] = React.useState<CWork | undefined>(workNode?.getInstance());
+  const [api, setApi] = React.useState<WorkModel.IApi>();
+  const [workData, setWorkData] = React.useState<WorkModel.CWork | undefined>(workNode?.getInstance());
 
   const [localState, setLocalState] = React.useState<ILocalState>({
     showModal: false,

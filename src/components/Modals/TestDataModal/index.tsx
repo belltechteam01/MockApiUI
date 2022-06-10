@@ -31,7 +31,7 @@ export const Modal = (props: IModalProps) => {
     ...data
   });
 
-  const [nodeList, setNodeList] = React.useState(workflow.worklist);
+  const [nodeList, setNodeList] = React.useState(workflow.workmap);
  
   //states
   const { t } = useTranslation();

@@ -30,7 +30,7 @@ export const Modal = (props: IModalProps) => {
     ...data
   });
 
-  const [nodeList, setNodeList] = React.useState(workflow.worklist);
+  const [nodeList, setNodeList] = React.useState(workflow.workmap);
   console.log("[LOG] response edit modal", workflow);
   console.log("[LOG] response edit modal", localState);
   console.log("[LOG] response edit modal", nodeList);

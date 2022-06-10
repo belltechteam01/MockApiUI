@@ -20,7 +20,7 @@ import * as NodeUITypes from "../../types";
 import * as Types from "services/workflow/types";
 
 import {CWorkNode as WorkNode} from "services/workflow/workmap/worknode";
-import { CWork } from "services/workflow/workmodel/models/work";
+import { CWork } from "services/workflow/workmap/worknode/workmodel";
 import {WorkflowSettings} from "services/workflow/settings";
 
 

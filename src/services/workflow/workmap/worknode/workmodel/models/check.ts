@@ -1,5 +1,5 @@
 import {CWork} from "./work"
-import * as Types from "../../types";
+import * as Types from "services/workflow/types";
 
 export class CWorkCheck extends CWork {
   inputs: number;

@@ -2,7 +2,7 @@ import * as Types from "../../types";
 import {WorkflowSettings} from "../../settings";
 import { v4 as uuidv4 } from 'uuid';
 import { CWorkNode } from "services/workflow/workmap/worknode";
-import { CWork } from "services/workflow/workmodel/models/work";
+import { CWork } from "services/workflow/workmap/worknode/workmodel";
 
 export class CConnection implements Types.IEdge{
   

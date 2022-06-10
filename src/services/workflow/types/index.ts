@@ -1,7 +1,7 @@
 import { LargeNumberLike } from "crypto";
 import { CWorkMap } from "../workmap";
 import { CWorkNode } from "../workmap/worknode";
-import { CWork } from "../workmodel/models/work";
+import { CWork } from "../workmap/worknode/workmodel";
 
 export interface IEvent {
     event_code: number;
@@ -305,4 +305,3 @@ export interface IDataElement {
     attributeName: string;
     displaySequence: string;
 }
-

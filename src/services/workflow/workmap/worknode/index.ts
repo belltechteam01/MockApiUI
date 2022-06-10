@@ -1,11 +1,15 @@
-import * as Types from "../../types";
-import {WorkflowSettings} from "../../settings";
-import {Events, EVENT_CODE} from "../../events";
-import { CEdgeMap as EdgeMap} from "../../edgemap"
 import { v4 as uuidv4 } from 'uuid';
-import {WorkflowSevice} from "services/api";
-import { IWork } from "services/workflow/workmodel/models/work";
 import { EventEmitter } from "stream";
+
+import * as Types from "services/workflow/types";
+
+import {WorkflowSettings as Setting} from "services/workflow/settings";
+import {WorkflowSevice} from "services/api";
+
+import {Events, EVENT_CODE} from "../../events";
+
+import { CEdgeMap as EdgeMap} from "../../edgemap"
+import * as WorkModel from "./workmodel";
 
 export enum ENM_FLOWTYPE {
     I0_O1,
@@ -44,7 +48,7 @@ export enum ENM_EDIT_SUBSTATE {
   VALIDATE_FALIED,
 }
 
-export class CWorkNode<T extends IWork>{
+export class CWorkNode<T extends WorkModel.IWork>{
     id: string;
     value: T;
     flowType: ENM_FLOWTYPE;
@@ -306,3 +310,5 @@ export class CWorkNode<T extends IWork>{
       return ret;
     }
   }
+
+  

@@ -34,7 +34,7 @@ export const getNodeTypes = (workflow: CWorkflow): Object => {
 }
 
 const getNodeData = (id: string, workflow: CWorkflow):  IBaseNodeComponentProps | null => {
-    let nodeData = workflow.worklist.get(id);
+    let nodeData = workflow.workmap.get(id);
     if(nodeData) {
         // const workModel = nodeData.getInstance();
         const workModel = nodeData;
@@ -53,7 +53,7 @@ const getNodeData = (id: string, workflow: CWorkflow):  IBaseNodeComponentProps 
 }
 
 const getNodeCatagory = (id: string, workflow: CWorkflow): Types.FlowCatagory => {
-    let nodeData = workflow.worklist.get(id);
+    let nodeData = workflow.workmap.get(id);
     if(nodeData) {
         const workModel = nodeData.getInstance();
         return workModel.type;

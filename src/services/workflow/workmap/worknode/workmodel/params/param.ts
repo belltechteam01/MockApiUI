@@ -1,7 +1,7 @@
-import * as Types from "../../types";
-import {WorkflowSettings} from "../../settings";
 import { RefObject } from "react";
 import {v4 as uuidv4} from "uuid"
+
+import * as Types from "services/workflow/types";
 
 export enum ParamType {
     REQUEST,
@@ -50,7 +50,7 @@ export class CParam implements Types.IParam
             CParam.paramsMap = new Map();
     }
 
-    static getAll(): Map<string, CParam>
+    static getMap(): Map<string, CParam>
     {
         return CParam.paramsMap;
     }

@@ -9,7 +9,7 @@ import { CWorkflow } from 'services/workflow';
 import { IModalProps } from '../index';
 import {setStateMany} from "utils";
 import * as SettingBar from "../../SettingBar/pane";
-import { ParamSrcType } from 'services/workflow/workmodel/params/param';
+import { ParamSrcType } from 'services/workflow/workmap/worknode/workmodel';
 
 interface ILocalState extends SettingBar.ILocalState{
   valuePath: string;
@@ -40,7 +40,7 @@ export const Modal = (props: IModalProps) => {
     ...data
   });
 
-  const [nodeList, setNodeList] = React.useState(workflow.worklist);
+  const [nodeList, setNodeList] = React.useState(workflow.workmap);
   
   //states
   const { t } = useTranslation();

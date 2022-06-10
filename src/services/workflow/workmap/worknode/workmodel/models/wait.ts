@@ -1,7 +1,7 @@
 import {CWork} from "./work"
-import * as Types from "../../types";
+import * as Types from "services/workflow/types";
 
-export class CWorkCallRule extends CWork {
+export class CWorkWait extends CWork {
   inputs: number;
   outputs: number;
   type: Types.FlowCatagory;
@@ -11,10 +11,9 @@ export class CWorkCallRule extends CWork {
     super(name);
     this.inputs = 1;
     this.outputs = 1;
-    this.type = Types.FlowCatagory.RULE;
+    this.type = Types.FlowCatagory.DELAY;
   }
-
   run() {
-    console.log("CallRule running")
+    console.log("Wait running")
   }
 }

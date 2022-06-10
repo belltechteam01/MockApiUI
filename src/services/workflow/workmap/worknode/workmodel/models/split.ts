@@ -1,7 +1,7 @@
 import {CWork} from "./work"
-import * as Types from "../../types";
+import * as Types from "services/workflow/types";
 
-export class CWorkStop extends CWork {
+export class CWorkSplit extends CWork {
     inputs: number;
     outputs: number;
     type: Types.FlowCatagory;
@@ -10,10 +10,10 @@ export class CWorkStop extends CWork {
     {
       super(name);
       this.inputs = 1;
-      this.outputs = 0;
-      this.type = Types.FlowCatagory.STOP;
+      this.outputs = 2;
+      this.type = Types.FlowCatagory.SPLIT;
     }
     run() {
-      console.log("stopping")
+    console.log("Split running")
     }
 }
