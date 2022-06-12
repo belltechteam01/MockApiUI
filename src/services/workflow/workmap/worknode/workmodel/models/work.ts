@@ -49,8 +49,8 @@ export abstract class CWork implements IWork
         this.api = {
             apiId:"",
             apiName: "",
-            requestMap: new Map(),
-            responseMap: new Map(),
+            requests: [],
+            responses: [],
             jsonData: ""
         }
 
@@ -76,16 +76,7 @@ export abstract class CWork implements IWork
         }
     }
 
-    getRequests()
-    {
-        return this.api.requestMap;
-    }
-
-    getResponses()
-    {
-        return this.api.responseMap;
-    }
-
+    //getter
     getApiId()
     {
         return this.api.apiId;
@@ -100,24 +91,77 @@ export abstract class CWork implements IWork
     {
         return this.api.apiName;
     }
-    
-    public setRequest(id: string, param: Param.CRequest): boolean {
-        let isNew: boolean = false;
 
-        const pre_size = this.api.requestMap.size;
-
-        this.api.requestMap.set(id, param);
-
-        return this.api.requestMap.size > pre_size;
+    //request
+    static getParams()
+    {
+        return Param.CParam.getMap();78
     }
 
-    public setResponse(id: string, param: Param.CResponse): boolean {
-        let isNew: boolean = false;
+    clearParams()
+    {
+        this.api.requests = [];
+        this.api.responses = [];
+    }
 
-        const pre_size = this.api.responseMap.size;
+    clearRequests()
+    {
+        this.api.requests = [];
+    }
 
-        this.api.responseMap.set(id, param);
+    clearResponses()
+    {
+        this.api.responses = [];
+    }
 
-        return this.api.responseMap.size > pre_size;
+    getParam(id: string)
+    {
+        return Param.CParam.getParam(id);
+    }
+
+    //requests
+    addRequest(id: string, param: Param.CParam)
+    {
+        this.api.requests[id] = param;
+        return Param.CParam.setParam(id, param);
+    }
+
+    deleteRequst(id: string)
+    {
+        delete this.api.requests[id];
+        return Param.CParam.deleteParam(id);
+    }
+
+    getRequest(id: string)
+    {
+        return this.api.requests[id];
+    }
+
+    getRequests()
+    {
+        return this.api.requests;
+    }
+
+    //responses
+    addResponse(id: string, param: Param.CParam)
+    {
+        this.api.responses[id] = param;
+        return Param.CParam.setParam(id, param);
+    }
+
+    deleteResponse(id: string)
+    {
+        delete this.api.responses[id];
+        return Param.CParam.deleteParam(id);
+    }
+
+    getResponse(id: string)
+    {
+        return this.api.responses[id];
+    }
+
+    getResponses()
+    {
+        return this.api.responses;
     }
 }

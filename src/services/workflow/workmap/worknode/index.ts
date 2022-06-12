@@ -63,7 +63,7 @@ export class CWorkNode<T extends WorkModel.IWork>{
     private state: ENM_FLOW_STATE;
     subState: number;
 
-    events: Events;
+    private events: Events;
 
     constructor(val: T , type?: ENM_FLOWTYPE) {
 
@@ -90,6 +90,10 @@ export class CWorkNode<T extends WorkModel.IWork>{
       return this.value;
     }
 
+    public getEventInstance() {
+      return this.events;
+    }
+
     public getApiId(): string {
       return this.getInstance()?.api.apiId ?? "";
     }
@@ -106,6 +110,7 @@ export class CWorkNode<T extends WorkModel.IWork>{
       if(this.getInstance()) {
         console.log("[LOG] json data", jsonData);
         this.getInstance().api.jsonData = jsonData;
+        this.gotoState(ENM_FLOW_STATE.EDIT);
       }
     }
 
@@ -167,6 +172,19 @@ export class CWorkNode<T extends WorkModel.IWork>{
       return this.state === state;
     }
 
+    private isReadyToRun()
+    {
+      let bRet = true;
+      const work = this.getInstance();
+      
+      if(!work.api.apiId)  bRet = false;
+      if(Object.keys(work.api.requests).length == 0) bRet = false;
+      if(Object.keys(work.api.responses).length == 0) bRet = false;
+      if(work.api.jsonData == "") bRet = false;
+      
+      return bRet;
+    }
+
     public updateState(state: ENM_FLOW_STATE, subState: number=0) {
 
       var shouldBeRecursive = false;
@@ -174,21 +192,21 @@ export class CWorkNode<T extends WorkModel.IWork>{
       switch(this.state) {
         case ENM_FLOW_STATE.INITIALIZING: {
 
-          // console.log("[STATE] INITIALIZING - subState(" + subState + ")");
-
           if(state == ENM_FLOW_STATE.EDIT) {
             this.state = ENM_FLOW_STATE.EDIT;
             this.subState = ENM_EDIT_SUBSTATE.INIT_PARAM;
             shouldBeRecursive = true;
+            this.events.invokeEventHandler(EVENT_CODE.NODE_STATE_CHANGE, "gray");
           }          
         }
         break;
         case ENM_FLOW_STATE.EDIT: {
 
-          // console.log("[STATE] EDIT - subState(" + subState + ")");
           this.subState = this.updateEditState(subState);
           switch(this.subState) {
             case ENM_EDIT_SUBSTATE.EDITED: {
+
+              this.events.invokeEventHandler(EVENT_CODE.NODE_STATE_CHANGE, "yellow");
               
               //simple validate for the connection
               if(this.isValidConnection()) {
@@ -200,9 +218,10 @@ export class CWorkNode<T extends WorkModel.IWork>{
             }
             break;
             case ENM_EDIT_SUBSTATE.VALIDATE_FALIED: {
-              
+              this.events.invokeEventHandler(EVENT_CODE.NODE_STATE_CHANGE, "gray");
+            
               //emit event - invalid connection
-              this.events.invokeEventHandler(EVENT_CODE.NODE_CONNECTION_INVALID)
+              this.events.invokeEventHandler(EVENT_CODE.NODE_CONNECTION_INVALID);
 
               //update substate
               this.updateEditState(ENM_EDIT_SUBSTATE.EDITED);
@@ -215,6 +234,22 @@ export class CWorkNode<T extends WorkModel.IWork>{
 
           console.log("[STATE] VALIDATE - subState(" + subState + ")");
           this.subState = this.updateValidateState(subState);
+          this.events.invokeEventHandler(EVENT_CODE.NODE_STATE_CHANGE, "green");
+
+          if(state == ENM_FLOW_STATE.EDIT)
+          {
+            console.log("[LOG] gotoState => edit");
+            this.state = ENM_FLOW_STATE.EDIT;
+            this.subState = ENM_EDIT_SUBSTATE.EDITED;
+            shouldBeRecursive = true;
+          } else if (state == ENM_FLOW_STATE.RUN) {
+
+            if(this.isReadyToRun())
+              this.subState = ENM_VALIDATE_SUBSTATE.VALIDATED;
+            else
+              this.subState = ENM_VALIDATE_SUBSTATE.VALIDATION_FAILED;
+          }
+
           switch(this.subState) {
             case ENM_VALIDATE_SUBSTATE.VALIDATED: {
 
@@ -229,12 +264,14 @@ export class CWorkNode<T extends WorkModel.IWork>{
               //
               this.state = ENM_FLOW_STATE.EDIT;
               shouldBeRecursive = true;
+              this.events.invokeEventHandler(EVENT_CODE.NODE_STATE_CHANGE, "red");
             }
             break;
           }
         }
         break;
         case ENM_FLOW_STATE.RUN: {
+          this.events.invokeEventHandler(EVENT_CODE.NODE_STATE_CHANGE, "purple");
 
           console.log("[STATE] RUN - subState(" + subState + ")");
           this.subState = this.updateRunState(subState);
@@ -247,7 +284,7 @@ export class CWorkNode<T extends WorkModel.IWork>{
               //goto edit state
               this.state = ENM_FLOW_STATE.EDIT;
               this.subState = 0;
-
+              this.events.invokeEventHandler(EVENT_CODE.NODE_STATE_CHANGE, "green");
             } break;
             case ENM_RUN_SUBSTATE.TERMINATED_FAIL: {
 
@@ -257,12 +294,13 @@ export class CWorkNode<T extends WorkModel.IWork>{
               //goto edit state
               this.state = ENM_FLOW_STATE.EDIT;
               this.subState = 0;
+              this.events.invokeEventHandler(EVENT_CODE.NODE_STATE_CHANGE, "red");
             } break;
           }
         }
         break;
       }
-
+      
       return shouldBeRecursive;
     }
 

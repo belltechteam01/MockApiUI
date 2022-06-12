@@ -2,6 +2,7 @@ import { RefObject } from "react";
 import {v4 as uuidv4} from "uuid"
 
 import * as Types from "services/workflow/types";
+import { breakpoints } from "@mui/system";
 
 export enum ParamType {
     REQUEST,
@@ -24,12 +25,12 @@ export class CParam implements Types.IParam
     fieldSourceValue: string;
     fieldSourceId: string;
     fieldSourceValuePath: string;
-    nodeId: string;
+    // nodeId: string;
     private static paramsMap: Map<string, CParam>;
 
     constructor(
         fieldName: string, 
-        displaySeq: string, 
+        displaySeq: string="0", 
         fieldId: string="", 
         fieldSrcType: string = "", 
         fieldSrcId: string = "",
@@ -55,15 +56,26 @@ export class CParam implements Types.IParam
         return CParam.paramsMap;
     }
 
-    static getParam(id: string): CParam | undefined
+    static getParam(id: string): CParam
     {
-        return CParam.paramsMap.get(id);
+        return CParam.paramsMap.get(id) ?? new CParam("","");
     }
 
     static setParam(id: string, param: CParam): CParam | undefined
     {
         CParam.paramsMap.set(id, param);
         return CParam.getParam(id);
+    }
+
+    static deleteParam(id: string): boolean
+    {
+        let bRet = false;
+        var param = CParam.paramsMap.get(id);
+        if(param) {
+            param = undefined;
+            bRet = CParam.paramsMap.delete(id);
+        }
+        return bRet;
     }
 
     getParamData() : Types.IParam
@@ -80,9 +92,9 @@ export class CParam implements Types.IParam
         }
     }
 
-    setNodeId(nodeId: string) {
-        this.nodeId = nodeId;
-    }
+    // setNodeId(nodeId: string) {
+    //     this.nodeId = nodeId;
+    // }
 
     getType(): ParamSrcType {
         let ret = ParamSrcType.API;
@@ -112,6 +124,11 @@ export class CParam implements Types.IParam
     {
         return this.fieldSourceValuePath;
     }
+
+    getFieldName()
+    {
+        return this.fieldName;
+    }
     
     getFieldSourceId()
     {
@@ -129,15 +146,7 @@ export class CParam implements Types.IParam
 
     setSrcValuePath(valuePath: string): string[] {
 
-        const path = valuePath;
-
-        if(path && path.length > 0) {
-            let aryValuePath = path.split(".");
-            if(this.verifyPath(aryValuePath)) {
-                this.fieldSourceValuePath = aryValuePath.join(".");
-            }
-        }
-
+        this.fieldSourceValuePath = valuePath;
         return this.getSrcValuePath();
     }
 

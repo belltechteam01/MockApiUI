@@ -10,8 +10,10 @@ import { IModalProps } from '../index';
 import {setStateMany} from "utils";
 import * as SettingBar from "../../SettingBar/pane";
 import { height } from '@mui/system';
+import { CParam, CWork, CResponse } from 'services/workflow/workmap/worknode/workmodel';
 
 interface ILocalState extends SettingBar.ILocalState{
+  fieldName: string;
   valuePath: string;
 }
 
@@ -24,9 +26,11 @@ export const Modal = (props: IModalProps) => {
   } = props;
 
   //props
+  
   const workflow = CWorkflow.getInstance();
   const [localState, setLocalState] = React.useState<ILocalState>({
-    valuePath: workflow.getParam(data.selectedResponseId)?.getFieldSourceValuePath(),
+    valuePath: CParam.getParam(data.selectedResponseId)?.getFieldSourceValuePath(),
+    fieldName: CParam.getParam(data.selectedResponseId)?.getFieldName(),
     ...data
   });
 
@@ -50,18 +54,29 @@ export const Modal = (props: IModalProps) => {
 
     if(localState.selectedApiId) {
       setStateMany(setLocalState, {
-        selectedSrcId: workflow.getParam(localState.selectedResponseId)?.fieldSourceId,
-        valuePath: workflow.getParam(localState.selectedResponseId)?.getFieldSourceValuePath()
+        selectedSrcId: CParam.getParam(localState.selectedResponseId ?? "")?.fieldSourceId,
+        valuePath: CParam.getParam(localState.selectedResponseId ?? "")?.getFieldSourceValuePath()
       })
     }
   },[localState.selectedResponseId])
 
   //functions
   const onOk = () => {
-    
-    workflow.getParam(localState.selectedResponseId)?.setSrcValuePath(localState.valuePath);
-    
-    setStateMany( setLocalState, {showModal: false});
+    if(!localState.isModalEdit) {
+      const work = CWorkflow.getInstance().getNode(localState.nodeId)?.getInstance();
+      const param = 
+          new CResponse(
+              localState.fieldName, 
+              "0", 
+          );
+      param.setSrcValuePath(localState.valuePath);
+      work?.addResponse(param.id, param);
+
+    } else {
+
+      CParam.getParam(localState.selectedResponseId ?? "")?.setSrcValuePath(localState.valuePath);
+    }
+    setStateMany( setLocalState, {showModal: false});    
   };
 
   const onValuePathChange = (value: string) => {
@@ -69,6 +84,12 @@ export const Modal = (props: IModalProps) => {
       valuePath: value
     })
   };
+
+  const onFieldNameChange = (value: string) => {
+    setStateMany(setLocalState, {
+      fieldName: value
+    })
+  }
 
   //useEffect
   useEffect(() => {
@@ -96,7 +117,7 @@ export const Modal = (props: IModalProps) => {
                   InputProps={{ classes: { input: styles.textWrapper } }}
                   id="outlined-size-normal"
                   defaultValue={""}
-                  onChange={e => onValuePathChange(e.target.value) }
+                  onChange={e => onFieldNameChange(e.target.value) }
                 />
             </MUI.FormControl>
           </FormControlContainer>

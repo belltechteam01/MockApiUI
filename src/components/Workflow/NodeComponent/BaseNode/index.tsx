@@ -22,6 +22,8 @@ import * as Types from "services/workflow/types";
 import {CWorkNode as WorkNode} from "services/workflow/workmap/worknode";
 import { CWork } from "services/workflow/workmap/worknode/workmodel";
 import {WorkflowSettings} from "services/workflow/settings";
+import { Events, EVENT_CODE } from "services/workflow/events";
+import { Button } from "@mui/material";
 
 
 //interfaces
@@ -348,14 +350,32 @@ const getNodeTargets = (workNode: WorkNode<CWork>): ReactNode => {
     return ret;
 }
 
+const getStateColor = (state) => {
+    return state;
+}
+
 const getNodeName = (workNode: WorkNode<CWork>): ReactNode => {
     const name = workNode.getInstance().name;
+
     const nodeRef = useRef<HTMLDivElement>(null);
+    const stateRef = useRef<any>(null);
+
+    const event = workNode.getEventInstance();
+    const setNodeStateChange = (param: Types.IEvent) => {
+        stateRef.current.style.backgroundColor  = param.data;
+    }
+
+    event.addEventListener(EVENT_CODE.NODE_STATE_CHANGE, setNodeStateChange);
+
     let ret = <>
         <div className={styles.label}>
             <div ref={nodeRef}>
                 {name}
             </div>
+            <div 
+                ref={stateRef}
+                className={styles.indicator}
+            />
         </div>
     </>
     workNode.getInstance().labelRef = nodeRef;

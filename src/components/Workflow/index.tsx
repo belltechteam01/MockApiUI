@@ -73,13 +73,13 @@ const Workflow = (props: any) => {
       
       const posInstance = reactFlowInstance.project(posDropped);
 
-      // console.log("[LOG] workflow state", workflow);
-      //[LOGIC] place node
       if(workflow) {
-        const worknode = workflow.createNode(droppedNode.type);
-        worknode.setPosition(posDropped.x, posDropped.y);
-
-        setNodes((nodes) => nodes.concat(getReactNodeProps(worknode.id, posInstance, workflow)));
+        const workNode = workflow.createNode(droppedNode.type);
+        const work = workNode?.getInstance();
+        if(work) {
+          work.setPosition(posDropped.x, posDropped.y);
+          setNodes((nodes) => nodes.concat(getReactNodeProps(work.id, posInstance, workflow)));
+        }
       }
     },
     [reactFlowInstance]
@@ -96,6 +96,7 @@ const Workflow = (props: any) => {
       const workNode = workflow.workmap.get(node.id);
 
       if( workflow.isState(STATE_WORKFLOW.EDIT) && workNode) {
+        workNode?.gotoState(ENM_FLOW_STATE.EDIT);
         setShowPropertyInspector(true);
         setSelectedNode(node.id);
       } else {
@@ -141,6 +142,7 @@ const Workflow = (props: any) => {
 
   const onSave = () => {
     setShowPropertyInspector(false);
+    CWorkflow.getInstance().getNode(selectedNode)?.gotoState(ENM_FLOW_STATE.EDIT, ENM_EDIT_SUBSTATE.EDITED);
   };
 
   const handleToolbar = () => {
@@ -149,7 +151,7 @@ const Workflow = (props: any) => {
 
   const onFileOpen = () => {
     // workflow.getFlowData();
-    // workflow.getApiListData("1", true);
+    workflow.getApiListData("1", true);
   }
 
   const onRun = () => {

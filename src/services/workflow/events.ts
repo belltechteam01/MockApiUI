@@ -13,38 +13,33 @@ export enum EVENT_CODE {
     NODE_VALIDATION_FAIL,
     NODE_CONNECTION_INVALID,
     NODE_SETTING_GET_APILIST,
+    NODE_STATE_CHANGE
 }
 
 type CallbackFunc = (param: Types.IEvent) => void;
 
 export interface IListener {
-    event_code: number;
+    event_code: EVENT_CODE;
     callback: CallbackFunc;
 }
 
 export class Events
 {
-    private static _instance: Events;
     eventListeners: Map<number, CallbackFunc>;
     
     constructor()
     {
         this.eventListeners = new Map();
-        Events._instance = this;
     }
 
-    public static getInstance() {
-        return Events._instance;
-    }
-
-    public addEventListener(event_code: number, callback: CallbackFunc): boolean {
+    public addEventListener(event_code: EVENT_CODE, callback: CallbackFunc): boolean {
         let bRet = true;
   
         this.eventListeners.set(event_code, callback);
         return bRet;
     }
 
-    public removeEventListener(event_code: number) {
+    public removeEventListener(event_code: EVENT_CODE) {
 
         let bRet = true;
 
@@ -52,19 +47,21 @@ export class Events
         return bRet;
     }
   
-    protected getCallback(event_code: number): CallbackFunc | null {
+    protected getCallback(event_code: EVENT_CODE): CallbackFunc | null {
 
         return this.eventListeners.get(event_code) ?? null;
     }
 
-    public invokeEventHandler(event_code: number): void {
+    public invokeEventHandler(event_code: EVENT_CODE, data: any = undefined): void {
     
         const callback = this.getCallback(event_code);
+        console.log("[LOG] callback list", this.eventListeners);
+        console.log("[LOG] invoke callback", callback);
         if(callback) {
             let params: Types.IEvent = {
                 event_code: event_code, 
                 message: Events.getDescription(event_code),
-                data: this.getInvokeResult(event_code)
+                data: data ?? this.getInvokeResult(event_code)
             };
 
             callback(params);
@@ -90,6 +87,9 @@ export class Events
         switch(error_code) {
             case EVENT_CODE.WORKFLOW_RUN_SUCCESS: 
                 ret = this.runWorkflow();
+            break;
+            case EVENT_CODE.NODE_STATE_CHANGE: 
+                ret = "red";
             break;
         }
         return ret;

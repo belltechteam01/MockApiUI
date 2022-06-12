@@ -14,8 +14,8 @@ import { ParamSrcType} from './params'
 export interface IApi {
     apiId: string;
     apiName: string;
-    requestMap: Map<string, CRequest>;
-    responseMap: Map<string, CResponse>;
+    requests: Object;     //array id
+    responses: Object;    //array id
     jsonData: string;
 }
 

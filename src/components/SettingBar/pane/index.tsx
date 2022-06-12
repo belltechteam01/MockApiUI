@@ -37,6 +37,7 @@ export interface ILocalState {
   isModalEdit: boolean;
   selectedRequestId?: string;
   selectedResponseId?: string;
+  refresh: boolean;
 }
 
 export const setStateMany = (fn: Function, d: Object) => {
@@ -47,6 +48,13 @@ export const setStateMany = (fn: Function, d: Object) => {
 };
 
 //functions
+
+const updateUI = (localState: ILocalState, setLocalState: Function) =>
+{
+  console.log("[LOG] localState", localState);
+  setStateMany(setLocalState, {refresh: !localState.refresh});
+}
+
 const getApiNameEditor = (apiName: string, workData: WorkModel.CWork | undefined, t: Function): ReactNode => {
   const node = useRef<HTMLInputElement>(null);
   let ret: ReactNode = (
@@ -123,6 +131,13 @@ const getApiSelector = (
   return ret;
 };
 
+interface ITableRowData {
+  key: string;
+  fieldName: string;
+  srcType: WorkModel.ParamSrcType;
+  srcPath: string;
+}
+
 const getReqeuestList = (
   work: WorkModel.CWork | undefined,
   localState:ILocalState,
@@ -133,22 +148,26 @@ const getReqeuestList = (
   var ret: ReactNode;
 
   let requests_ui: any;
-  const requests = work?.getRequests();
-  
-  if(requests) {
-    const requests_value = [...requests.values()];
-    requests_ui = requests_value.map((param) => {
-      return {
-        key: param.id, 
-        fieldName: param.fieldName, 
-        srcType: param.getValueType(),
-        srcPath: param.getFieldSourceValuePath()
-      };
-    });
-  }else
-    requests_ui = [];
 
-  // console.log("[LOG] getRequestsList", request.fieldSourceType);
+  const [items, setItems] = React.useState<ITableRowData[]>([]);
+
+  useEffect(() => {
+    const requests = work?.getRequests();
+    if(requests) {
+      const requests_value = [...Object.values(requests)];
+      requests_ui = requests_value.map((param) => {
+        return {
+          key: param.id, 
+          fieldName: param.fieldName, 
+          srcType: param.getValueType(),
+          srcPath: param.getFieldSourceValuePath()
+        };
+      });
+    }else
+      requests_ui = [];
+    setItems(requests_ui);
+  },[localState])
+
   const d = { showModal: true, modalType: ModalType.Request, isModalEdit: false };
   ret = (
     <div className={styles.requestWrapper}>
@@ -163,7 +182,7 @@ const getReqeuestList = (
               </TableRow>
             </TableHead>
             <TableBody>
-              {requests_ui.map((item) => (
+              {items.map((item) => (
                 <TableRow
                   key={item.key}
                   onDoubleClick={() => setStateMany(setLocalState, { ...d, selectedRequestId: item.key, isModalEdit: true })}
@@ -203,11 +222,6 @@ const getReqeuestList = (
   return ret;
 };
 
-const onResponseDelete = (id: string) => {
-  console.log("[LOG] item click", id);
-
-}
-
 const getResponseList = (
   work: WorkModel.CWork | undefined,
   localState:ILocalState,
@@ -217,21 +231,31 @@ const getResponseList = (
 {
   var ret: ReactNode;
 
+  const onResponseDelete = (id: string) => {
+    work?.deleteResponse(id);
+    updateUI(localState, setLocalState);
+  }
+
   let responses_ui: any;
-  const responses = work?.getResponses();
-  
-  if(responses) {
-    const responses_value = [...responses.values()];
-    responses_ui = responses_value.map((param) => {
-      return {
-        key: param.id, 
-        fieldName: param.fieldName, 
-        srcType: param.getValueType(),
-        srcPath: param.getFieldSourceValuePath()
-      };
-    });
-  }else
-    responses_ui = [];
+  const [items, setItems] = React.useState<ITableRowData[]>([]);
+
+  useEffect(() => {
+    const responses = work?.getResponses();
+    if(responses) {
+      const responses_value = [...Object.values(responses)];
+      responses_ui = responses_value.map((param) => {
+        return {
+          key: param.id, 
+          fieldName: param.fieldName, 
+          srcType: param.getValueType(),
+          srcPath: param.getFieldSourceValuePath()
+        };
+      });
+    }else
+      responses_ui = [];
+    setItems(responses_ui);
+    console.log("[LOG] useEffect of responses", responses_ui);
+  },[localState])
 
   const d = { showModal: true, modalType: ModalType.Response, isModalEdit: false};
   // setStateMany(setLocalState, d);
@@ -248,7 +272,7 @@ const getResponseList = (
               </TableRow>
             </TableHead>
             <TableBody>
-              {responses_ui.map((item) => (
+              {items.map((item) => (
                 <TableRow
                   key={item.key}
                   onDoubleClick={() => setStateMany(setLocalState, {...d, selectedResponseId: item.key, isModalEdit: true })}
@@ -349,7 +373,8 @@ const SettingPane = (props: ISettingPaneProps) => {
     modalType: ModalType.Request,
     selectedApiId: workData?.getApiId() ?? "",
     nodeId: nodeId,
-    isModalEdit: false
+    isModalEdit: false,
+    refresh: false
   });
   
   const onModalClose = () => {
@@ -370,7 +395,6 @@ const SettingPane = (props: ISettingPaneProps) => {
 
   const onSelect = (apiId: string) => {
     workflow?.selectApi(apiId, nodeId);
-    // console.log("[LOG] setting props apiList - id: " + apiId, workNode?.getInstance());
     setWorkData(workNode?.getInstance());
     setStateMany(setLocalState, {selectedApiId: apiId});
   }

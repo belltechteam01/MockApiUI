@@ -9,7 +9,7 @@ import { CWorkflow } from 'services/workflow';
 import { IModalProps } from '../index';
 import {setStateMany} from "utils";
 import * as SettingBar from "../../SettingBar/pane";
-import { ParamSrcType } from 'services/workflow/workmap/worknode/workmodel';
+import { CParam, ParamSrcType } from 'services/workflow/workmap/worknode/workmodel';
 
 interface ILocalState extends SettingBar.ILocalState{
   valuePath: string;
@@ -35,8 +35,8 @@ export const Modal = (props: IModalProps) => {
   //props
   const workflow = CWorkflow.getInstance();
   const [localState, setLocalState] = React.useState<ILocalState>({
-    selectedSrcId: workflow.getParam(data.selectedRequestId)?.fieldSourceId,
-    valuePath: workflow.getParam(data.selectedRequestId)?.getFieldSourceValuePath(),
+    selectedSrcId: CParam.getParam(data.selectedRequestId)?.fieldSourceId,
+    valuePath: CParam.getParam(data.selectedRequestId)?.getFieldSourceValuePath(),
     ...data
   });
 
@@ -75,19 +75,19 @@ export const Modal = (props: IModalProps) => {
 
     if(localState.selectedApiId) {
       setStateMany(setLocalState, {
-        selectedSrcId: workflow.getParam(localState.selectedRequestId)?.fieldSourceId,
-        valuePath: workflow.getParam(localState.selectedRequestId)?.getFieldSourceValuePath()
+        selectedSrcId: CParam.getParam(localState.selectedRequestId ?? "")?.fieldSourceId,
+        valuePath: CParam.getParam(localState.selectedRequestId ?? "")?.getFieldSourceValuePath()
       })
     }
   },[localState.selectedRequestId])
 
   //functions
   const onOk = () => {
-    const param = workflow.getParam(localState.selectedRequestId);
+    const param = CParam.getParam(localState.selectedRequestId ?? "");
 
     if(param) {
       param.setSrcValuePath(localState.valuePath);
-      param.setFieldSourceId(selectedOption?.value);
+      // param.setFieldSourceId(selectedOption?.value);
 
       param.setFieldSrcType(
         (localState.nodeId == selectedOption?.value) ? 

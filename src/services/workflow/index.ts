@@ -107,6 +107,7 @@ export class CWorkflow extends EventEmitter {
     //@ event listener
     private onApiCallProc(code: EvtCode) {
 
+        console.log("[LOG] apicall event", code);
         switch(code) {
             case EvtCode.EVT_RECEIVE_RESPONSE_APILIST:
                 if(this.state == STATE_WORKFLOW.INIT) {
@@ -160,7 +161,7 @@ export class CWorkflow extends EventEmitter {
     }
 
     //logic controller functions
-    createNode(type: Type.FlowCatagory): WorkModel.CWork {
+    createNode(type: Type.FlowCatagory) {
 
         let newWork: WorkModel.CWork | null = null;
         switch(type) {
@@ -201,7 +202,7 @@ export class CWorkflow extends EventEmitter {
         const workNode = this.workmap.get(newWork.id);
         workNode?.gotoState(ENM_FLOW_STATE.INITIALIZING);
 
-        return newWork;
+        return workNode;
     }
 
 //     public getFlowData(): Type.IFlow {
@@ -222,7 +223,7 @@ export class CWorkflow extends EventEmitter {
 // //         return this.flowData;
 //     }
 
-    private getApiListData(companyId: string, isUpdate: boolean = false): Type.IApiList {
+    public getApiListData(companyId: string, isUpdate: boolean = false): Type.IApiList {
 
         if(isUpdate) {
             WorkflowSevice.getAll(companyId).then((r: any) => {
@@ -269,8 +270,9 @@ export class CWorkflow extends EventEmitter {
             case STATE_WORKFLOW.INIT:
                 
                 if(state == STATE_WORKFLOW.EDIT) {
-                    if(this.subState & SUBSTATE_INIT.READY_APILIST && 
-                        this.subState & SUBSTATE_INIT.READY_FLOWDATA)
+                    if(this.subState & SUBSTATE_INIT.READY_APILIST 
+                        // && this.subState & SUBSTATE_INIT.READY_FLOWDATA
+                        )
                         this.state = STATE_WORKFLOW.EDIT;
                 }
 
@@ -293,56 +295,55 @@ export class CWorkflow extends EventEmitter {
         return this.getApiList().get(apiId);
     }
 
+    public getNode(nodeId: string) {
+        return this.workmap.get(nodeId);
+    }
+
     public selectApi(apiId: string, nodeId: string): boolean {
         
         let bRet = false;
         
         const apiDetail = this.getApi(apiId);
-        const workNode = this.workmap.get(nodeId)?.value;
+        const workNode = this.workmap.get(nodeId);
+        const work = workNode?.value;
 
-        if(apiDetail && workNode && workNode.api) {
+        if(apiDetail && work && work.api) {
             
-            workNode.api.apiId = apiId;
-            workNode.api.apiName = apiDetail.apiName;
+            work.api.apiId = apiId;
+            work.api.apiName = apiDetail.apiName;
+            
+            //clear params
+            work.clearParams();
 
+            //register params
             const dataElements = apiDetail.dataElementList;
-            // console.log("[LOG] select api", dataElements);
             for(let dataElement of dataElements) {
                 
-                const param = new WorkModel.CRequest(dataElement.attributeName, dataElement.displaySequence, "", ParamSrcType[ParamSrcType.INPUTDATA]);
-                param.setNodeId(nodeId);
-
-                WorkModel.CParam.setParam( param.id, param);
-                workNode.setRequest(dataElement.attributeName, param);
+                const param = 
+                    new WorkModel.CRequest(
+                        dataElement.attributeName, 
+                        dataElement.displaySequence, 
+                        "", 
+                        ParamSrcType[ParamSrcType.INPUTDATA]
+                    );
+                work.addRequest(param.id, param);
             }
 
-            const responseElements = apiDetail.dataElementList;
-            // console.log("[LOG] select api", dataElements);
-            for(let dataElement of responseElements) {
+            // const responseElements = apiDetail.dataElementList;
+            // for(let dataElement of responseElements) {
                 
-                const param = new WorkModel.CResponse(dataElement.attributeName, dataElement.displaySequence, "");
-                param.setNodeId(nodeId);
-
-                WorkModel.CParam.setParam( param.id, param);
-                workNode.setResponse(dataElement.attributeName, param);
-            }
-
+            //     const param = 
+            //         new WorkModel.CResponse(
+            //             dataElement.attributeName, 
+            //             dataElement.displaySequence, 
+            //             ""
+            //         );
+            //     workNode.addResponse(param.id, param);
+            // }
+            workNode.gotoState(ENM_FLOW_STATE.EDIT);
             bRet = true;
         }
         return bRet;
-    }
-
-    public getParams(): Map<string, WorkModel.CParam> {
-        return WorkModel.CParam.getMap();
-    }
-
-    public getParam(id: string | undefined): WorkModel.CParam | undefined {
-        if(!id) return undefined;
-        return WorkModel.CParam.getParam(id);
-    }
-
-    public getNode(nodeId: string) {
-        return this.workmap.get(nodeId);
     }
 }
 
